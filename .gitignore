@@ -39,3 +39,25 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Python / backend
+.venv/
+__pycache__/
+*.pyc
+.cache/
+.pytest_cache/
+datos/
+salida/
+ejemplos/
+archivos_prueba/
+kb/*.bak
+.streamlit/secrets.toml
+
+# Documentos reales: no versionar PDF, ZIP ni fotos
+*.pdf
+*.zip
+*.jpeg
+*.jpg
+*.png
+!docs/*.png
+!frontend/**/*.png

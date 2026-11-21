@@ -29,6 +29,26 @@ export interface RequestOptions<TSchema extends z.ZodType> {
 
 const DEFAULT_TIMEOUT_MS = 30_000;
 
+function mensajeDetalle(payload: unknown): string | null {
+  if (typeof payload !== "object" || payload === null || !("detail" in payload)) {
+    return null;
+  }
+  const detail = payload.detail;
+  if (typeof detail === "string" && detail.trim()) return detail;
+  if (Array.isArray(detail)) {
+    const partes = detail.map((item) => {
+      if (typeof item === "string") return item;
+      if (typeof item === "object" && item !== null && "msg" in item) {
+        return String(item.msg);
+      }
+      return "";
+    });
+    const texto = partes.filter(Boolean).join(" ");
+    return texto || null;
+  }
+  return null;
+}
+
 export async function apiRequest<TSchema extends z.ZodType>(
   path: string,
   options: RequestOptions<TSchema>,
@@ -76,12 +96,8 @@ export async function apiRequest<TSchema extends z.ZodType>(
 
     if (!response.ok) {
       const errorMessage =
-        typeof payload === "object" &&
-        payload !== null &&
-        "detail" in payload &&
-        typeof payload.detail === "string"
-          ? payload.detail
-          : `Error HTTP ${response.status} al consultar ${normalizedPath}`;
+        mensajeDetalle(payload) ??
+        `Error HTTP ${response.status} al consultar ${normalizedPath}`;
 
       throw new ApiClientError(errorMessage, {
         status: response.status,

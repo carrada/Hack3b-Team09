@@ -13,58 +13,58 @@ import {
 const REQUIRED_DOCUMENTS = [
   {
     name: "Escrituras",
-    tag: "Documento 01",
+    tag: "Especialista 02",
     fields: [
-      "Identificación del propietario o titular",
-      "Dirección e identificación del inmueble",
+      "Propietario o titular actual",
+      "Dirección del inmueble",
       "Superficie del terreno",
-      "Datos relevantes del inmueble",
-      "Información que lo relaciona con el resto del expediente",
+      "Número de escritura e instrumento",
+      "Notaría y notario",
+      "Fecha de otorgamiento",
     ],
   },
   {
     name: "Predial",
-    tag: "Documento 02",
+    tag: "Especialista 03",
     fields: [
       "Propietario o contribuyente",
-      "Dirección del inmueble",
-      "Cuenta o clave predial",
-      "Superficie registrada",
-      "Información que lo relaciona con los demás documentos",
+      "Dirección del predio",
+      "Clave catastral o cuenta predial",
+      "Periodo o ejercicio pagado",
+      "Superficie de terreno, si aparece",
     ],
   },
   {
     name: "Alineamiento y Número Oficial",
-    tag: "Documento 03",
+    tag: "Especialista 04",
     fields: [
       "Dirección oficial del inmueble",
       "Número oficial asignado",
-      "Identificación del predio",
-      "Alineamiento determinado por la autoridad",
-      "Fecha de emisión, vigencia y autoridad emisora",
+      "Alineamiento determinado",
+      "Fecha de expedición y vigencia",
+      "Autoridad emisora",
     ],
   },
   {
     name: "Uso de Suelo",
-    tag: "Documento 04",
+    tag: "Especialista 05",
     fields: [
-      "Dirección e identificación del inmueble",
-      "Uso de suelo autorizado y compatibilidad comercial",
+      "Dirección del inmueble",
+      "Uso de suelo o giro autorizado",
       "Restricciones o condicionantes",
-      "Superficie aplicable",
-      "Fecha de emisión, vigencia y autoridad emisora",
+      "Fecha de expedición y vigencia",
+      "Autoridad emisora",
     ],
   },
 ] as const;
 
 const CROSS_CHECKS = [
-  "Diferencias en la dirección del inmueble entre documentos.",
-  "Diferencias en el nombre del propietario o titular.",
-  "Diferencias relevantes en superficies registradas.",
-  "Diferencias en número oficial asignado.",
-  "Datos de identificación del predio o clave predial que no coinciden.",
-  "Indicios de documentos pertenecientes a inmuebles distintos.",
-  "Documentos faltantes, incompletos o que requieran revisión adicional.",
+  "Dirección entre documentos.",
+  "Número oficial.",
+  "Propietario, en particular escritura contra predial.",
+  "Superficie, con la tolerancia del YAML.",
+  "Clave catastral o identificación del predio.",
+  "Señales de que un documento pertenece a otro inmueble.",
 ] as const;
 
 export function ExpedienteGuideView() {
@@ -82,8 +82,9 @@ export function ExpedienteGuideView() {
             </Badge>
           </div>
           <CardDescription>
-            El sistema clasifica los archivos automáticamente y verifica que se
-            extraiga y contraste la información clave de cada documento.
+            Recepción clasifica cada archivo por su contenido, no por el nombre.
+            Los cuatro especialistas extraen los campos definidos en
+            config/reglas.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -99,7 +100,7 @@ export function ExpedienteGuideView() {
                 </Badge>
               </div>
               <CardDescription className="text-xs">
-                Información relevante que extrae el Agente 02
+                Campos del YAML de este especialista
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -123,9 +124,10 @@ export function ExpedienteGuideView() {
             Validaciones cruzadas entre documentos
           </CardTitle>
           <CardDescription>
-            Además de revisar cada archivo por separado, el Agente 04 relaciona
-            el expediente completo y el Agente 05 señala qué documentos
-            discrepan, qué valor apareció en cada uno y dónde está la evidencia.
+            El Validador cruzado corre siempre, aunque falte un documento o un
+            especialista falle. Cada discrepancia guarda el valor en cada
+            documento y la evidencia. El Dictamen verifica después que la cita
+            esté en el OCR.
           </CardDescription>
         </CardHeader>
         <CardContent>

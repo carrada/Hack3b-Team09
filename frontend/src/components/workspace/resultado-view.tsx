@@ -1,26 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import {
-  AlertTriangle,
-  Check,
-  CheckCircle2,
-  ClipboardCheck,
-  Clock,
-  Copy,
-  Eye,
-  FileSearch,
-  GitCompareArrows,
-  PencilLine,
-  Play,
-  Printer,
-  RotateCw,
-  ShieldAlert,
-  Wrench,
-  XCircle,
-} from "lucide-react";
+import { FileSearch } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -28,579 +9,347 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import StatusMark, { type StatusMarkState } from "@/components/ui/StatusMark";
-import { AgentThoughtLine } from "@/components/workspace/agent-thought-line";
 import {
-  DOCUMENTOS_MINIMOS_RETO_1,
-  TIPO_DOCUMENTO_LABELS,
-  type DocumentoRevision,
+  ETIQUETA_RECOMENDACION,
+  NOMBRES_TIPO_BACKEND,
+  type AnalisisEstado,
+  type EvidenciaBackend,
+  type RecomendacionBackend,
 } from "@/lib/contracts";
-import { AGENT_PIPELINE_STEPS } from "@/lib/workspace/agent-pipeline";
-import { contarResumenRevision } from "@/lib/workspace/review-helpers";
 
-export { AGENT_PIPELINE_STEPS };
+function variante(recomendacion: RecomendacionBackend) {
+  if (recomendacion === "cumple") return "success" as const;
+  if (recomendacion === "no_cumple") return "destructive" as const;
+  return "warning" as const;
+}
 
-const STATUS_TEXT: Record<StatusMarkState, string> = {
-  pending: "En espera",
-  running: "Ejecutando",
-  done: "Completado",
-  failed: "Con error",
-  cancelled: "Omitido",
-};
-
-function buildFollowupRequestText(documentos: DocumentoRevision[]): string {
-  const tiposPresentes = new Set(documentos.map((doc) => doc.tipoSeleccionado));
-  const faltantes = DOCUMENTOS_MINIMOS_RETO_1.filter(
-    (tipo) => !tiposPresentes.has(tipo),
-  );
-  const camposSinDato = documentos.flatMap((doc) =>
-    doc.campos
-      .filter((campo) => !campo.valorActual)
-      .map((campo) => `${TIPO_DOCUMENTO_LABELS[doc.tipoSeleccionado]} · ${campo.etiqueta}`),
-  );
-  const ediciones = documentos.flatMap((doc) =>
-    doc.campos
-      .filter((campo) => campo.editadoManualmente)
-      .map(
-        (campo) =>
-          `${TIPO_DOCUMENTO_LABELS[doc.tipoSeleccionado]} · ${campo.etiqueta}: ${campo.valorActual ?? "Sin valor"}`,
-      ),
-  );
-
-  const lines: string[] = [
-    "Solicitud de seguimiento · Expediente Inmobiliario (Tiendas 3B)",
-    "",
-  ];
-
-  if (faltantes.length > 0) {
-    lines.push("Documentos mínimos faltantes (subsanables):");
-    for (const tipo of faltantes) {
-      lines.push(`- ${TIPO_DOCUMENTO_LABELS[tipo]}`);
-    }
-    lines.push("");
-  }
-
-  if (camposSinDato.length > 0) {
-    lines.push("Datos pendientes de confirmar o completar:");
-    for (const item of camposSinDato.slice(0, 12)) {
-      lines.push(`- ${item}`);
-    }
-    if (camposSinDato.length > 12) {
-      lines.push(`- ... y ${camposSinDato.length - 12} campo(s) adicional(es)`);
-    }
-    lines.push("");
-  }
-
-  if (ediciones.length > 0) {
-    lines.push("Ajustes capturados manualmente para verificación:");
-    for (const item of ediciones) {
-      lines.push(`- ${item}`);
-    }
-    lines.push("");
-  }
-
-  if (faltantes.length === 0 && camposSinDato.length === 0) {
-    lines.push(
-      "Expediente completo en sesión (4/4 tipos documentales). Listo para validación final del equipo legal.",
-    );
-  }
-
-  return lines.join("\n").trim();
+function cita(ev?: EvidenciaBackend | null): string {
+  if (!ev?.fragmento) return "—";
+  const marca = ev.verificada ? "verificada" : "no verificada";
+  return `${ev.documento_id} p.${ev.pagina}: «${ev.fragmento}» (${marca})`;
 }
 
 export function ResultadoView({
-  documentos,
-  confirmedAt,
-  isRunningAgents,
-  lastRunDurationSec,
-  analysisElapsedSec,
-  agentStatuses,
-  onRunPipelinePreview,
-  onRevalidateOnly,
+  analisis,
+  isRunning,
+  error,
+  elapsedSec,
   onPreviewDoc,
 }: {
-  documentos: DocumentoRevision[];
-  confirmedAt: string | null;
-  isRunningAgents: boolean;
-  lastRunDurationSec: number | null;
-  analysisElapsedSec: number | null;
-  agentStatuses: readonly StatusMarkState[];
-  onRunPipelinePreview: () => void;
-  onRevalidateOnly: () => void;
-  onPreviewDoc: (documentoId: string) => void;
+  analisis: AnalisisEstado | null;
+  isRunning: boolean;
+  error: string | null;
+  elapsedSec: number | null;
+  onPreviewDoc: (nombreArchivo: string, pagina?: number) => void;
 }) {
-  const [copied, setCopied] = useState(false);
+  if (!analisis) {
+    return (
+      <Card className="border-border bg-white">
+        <CardHeader>
+          <CardTitle className="text-base">Aún no hay dictamen</CardTitle>
+          <CardDescription>
+            Carga los archivos, elige tienda o CEDIS y espera a que el grafo
+            termine. Esta pantalla no simula agentes.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {error && (
+            <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+              {error}
+            </p>
+          )}
+          {isRunning && (
+            <p className="text-sm text-muted-foreground">El grafo sigue en curso.</p>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
 
-  const summary = contarResumenRevision(documentos);
-  const tiposPresentes = new Set(documentos.map((doc) => doc.tipoSeleccionado));
-  const faltantes = DOCUMENTOS_MINIMOS_RETO_1.filter(
-    (tipo) => !tiposPresentes.has(tipo),
-  );
-
-  const manualEdits = documentos.flatMap((doc) =>
-    doc.campos
-      .filter((campo) => campo.editadoManualmente)
-      .map((campo) => ({
-        documentoId: doc.documentoId,
-        nombreArchivo: doc.nombreArchivo,
-        tipoDocumento: doc.tipoSeleccionado,
-        campo,
-      })),
-  );
-
-  const completedAgents = agentStatuses.filter((s) => s === "done").length;
-
-  const handleCopyFollowup = async () => {
-    const text = buildFollowupRequestText(documentos);
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 2200);
-    } catch {
-      setCopied(false);
-    }
-  };
-
-  const handlePrint = () => {
-    window.print();
-  };
+  const { dictamen, bitacora, resultados_verificados, cruces, discrepancias } =
+    analisis;
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border border-border bg-white px-4 py-3">
-          <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-            <Clock className="h-3.5 w-3.5 text-primary" />
-            Tiempo de análisis
-          </p>
-          <p className="mt-1 text-lg font-semibold text-foreground">
-            {isRunningAgents
-              ? `${(analysisElapsedSec ?? 0).toFixed(1)} s`
-              : lastRunDurationSec !== null
-                ? `${lastRunDurationSec.toFixed(1)} s`
-                : "Sin ejecutar"}
-          </p>
-        </div>
-
-        <div className="rounded-xl border border-border bg-white px-4 py-3">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-            Documentos mínimos
-          </p>
-          <p className="mt-1 text-lg font-semibold text-foreground">
-            {DOCUMENTOS_MINIMOS_RETO_1.length - faltantes.length} / 4
-          </p>
-        </div>
-
-        <div className="rounded-xl border border-border bg-white px-4 py-3">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-            Campos con dato
-          </p>
-          <p className="mt-1 text-lg font-semibold text-foreground">
-            {summary.camposCompletos} / {summary.totalCampos}
-          </p>
-        </div>
-
-        <div className="rounded-xl border border-border bg-white px-4 py-3">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-            Correcciones manuales
-          </p>
-          <p className="mt-1 text-lg font-semibold text-foreground">
-            {summary.camposEditados}
-          </p>
-        </div>
-      </div>
-
-      <Card className="border-primary/30 bg-white shadow-xs no-print">
-        <CardContent className="flex flex-wrap items-start justify-between gap-4 py-4">
-          <AgentThoughtLine
-            statuses={agentStatuses}
-            working={isRunningAgents}
-            elapsedSec={isRunningAgents ? analysisElapsedSec : lastRunDurationSec}
-          />
-          <Badge variant="secondary" className="border-border text-primary">
-            Agentes completados: {completedAgents}/6
-          </Badge>
-        </CardContent>
-      </Card>
-
-      <Card className="border-primary/25 bg-secondary/40">
+      <Card className="border-border bg-white">
         <CardHeader>
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div className="space-y-1">
-              <CardTitle className="text-lg text-secondary-foreground">
-                Dictamen inicial y cierre de acción
-              </CardTitle>
-              <CardDescription>
-                Vista de Nivel 1: semáforo claro y acciones directas para gestor
-                y equipo legal.
-              </CardDescription>
-            </div>
-            <div className="flex flex-wrap items-center gap-2 no-print">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleCopyFollowup}
-                className="bg-white"
-              >
-                {copied ? (
-                  <>
-                    <Check className="h-3.5 w-3.5 text-emerald-600" />
-                    Solicitud copiada
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-3.5 w-3.5" />
-                    Copiar pendientes (Gestor)
-                  </>
-                )}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handlePrint}
-                className="bg-white"
-              >
-                <Printer className="h-3.5 w-3.5" />
-                Imprimir / PDF (Legal)
-              </Button>
-            </div>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <CardTitle className="text-base">Dictamen del grafo</CardTitle>
+            <Badge variant={variante(dictamen.recomendacion)}>
+              {ETIQUETA_RECOMENDACION[dictamen.recomendacion]}
+            </Badge>
           </div>
+          <CardDescription>
+            Confianza {dictamen.confianza}/100 · uso {dictamen.uso_requerido} ·
+            citas {dictamen.citas_verificadas ?? 0}/{dictamen.citas_total ?? 0}
+            {dictamen.requiere_humano ? " · revisión humana" : ""}
+            {elapsedSec !== null ? ` · ${elapsedSec.toFixed(1)} s` : ""}
+          </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-            <span>
-              Estado del expediente:{" "}
-              <span className="font-semibold text-foreground">
-                {isRunningAgents
-                  ? `Procesando (${completedAgents}/6 agentes)`
-                  : confirmedAt
-                    ? `Confirmado a las ${confirmedAt} · listo para backend`
-                    : "En espera de conexión con backend"}
-              </span>
-            </span>
+        <CardContent className="space-y-4 text-sm leading-relaxed text-foreground">
+          {dictamen.resumen && <p>{dictamen.resumen}</p>}
+          <div>
+            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-primary">
+              Razones
+            </p>
+            <ul className="space-y-1 text-sm">
+              {dictamen.razones.map((razon) => (
+                <li key={razon}>{razon}</li>
+              ))}
+            </ul>
           </div>
-
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-lg border border-emerald-200 bg-white p-3">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
-                <CheckCircle2 className="h-3.5 w-3.5" />
-                Cumple
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Expediente completo, reglas aprobadas y sin inconsistencias
-                críticas entre documentos.
+          {dictamen.requiere_humano && dictamen.puntos_a_verificar.length > 0 && (
+            <div>
+              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-primary">
+                Puntos a verificar
               </p>
+              <ul className="list-disc space-y-1 pl-5">
+                {dictamen.puntos_a_verificar.map((punto) => (
+                  <li key={punto}>{punto}</li>
+                ))}
+              </ul>
             </div>
-            <div className="rounded-lg border border-amber-200 bg-white p-3">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-700">
-                <AlertTriangle className="h-3.5 w-3.5" />
-                Requiere revisión
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Observaciones subsanables o condicionantes: no descarta un local
-                viable antes de validarlo.
-              </p>
-            </div>
-            <div className="rounded-lg border border-red-200 bg-white p-3">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-red-700">
-                <XCircle className="h-3.5 w-3.5" />
-                No cumple
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Existe al menos un hallazgo bloqueante comprobado con evidencia
-                documental.
-              </p>
-            </div>
-          </div>
+          )}
         </CardContent>
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card className="border-red-200 bg-white">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between gap-2">
-              <CardTitle className="flex items-center gap-2 text-base text-red-800">
-                <ShieldAlert className="h-4 w-4 text-primary" />
-                Hallazgos bloqueantes
-              </CardTitle>
-              <Badge variant="destructive">Impiden continuar</Badge>
-            </div>
-            <CardDescription>
-              Riesgos legales graves (ej. giro prohibido o inmuebles distintos).
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-xs leading-relaxed text-muted-foreground">
-            Sin bloqueantes reportados todavía. Al conectar el backend de
-            LangChain, únicamente los impedimentos críticos aparecerán aquí con
-            cita directa al documento.
-          </CardContent>
-        </Card>
-
-        <Card className="border-amber-200 bg-white">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between gap-2">
-              <CardTitle className="flex items-center gap-2 text-base text-amber-900">
-                <Wrench className="h-4 w-4 text-amber-600" />
-                Observaciones subsanables
-              </CardTitle>
-              <Badge variant="warning">Se pueden corregir</Badge>
-            </div>
-            <CardDescription>
-              Faltantes o aclaraciones que el gestor puede solicitar sin
-              descartar el local.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2 text-xs text-muted-foreground">
-            {faltantes.length === 0 && summary.camposPorRevisar === 0 ? (
-              <p>
-                No hay pendientes subsanables detectados en la sesión local.
-              </p>
-            ) : (
-              <ul className="space-y-1.5">
-                {faltantes.map((tipo) => (
-                  <li key={tipo} className="flex items-start gap-2">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
-                    <span>
-                      Solicitar documento faltante:{" "}
-                      <strong className="font-medium text-foreground">
-                        {TIPO_DOCUMENTO_LABELS[tipo]}
-                      </strong>
-                    </span>
-                  </li>
-                ))}
-                {summary.camposPorRevisar > 0 && (
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
-                    <span>
-                      {summary.camposPorRevisar} campo(s) sin dato o por
-                      confirmar en la pestaña{" "}
-                      <strong className="font-medium text-foreground">
-                        Carga
-                      </strong>
-                      .
-                    </span>
-                  </li>
-                )}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 md:grid-cols-3">
+        <Lista titulo="Recibidos" items={dictamen.documentos_recibidos} vacio="Ninguno" />
+        <Lista titulo="Faltantes" items={dictamen.documentos_faltantes} vacio="Ninguno" />
+        <Lista
+          titulo="Descartados"
+          items={dictamen.documentos_descartados}
+          vacio="Ninguno"
+        />
       </div>
 
-      {manualEdits.length > 0 && (
-        <Card className="border-border bg-white">
+      {resultados_verificados.map((resultado) => (
+        <Card key={resultado.documento_id} className="border-border bg-white">
           <CardHeader>
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <PencilLine className="h-4 w-4 text-primary" />
-                Auditoría de correcciones manuales ({manualEdits.length})
+              <CardTitle className="text-base">
+                {NOMBRES_TIPO_BACKEND[resultado.tipo]} — {resultado.nombre_archivo}
               </CardTitle>
-              <Badge variant="secondary" className="border-border text-primary">
-                Trazabilidad Human-in-the-Loop
+              <Badge variant={variante(resultado.estado)}>
+                {ETIQUETA_RECOMENDACION[resultado.estado]}
               </Badge>
             </div>
             <CardDescription>
-              El equipo legal siempre distingue qué valor extrajo la IA y qué
-              valor corrigió el usuario antes de validar.
+              {resultado.agente}
+              {resultado.calidad_ocr !== undefined
+                ? ` · OCR ${(resultado.calidad_ocr * 100).toFixed(0)}%`
+                : ""}
+              {resultado.obligatorios_total !== undefined
+                ? ` · obligatorios ${resultado.obligatorios_encontrados ?? 0}/${resultado.obligatorios_total}`
+                : ""}
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <ul className="divide-y divide-border rounded-lg border border-border">
-              {manualEdits.map(
-                ({ documentoId, nombreArchivo, tipoDocumento, campo }) => (
-                  <li
-                    key={`${documentoId}-${campo.clave}`}
-                    className="flex flex-col gap-2 px-4 py-3 text-xs sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div>
-                      <p className="font-semibold text-foreground">
-                        {campo.etiqueta}{" "}
-                        <span className="font-normal text-muted-foreground">
-                          · {TIPO_DOCUMENTO_LABELS[tipoDocumento]} (
-                          {nombreArchivo})
-                        </span>
-                      </p>
-                      <p className="mt-0.5 text-muted-foreground">
-                        IA: {campo.valorDetectado ?? "Sin detectar"} → Usuario:{" "}
-                        <span className="font-semibold text-foreground">
-                          {campo.valorActual ?? "Vacío"}
-                        </span>
-                      </p>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onPreviewDoc(documentoId)}
-                      className="h-7 w-fit text-xs no-print"
-                    >
-                      <Eye className="h-3.5 w-3.5 text-primary" />
-                      Comprobar archivo
-                    </Button>
-                  </li>
-                ),
-              )}
+          <CardContent className="space-y-4">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="text-xs uppercase text-muted-foreground">
+                  <tr>
+                    <th className="py-1 pr-3 font-medium">Campo</th>
+                    <th className="py-1 pr-3 font-medium">Valor</th>
+                    <th className="py-1 font-medium">Evidencia</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {resultado.campos
+                    .filter((campo) => campo.valor)
+                    .map((campo) => (
+                      <tr key={campo.nombre} className="border-t border-border align-top">
+                        <td className="py-2 pr-3">{campo.nombre}</td>
+                        <td className="py-2 pr-3">{campo.valor}</td>
+                        <td className="py-2">
+                          <button
+                            type="button"
+                            className="text-left text-primary underline-offset-2 hover:underline"
+                            onClick={() =>
+                              onPreviewDoc(
+                                resultado.nombre_archivo,
+                                campo.evidencia?.pagina,
+                              )
+                            }
+                          >
+                            {cita(campo.evidencia)}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+            <ul className="space-y-2 text-sm">
+              {resultado.hallazgos.map((hallazgo) => (
+                <li key={`${hallazgo.regla_id}-${hallazgo.descripcion}`}>
+                  <span className="font-medium">{hallazgo.regla_id}</span>{" "}
+                  <span className="text-muted-foreground">({hallazgo.severidad})</span>{" "}
+                  {hallazgo.descripcion}
+                  {hallazgo.evidencias.length > 0 && (
+                    <ul className="mt-1 space-y-1 pl-4 text-xs text-muted-foreground">
+                      {hallazgo.evidencias.map((ev) => (
+                        <li key={`${ev.documento_id}-${ev.pagina}-${ev.fragmento}`}>
+                          {cita(ev)}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              ))}
             </ul>
+            {resultado.error && (
+              <p className="text-sm text-red-800">{resultado.error}</p>
+            )}
+          </CardContent>
+        </Card>
+      ))}
+
+      <Card className="border-border bg-white">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <FileSearch className="h-4 w-4 text-primary" />
+            Validaciones cruzadas
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="overflow-x-auto">
+          {cruces.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Sin cruces.</p>
+          ) : (
+            <table className="w-full text-left text-sm">
+              <thead className="text-xs uppercase text-muted-foreground">
+                <tr>
+                  <th className="py-1 pr-3 font-medium">Atributo</th>
+                  <th className="py-1 pr-3 font-medium">Valores</th>
+                  <th className="py-1 pr-3 font-medium">Score</th>
+                  <th className="py-1 font-medium">Resultado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cruces.map((cruce) => (
+                  <tr
+                    key={`${cruce.atributo}-${cruce.score}-${Object.values(cruce.valores).join("|")}`}
+                    className="border-t border-border align-top"
+                  >
+                    <td className="py-2 pr-3">{cruce.atributo}</td>
+                    <td className="py-2 pr-3">
+                      {Object.entries(cruce.valores).map(([id, valor]) => (
+                        <div key={id}>
+                          {id}: {valor}
+                        </div>
+                      ))}
+                    </td>
+                    <td className="py-2 pr-3">{cruce.score.toFixed(0)}</td>
+                    <td className="py-2">
+                      {cruce.resultado} · {cruce.metodo}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </CardContent>
+      </Card>
+
+      {discrepancias.length > 0 && (
+        <Card className="border-border bg-white">
+          <CardHeader>
+            <CardTitle className="text-base">Inconsistencias</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm">
+            {discrepancias.map((item) => (
+              <div key={`${item.atributo}-${item.explicacion}`}>
+                <p>
+                  <span className="font-medium">{item.atributo}</span>{" "}
+                  <span className="text-muted-foreground">({item.severidad})</span>{" "}
+                  {item.explicacion}
+                </p>
+                <ul className="mt-1 text-xs text-muted-foreground">
+                  {Object.entries(item.valores).map(([id, valor]) => (
+                    <li key={id}>
+                      {id}: {valor}
+                    </li>
+                  ))}
+                  {item.evidencias.map((ev) => (
+                    <li key={`${ev.pagina}-${ev.fragmento}`}>{cita(ev)}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </CardContent>
         </Card>
       )}
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Card className="border-border bg-white">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <ClipboardCheck className="h-4 w-4 text-primary" />
-              Nivel 2 · Completitud documental (4/4)
-            </CardTitle>
-            <CardDescription>
-              Abre cualquier archivo cargado para verificar evidencia al
-              instante.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2.5">
-              {DOCUMENTOS_MINIMOS_RETO_1.map((tipo) => {
-                const matchedDoc = documentos.find(
-                  (doc) => doc.tipoSeleccionado === tipo,
-                );
-                const presente = Boolean(matchedDoc);
-                const status: StatusMarkState = presente
-                  ? "done"
-                  : confirmedAt
-                    ? "failed"
-                    : "pending";
-                return (
-                  <li
-                    key={tipo}
-                    className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2"
-                  >
-                    <StatusMark
-                      status={status}
-                      label={TIPO_DOCUMENTO_LABELS[tipo]}
-                      color="#7A0704"
-                      doneColor="#22c55e"
-                      errorColor="#E10600"
-                      size={18}
-                      fontSize={13}
-                      strike={false}
-                    />
-                    {matchedDoc ? (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onPreviewDoc(matchedDoc.documentoId)}
-                        className="h-7 px-2 text-xs text-primary hover:bg-secondary no-print"
-                      >
-                        <Eye className="h-3.5 w-3.5" />
-                        Ver
-                      </Button>
-                    ) : (
-                      <span className="text-[11px] font-medium text-muted-foreground">
-                        {confirmedAt ? "Faltante" : "Pendiente"}
-                      </span>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border bg-white">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <GitCompareArrows className="h-4 w-4 text-primary" />
-              Nivel 2 · Inconsistencias cruzadas
-            </CardTitle>
-            <CardDescription>
-              Comparativa lado a lado entre documentos del mismo inmueble.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-xs leading-relaxed text-muted-foreground">
-            Al conectarse con el backend de LangChain, cada discrepancia de
-            dirección, propietario, superficie, número oficial o clave predial
-            aparecerá aquí con qué documentos la presentan, qué valor encontró
-            el sistema en cada uno, cita de página/fragmento y acceso directo al
-            visor del PDF.
-          </CardContent>
-        </Card>
+        <Lista titulo="Requisitos cumplidos" items={dictamen.requisitos_cumplidos} vacio="Ninguno" />
+        <Lista
+          titulo="Requisitos no cumplidos"
+          items={dictamen.requisitos_no_cumplidos}
+          vacio="Ninguno"
+        />
       </div>
+
+      {Object.keys(dictamen.senales_confianza).length > 0 && (
+        <Card className="border-border bg-white">
+          <CardHeader>
+            <CardTitle className="text-base">Señales de confianza</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-2 sm:grid-cols-2 text-sm">
+            {Object.entries(dictamen.senales_confianza).map(([clave, valor]) => (
+              <div key={clave} className="flex justify-between gap-3 border-b border-border py-1">
+                <span>{clave.replaceAll("_", " ")}</span>
+                <span>{Math.round(valor * 100)}%</span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       <Card className="border-border bg-white">
         <CardHeader>
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="space-y-1">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Eye className="h-4 w-4 text-primary" />
-                Nivel 3 · Progreso y trazabilidad de los 6 agentes
-              </CardTitle>
-              <CardDescription>
-                Estado individual de cada agente. Si editas campos manualmente,
-                solo se re-ejecutan los Agentes 03–06 sin repetir lectura OCR.
-              </CardDescription>
-            </div>
-            <div className="flex flex-wrap items-center gap-2 no-print">
-              <Badge
-                variant="secondary"
-                className="border-border text-secondary-foreground"
-              >
-                <FileSearch className="h-3.5 w-3.5" />
-                {completedAgents}/6 completados
-              </Badge>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={isRunningAgents}
-                onClick={onRunPipelinePreview}
-              >
-                <Play className="h-3.5 w-3.5" />
-                Probar flujo 01–06
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                disabled={isRunningAgents}
-                onClick={onRevalidateOnly}
-              >
-                <RotateCw className="h-3.5 w-3.5" />
-                Revalidar 03–06
-              </Button>
-            </div>
-          </div>
+          <CardTitle className="text-base">Bitácora</CardTitle>
+          <CardDescription>
+            Líneas que escribieron Recepción, los especialistas, el Validador
+            cruzado y el Dictamen.
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-3 md:grid-cols-2">
-            {AGENT_PIPELINE_STEPS.map((agent, index) => {
-              const status = agentStatuses[index] ?? "pending";
-              return (
-                <div
-                  key={agent.id}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-border bg-white px-4 py-3"
-                >
-                  <StatusMark
-                    status={status}
-                    label={agent.label}
-                    color="#E10600"
-                    doneColor="#22c55e"
-                    errorColor="#E10600"
-                    size={20}
-                    fontSize={13}
-                    strike={false}
-                  />
-                  <span className="shrink-0 text-[11px] font-medium text-muted-foreground">
-                    {STATUS_TEXT[status]}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
+          <ol className="space-y-1 font-mono text-xs leading-relaxed text-foreground">
+            {bitacora.map((linea, index) => (
+              <li key={`${index}-${linea}`}>{linea}</li>
+            ))}
+          </ol>
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+function Lista({
+  titulo,
+  items,
+  vacio,
+}: {
+  titulo: string;
+  items: string[];
+  vacio: string;
+}) {
+  return (
+    <Card className="border-border bg-white">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm">{titulo}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {items.length === 0 ? (
+          <p className="text-sm text-muted-foreground">{vacio}</p>
+        ) : (
+          <ul className="space-y-1 text-sm">
+            {items.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
   );
 }

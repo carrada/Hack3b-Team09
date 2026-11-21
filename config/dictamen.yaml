@@ -1,0 +1,52 @@
+# Parámetros globales del dictamen. Ajustar con las reglas oficiales del comité.
+documentos_requeridos: [escrituras, predial, alineamiento, uso_suelo]
+
+# Fecha de referencia para vigencias (null = hoy). Formato YYYY-MM-DD
+fecha_referencia: null
+
+umbral_confianza: 85          # solo decide casos grises; las reglas críticas mandan
+
+pesos_confianza:              # suman 1.0
+  calidad_ocr: 0.15
+  campos_obligatorios: 0.25
+  reglas_pasan: 0.20
+  cruces: 0.20
+  citas_verificadas: 0.20
+
+# Uso requerido -> palabras que indican compatibilidad / incompatibilidad en el uso de suelo.
+# Se comparan sin acentos y en minúsculas.
+usos_requeridos:
+  tienda:
+    etiqueta: "Tienda (comercial)"
+    compatibles: [comercial, comercio, abarrotes, autoservicio, "tienda de autoservicio", mixto,
+                  "corredor urbano", servicios, "venta al por menor", minisuper, supermercado, tienda,
+                  "comercio al por menor", "habitacional mixto", "centro urbano", "subcentro urbano"]
+    incompatibles: ["habitacional unifamiliar", "solo habitacional", "unicamente habitacional",
+                    "area verde", "preservacion ecologica", "conservacion ecologica", "equipamiento educativo",
+                    "no se autoriza", "improcedente", "negado", "no compatible", "prohibido"]
+  cedis:
+    etiqueta: "CEDIS (bodega / industrial)"
+    compatibles: [industrial, bodega, almacenamiento, almacen, "centro de distribucion", logistica,
+                  "industria ligera", industria, "parque industrial"]
+    incompatibles: ["habitacional unifamiliar", "solo habitacional", "unicamente habitacional",
+                    "area verde", "preservacion ecologica", "conservacion ecologica",
+                    "no se autoriza", "improcedente", "negado", "no compatible", "prohibido"]
+
+validacion_cruzada:
+  superficie_tolerancia_menor: 0.05   # >5% de diferencia => discrepancia menor
+  superficie_tolerancia_critica: 0.50 # >50% => indicio de otro inmueble
+  direccion_igual: 85                  # score >= => coincide
+  direccion_ambigua: 55                # entre ambigua e igual => el LLM decide
+  nombre_igual: 85
+  nombre_ambiguo: 60
+  clave_igual: 90
+
+verificacion_citas:
+  score_minimo: 85                     # fuzzy partial ratio contra el texto OCR de la página
+
+ocr:
+  dpi: 300
+  idioma: spa
+  min_chars_texto_nativo: 60           # si la página trae menos texto nativo, se le hace OCR
+  max_chars_por_documento: 90000       # recorte del texto enviado al LLM
+  hilos: 4

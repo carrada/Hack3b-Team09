@@ -1,0 +1,35 @@
+tipo: uso_suelo
+nombre: "Licencia / constancia / dictamen de uso de suelo"
+clasificacion:
+  palabras_clave: ["uso de suelo", "licencia de uso", compatibilidad, zonificacion, giro, "dictamen de uso",
+                   factibilidad, "coeficiente de ocupacion", "uso permitido", "uso autorizado"]
+campos:
+  - {nombre: direccion, obligatorio: true, descripcion: "Dirección del inmueble"}
+  - {nombre: numero_oficial, obligatorio: false, descripcion: "Número exterior"}
+  - {nombre: colonia, obligatorio: false, descripcion: "Colonia"}
+  - {nombre: codigo_postal, obligatorio: false, descripcion: "Código postal"}
+  - {nombre: municipio, obligatorio: false, descripcion: "Municipio"}
+  - {nombre: clave_catastral, obligatorio: false, descripcion: "Clave catastral / identificación del predio"}
+  - {nombre: propietario, obligatorio: false, descripcion: "Propietario o solicitante"}
+  - {nombre: uso_autorizado, obligatorio: true, descripcion: "Uso de suelo / giro autorizado, literal"}
+  - {nombre: zonificacion, obligatorio: false, descripcion: "Zonificación o clasificación (ej. CU, H4, I-1)"}
+  - {nombre: restricciones, obligatorio: false, descripcion: "Restricciones o condicionantes (horario, cajones de estacionamiento, COS/CUS, etc.)"}
+  - {nombre: superficie, obligatorio: false, descripcion: "Superficie aplicable / autorizada, con unidad"}
+  - {nombre: fecha_emision, obligatorio: true, descripcion: "Fecha de expedición"}
+  - {nombre: vigencia, obligatorio: false, descripcion: "Vigencia indicada (fecha o plazo) tal cual"}
+  - {nombre: autoridad_emisora, obligatorio: true, descripcion: "Dependencia que emite"}
+  - {nombre: folio_documento, obligatorio: false, descripcion: "Folio/número de licencia"}
+reglas:
+  - {id: USO-01, tipo: campo_presente, campo: uso_autorizado, severidad: critica, si_falla: requiere_revision,
+     descripcion: "El documento indica el uso de suelo autorizado"}
+  # Único caso que puede producir no_cumple: incompatibilidad clara (palabras en dictamen.yaml)
+  - {id: USO-02, tipo: uso_compatible, campo: uso_autorizado, severidad: critica,
+     descripcion: "El uso autorizado es compatible con el uso requerido"}
+  - {id: USO-03, tipo: vigencia, campo_emision: fecha_emision, campo_vigencia: vigencia,
+     vigencia_default_dias: null, dias_alerta: 60, si_vencido: requiere_revision, si_indeterminable: requiere_revision,
+     severidad: menor, descripcion: "El uso de suelo está vigente"}
+  - {id: USO-04, tipo: llm_check, severidad: menor, si_falla: requiere_revision, campos: [restricciones, uso_autorizado],
+     pregunta: "¿Las restricciones o condicionantes impiden o limitan materialmente operar como {uso}? Responde 'cumple' si no hay condicionantes relevantes.",
+     descripcion: "Restricciones / condicionantes no impiden la operación"}
+  - {id: USO-05, tipo: autoridad_kb, campo: autoridad_emisora, severidad: info, si_falla: info,
+     descripcion: "Autoridad emisora registrada en la base de conocimiento"}

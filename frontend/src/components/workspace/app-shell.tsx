@@ -12,7 +12,6 @@ import BranchedMenu, {
   type BranchedMenuSectionItem,
 } from "@/components/menu/BranchedMenu";
 import { Badge } from "@/components/ui/badge";
-import type { StatusMarkState } from "@/components/ui/StatusMark";
 import { CargaView } from "@/components/workspace/carga-view";
 import {
   DocumentPreviewDrawer,
@@ -22,26 +21,12 @@ import { EntryLoader } from "@/components/workspace/entry-loader";
 import { ExpedienteGuideView } from "@/components/workspace/expediente-guide-view";
 import { InicioPitchView } from "@/components/workspace/inicio-pitch-view";
 import { ResultadoView } from "@/components/workspace/resultado-view";
-import type { DocumentoRevision, TipoDocumento } from "@/lib/contracts";
-import { AGENT_PIPELINE_STEPS } from "@/lib/workspace/agent-pipeline";
-import {
-  actualizarCampoDocumento,
-  cambiarTipoDocumentoRevision,
-  contarResumenRevision,
-  crearDocumentoRevisionDesdeArchivo,
-  restaurarCampoDocumento,
-} from "@/lib/workspace/review-helpers";
+import { ApiClientError, analizarExpediente } from "@/lib/api";
+import { env } from "@/lib/config/env";
+import type { AnalisisEstado, TipoDocumento, UsoRequerido } from "@/lib/contracts";
+import { useBackendHealth } from "@/hooks/use-expedientes";
 
 type ViewId = "inicio" | "expediente" | "carga" | "resultado";
-
-interface UploadedEntry {
-  file: File;
-  revision: DocumentoRevision;
-}
-
-const INITIAL_AGENT_STATUSES: StatusMarkState[] = AGENT_PIPELINE_STEPS.map(
-  () => "pending",
-);
 
 const MENU_ITEMS: BranchedMenuSectionItem[] = [
   {
@@ -66,25 +51,25 @@ const VIEW_META: Record<
     badge: "Reto 1 · Arquitectura de 6 Agentes",
     title: "Revisión inteligente de expedientes inmobiliarios",
     subtitle:
-      "Sistema multiagente sobre LangChain diseñado para dar velocidad operativa al gestor y trazabilidad jurídica completa al equipo legal, sin ocultar cómo razona la IA.",
+      "Recepción, cuatro especialistas y el Validador cruzado. El Dictamen cierra: verifica citas, calcula la confianza y recomienda.",
   },
   expediente: {
     badge: "Paso 02 · Qué se evalúa",
     title: "Estructura del expediente y reglas cruzadas",
     subtitle:
-      "Guía clara de los 4 tipos documentales mínimos, los campos que se extraen de cada uno y las validaciones cruzadas que contrastan coherencia entre documentos.",
+      "Cuatro tipos documentales. Los campos salen de config/reglas y el Validador cruzado compara dirección, propietario, superficie y número oficial.",
   },
   carga: {
-    badge: "Paso 03 · Ingesta y revisión asistida",
-    title: "Carga y ajuste opcional de campos",
+    badge: "Paso 03 · Ingesta",
+    title: "Carga para el grafo",
     subtitle:
-      "Sube uno o varios PDFs del inmueble y, si algún campo no se detecta bien, corrígelo opcionalmente conservando el rastro original de la IA.",
+      "Sube los archivos y elige tienda o CEDIS. Recepción clasifica por contenido; no hay edición de campos antes del análisis.",
   },
   resultado: {
     badge: "Paso 04 · Dictamen y evidencia",
-    title: "Resultado auditable del análisis",
+    title: "Resultado del grafo",
     subtitle:
-      "Lectura en 3 niveles: recomendación inicial con confianza, hallazgos bloqueantes vs subsanables, visor directo del PDF y traza abierta de los 6 agentes.",
+      "Recomendación, confianza, citas verificadas, cruces y la bitácora que escribieron los agentes.",
   },
 };
 
@@ -97,230 +82,125 @@ function isViewId(value: string): value is ViewId {
   );
 }
 
+function tipoPreview(nombre: string): TipoDocumento {
+  const lower = nombre.toLowerCase();
+  if (lower.includes("predial")) return "predial";
+  if (lower.includes("alineamiento") || lower.includes("numero")) {
+    return "alineamiento_numero_oficial";
+  }
+  if (lower.includes("suelo") || lower.includes("uso")) return "uso_de_suelo";
+  if (lower.includes("escritura")) return "escritura";
+  return "otro";
+}
+
 export function AppShell() {
   const [activeView, setActiveView] = useState<ViewId>("inicio");
   const [menuSyncVersion, setMenuSyncVersion] = useState(0);
-  const [entries, setEntries] = useState<UploadedEntry[]>([]);
-  const [confirmedAt, setConfirmedAt] = useState<string | null>(null);
-  const [isRunningAgents, setIsRunningAgents] = useState(false);
-  const [lastRunDurationSec, setLastRunDurationSec] = useState<number | null>(
-    null,
-  );
-  const [analysisElapsedSec, setAnalysisElapsedSec] = useState<number | null>(
-    null,
-  );
-  const runStartedAtRef = useRef<number | null>(null);
-  const [agentStatuses, setAgentStatuses] = useState<StatusMarkState[]>(
-    INITIAL_AGENT_STATUSES,
-  );
-  const [previewDocId, setPreviewDocId] = useState<string | null>(null);
-  const timersRef = useRef<number[]>([]);
+  const [files, setFiles] = useState<File[]>([]);
+  const [uso, setUso] = useState<UsoRequerido>("tienda");
+  const [analisis, setAnalisis] = useState<AnalisisEstado | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isRunning, setIsRunning] = useState(false);
+  const [elapsedSec, setElapsedSec] = useState<number | null>(null);
+  const [preview, setPreview] = useState<PreviewDocumentTarget | null>(null);
+  const startedAtRef = useRef<number | null>(null);
+  const health = useBackendHealth();
 
   const meta = VIEW_META[activeView];
-  const uploadedFiles = entries.map((entry) => entry.file);
-  const reviewDocs = entries.map((entry) => entry.revision);
-  const reviewSummary = contarResumenRevision(reviewDocs);
-
-  const previewTarget: PreviewDocumentTarget | null = (() => {
-    if (!previewDocId) return null;
-    const match = entries.find(
-      (entry) => entry.revision.documentoId === previewDocId,
-    );
-    if (!match) return null;
-    return {
-      documentoId: match.revision.documentoId,
-      nombreArchivo: match.revision.nombreArchivo,
-      tipoDocumento: match.revision.tipoSeleccionado,
-      file: match.file,
-    };
-  })();
-
-  const clearPipelineTimers = () => {
-    for (const id of timersRef.current) {
-      window.clearTimeout(id);
-    }
-    timersRef.current = [];
-  };
 
   useEffect(() => {
-    return () => clearPipelineTimers();
-  }, []);
-
-  useEffect(() => {
-    if (!isRunningAgents) return;
+    if (!isRunning) return;
     const id = window.setInterval(() => {
-      const startedAt = runStartedAtRef.current;
+      const startedAt = startedAtRef.current;
       if (startedAt === null) return;
-      setAnalysisElapsedSec((performance.now() - startedAt) / 1000);
-    }, 100);
+      setElapsedSec((performance.now() - startedAt) / 1000);
+    }, 250);
     return () => window.clearInterval(id);
-  }, [isRunningAgents]);
+  }, [isRunning]);
 
   const navigateProgrammatically = (targetView: ViewId) => {
     setActiveView(targetView);
     setMenuSyncVersion((prev) => prev + 1);
   };
 
-  const runAgentSequence = (startIndex: number) => {
-    clearPipelineTimers();
-    const startedAt = performance.now();
-    runStartedAtRef.current = startedAt;
-    setAnalysisElapsedSec(0);
-    setIsRunningAgents(true);
-
-    setAgentStatuses(
-      AGENT_PIPELINE_STEPS.map((_, idx) =>
-        idx < startIndex ? "done" : idx === startIndex ? "running" : "pending",
-      ),
-    );
-
-    const stepDurationMs = 420;
-    const totalSteps = AGENT_PIPELINE_STEPS.length - startIndex;
-
-    for (let offset = 0; offset < totalSteps; offset++) {
-      const currentIdx = startIndex + offset;
-      const timerId = window.setTimeout(() => {
-        setAgentStatuses((prev) =>
-          prev.map((state, idx) => {
-            if (idx === currentIdx) return "done";
-            if (idx === currentIdx + 1) return "running";
-            return state;
-          }),
-        );
-
-        if (currentIdx === AGENT_PIPELINE_STEPS.length - 1) {
-          const elapsed = (performance.now() - startedAt) / 1000;
-          setIsRunningAgents(false);
-          setAnalysisElapsedSec(elapsed);
-          setLastRunDurationSec(elapsed);
-          setConfirmedAt(
-            new Date().toLocaleTimeString("es-MX", {
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-            }),
-          );
-        }
-      }, stepDurationMs * (offset + 1));
-
-      timersRef.current.push(timerId);
-    }
-  };
-
-  const resetRunState = () => {
-    clearPipelineTimers();
-    setIsRunningAgents(false);
-    setLastRunDurationSec(null);
-    setAnalysisElapsedSec(null);
-    runStartedAtRef.current = null;
-    setConfirmedAt(null);
-    setAgentStatuses(INITIAL_AGENT_STATUSES);
-  };
-
   const handleSelect = (value: string) => {
-    if (isViewId(value)) {
-      setActiveView(value);
-    }
+    if (isViewId(value)) setActiveView(value);
+  };
+
+  const resetAnalisis = () => {
+    setAnalisis(null);
+    setError(null);
+    setElapsedSec(null);
+    setPreview(null);
   };
 
   const handleFilesAdded = (newFiles: File[]) => {
     if (newFiles.length === 0) return;
-    setEntries((prev) => [
-      ...prev,
-      ...newFiles.map((file, idx) => ({
-        file,
-        revision: crearDocumentoRevisionDesdeArchivo(file, prev.length + idx),
-      })),
-    ]);
-    resetRunState();
+    setFiles((prev) => [...prev, ...newFiles]);
+    resetAnalisis();
   };
 
   const handleRemoveByIndex = (index: number) => {
-    setEntries((prev) => {
-      const removed = prev[index];
-      if (removed && removed.revision.documentoId === previewDocId) {
-        setPreviewDocId(null);
-      }
-      return prev.filter((_, idx) => idx !== index);
-    });
-    resetRunState();
+    setFiles((prev) => prev.filter((_, idx) => idx !== index));
+    resetAnalisis();
   };
 
   const handleClearFiles = () => {
-    setEntries([]);
-    setPreviewDocId(null);
-    resetRunState();
+    setFiles([]);
+    resetAnalisis();
   };
 
-  const handleChangeDocType = (documentoId: string, tipo: TipoDocumento) => {
-    setEntries((prev) =>
-      prev.map((entry) =>
-        entry.revision.documentoId === documentoId
-          ? {
-              ...entry,
-              revision: cambiarTipoDocumentoRevision(entry.revision, tipo),
-            }
-          : entry,
-      ),
-    );
-    setConfirmedAt(null);
-  };
-
-  const handleSaveField = (
-    documentoId: string,
-    clave: string,
-    valor: string,
-  ) => {
-    setEntries((prev) =>
-      prev.map((entry) =>
-        entry.revision.documentoId === documentoId
-          ? {
-              ...entry,
-              revision: actualizarCampoDocumento(entry.revision, clave, valor),
-            }
-          : entry,
-      ),
-    );
-    setConfirmedAt(null);
-  };
-
-  const handleRestoreField = (documentoId: string, clave: string) => {
-    setEntries((prev) =>
-      prev.map((entry) =>
-        entry.revision.documentoId === documentoId
-          ? {
-              ...entry,
-              revision: restaurarCampoDocumento(entry.revision, clave),
-            }
-          : entry,
-      ),
-    );
-    setConfirmedAt(null);
-  };
-
-  const handleRemoveDoc = (documentoId: string) => {
-    if (previewDocId === documentoId) {
-      setPreviewDocId(null);
+  const handleAnalizar = async () => {
+    if (files.length === 0 || isRunning) return;
+    setError(null);
+    setAnalisis(null);
+    setIsRunning(true);
+    const startedAt = performance.now();
+    startedAtRef.current = startedAt;
+    setElapsedSec(0);
+    try {
+      const resultado = await analizarExpediente({ uso, archivos: files });
+      setAnalisis(resultado);
+      setElapsedSec((performance.now() - startedAt) / 1000);
+      navigateProgrammatically("resultado");
+    } catch (err) {
+      const message =
+        err instanceof ApiClientError
+          ? err.message
+          : "No se pudo analizar el expediente.";
+      setError(message);
+    } finally {
+      setIsRunning(false);
+      startedAtRef.current = null;
     }
-    setEntries((prev) =>
-      prev.filter((entry) => entry.revision.documentoId !== documentoId),
-    );
-    resetRunState();
   };
 
-  const handleConfirmForValidation = () => {
-    const startFromValidationOnly =
-      agentStatuses[0] === "done" && agentStatuses[1] === "done";
-    runAgentSequence(startFromValidationOnly ? 2 : 0);
+  const handlePreviewDoc = (nombreArchivo: string, pagina?: number) => {
+    const file = files.find((item) => item.name === nombreArchivo);
+    setPreview({
+      documentoId: nombreArchivo,
+      nombreArchivo,
+      tipoDocumento: tipoPreview(nombreArchivo),
+      file,
+      page: pagina,
+    });
   };
+
+  const salud =
+    env.useMocks
+      ? "Modo mock activo: el análisis no inventa un dictamen."
+      : health.data?.status === "degraded"
+        ? health.data.detalle || "Backend degradado: el modelo no está disponible."
+        : health.data?.status === "ok"
+          ? "Grafo disponible."
+          : health.isError
+            ? "Sin conexión con el backend."
+            : "Comprobando el backend…";
 
   return (
     <div className="min-h-screen bg-white text-foreground flex flex-col md:flex-row">
       <EntryLoader />
-      <DocumentPreviewDrawer
-        target={previewTarget}
-        onClose={() => setPreviewDocId(null)}
-      />
+      <DocumentPreviewDrawer target={preview} onClose={() => setPreview(null)} />
 
       <aside className="no-print w-full shrink-0 border-b border-border bg-white md:w-72 md:border-r md:border-b-0">
         <div className="flex h-full flex-col px-6 py-7">
@@ -361,60 +241,49 @@ export function AppShell() {
 
           <div className="mt-8 rounded-xl border border-border bg-secondary/70 p-4">
             <p className="text-xs font-semibold uppercase tracking-wider text-secondary-foreground">
-              Pipeline listo
+              Grafo
             </p>
             <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-              6 agentes especializados · modo local listo para conectar al
-              backend.
+              6 agentes, del 01 Recepción al 06 Validador cruzado. El Dictamen
+              cierra.
             </p>
             <div className="mt-3 flex flex-col gap-1.5 text-xs font-medium text-secondary-foreground">
               <div className="flex items-center justify-between">
                 <span>Archivos en sesión</span>
                 <span className="rounded-full bg-white px-2.5 py-0.5 text-primary border border-border">
-                  {reviewDocs.length}
+                  {files.length}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span>Correcciones manuales</span>
+                <span>Uso</span>
                 <span className="rounded-full bg-white px-2.5 py-0.5 text-primary border border-border">
-                  {reviewSummary.camposEditados}
+                  {uso}
                 </span>
               </div>
             </div>
+            <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+              {salud}
+            </p>
           </div>
         </div>
       </aside>
 
       <main className="flex-1 bg-white">
         <header className="border-b border-border bg-white px-6 py-6 md:px-10">
-          <div
-            className={`mx-auto flex flex-wrap items-start justify-between gap-4 ${
-              activeView === "carga" && reviewDocs.length > 0
-                ? "max-w-7xl"
-                : "max-w-5xl"
-            }`}
-          >
-            <div className="space-y-1.5">
-              <Badge variant="secondary" className="border-border text-primary">
-                {meta.badge}
-              </Badge>
-              <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
-                {meta.title}
-              </h1>
-              <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
-                {meta.subtitle}
-              </p>
-            </div>
+          <div className="mx-auto max-w-5xl space-y-1.5">
+            <Badge variant="secondary" className="border-border text-primary">
+              {meta.badge}
+            </Badge>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
+              {meta.title}
+            </h1>
+            <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
+              {meta.subtitle}
+            </p>
           </div>
         </header>
 
-        <div
-          className={`mx-auto px-6 py-8 md:px-10 ${
-            activeView === "carga" && reviewDocs.length > 0
-              ? "max-w-7xl"
-              : "max-w-5xl"
-          }`}
-        >
+        <div className="mx-auto max-w-5xl px-6 py-8 md:px-10">
           {activeView === "inicio" && (
             <InicioPitchView
               onStartDemo={() => navigateProgrammatically("carga")}
@@ -423,33 +292,27 @@ export function AppShell() {
           {activeView === "expediente" && <ExpedienteGuideView />}
           {activeView === "carga" && (
             <CargaView
-              files={uploadedFiles}
-              documentos={reviewDocs}
-              confirmedAt={confirmedAt}
-              isConfirming={isRunningAgents}
+              files={files}
+              uso={uso}
+              isRunning={isRunning}
+              error={error}
+              elapsedSec={elapsedSec}
+              onUsoChange={setUso}
               onFilesAdded={handleFilesAdded}
               onRemoveByIndex={handleRemoveByIndex}
               onClear={handleClearFiles}
-              onChangeDocType={handleChangeDocType}
-              onSaveField={handleSaveField}
-              onRestoreField={handleRestoreField}
-              onRemoveDoc={handleRemoveDoc}
-              onConfirmForValidation={handleConfirmForValidation}
-              agentStatuses={agentStatuses}
-              analysisElapsedSec={analysisElapsedSec}
+              onAnalizar={() => {
+                void handleAnalizar();
+              }}
             />
           )}
           {activeView === "resultado" && (
             <ResultadoView
-              documentos={reviewDocs}
-              confirmedAt={confirmedAt}
-              isRunningAgents={isRunningAgents}
-              lastRunDurationSec={lastRunDurationSec}
-              analysisElapsedSec={analysisElapsedSec}
-              agentStatuses={agentStatuses}
-              onRunPipelinePreview={() => runAgentSequence(0)}
-              onRevalidateOnly={() => runAgentSequence(2)}
-              onPreviewDoc={setPreviewDocId}
+              analisis={analisis}
+              isRunning={isRunning}
+              error={error}
+              elapsedSec={elapsedSec}
+              onPreviewDoc={handlePreviewDoc}
             />
           )}
         </div>

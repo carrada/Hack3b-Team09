@@ -27,51 +27,51 @@ import {
 const AGENTS = [
   {
     step: "01",
-    name: "Clasificador Documental",
-    role: "Identifica y clasifica cada archivo recibido",
+    name: "Recepción",
+    role: "OCR, clasificación por contenido, agrupación y faltantes",
     detail:
-      "Reconoce automáticamente si cada documento corresponde a Escrituras, Predial, Alineamiento y Número Oficial o Uso de Suelo, y detecta faltantes desde el inicio.",
+      "Descarta no-documentos y duplicados, hace OCR, clasifica por contenido (palabras clave del YAML más el modelo) y extrae una huella para agrupar por inmueble. Detecta qué tipos faltan.",
     icon: Layers,
   },
   {
     step: "02",
-    name: "Extractor Especializado",
-    role: "Extrae campos clave por tipo documental",
+    name: "Especialista Escrituras",
+    role: "Extracción y reglas de la escritura pública",
     detail:
-      "Obtiene los datos estructurados requeridos para cada documento (titular, dirección, superficie, clave predial, número oficial, giro autorizado, vigencia y autoridad).",
+      "Extrae cada campo como valor, página y fragmento literal. Evalúa config/reglas/escrituras.yaml y devuelve Cumple, Requiere revisión o No cumple, con motivos.",
     icon: FileSearch,
   },
   {
     step: "03",
-    name: "Validador de Reglas",
-    role: "Evalúa criterios normativos y completitud",
+    name: "Especialista Predial",
+    role: "Extracción y reglas de la boleta predial",
     detail:
-      "Contrasta los datos extraídos contra las reglas y criterios proporcionados para detectar documentos incompletos, vencimientos, condicionantes o información faltante.",
+      "Lee propietario, dirección, clave catastral y periodo pagado. Un predial a nombre de otra persona es discrepancia menor: Requiere revisión, no rechazo.",
     icon: ShieldCheck,
   },
   {
     step: "04",
-    name: "Validador Cruzado",
-    role: "Contrasta coherencia entre los documentos",
+    name: "Especialista Alineamiento y Número Oficial",
+    role: "Extracción y reglas de la constancia",
     detail:
-      "Compara dirección, propietario, superficie, número oficial e identificación del predio entre todo el expediente para detectar inconsistencias o mezcla de inmuebles.",
-    icon: GitCompareArrows,
-  },
-  {
-    step: "05",
-    name: "Verificador de Evidencia",
-    role: "Ancla cada hallazgo al documento original",
-    detail:
-      "Anota cada observación y discrepancia con referencia verificable al archivo, página y fragmento exacto que la sustenta, eliminando conclusiones sin soporte.",
+      "Extrae dirección oficial, número oficial, alineamiento, vigencia y autoridad. Las reglas salen de config/reglas/alineamiento.yaml.",
     icon: Quote,
   },
   {
-    step: "06",
-    name: "Dictaminador y Explicador Legal",
-    role: "Emite recomendación inicial y justificación",
+    step: "05",
+    name: "Especialista Uso de Suelo",
+    role: "Extracción y reglas de la licencia o constancia",
     detail:
-      "Sintetiza hallazgos, riesgos y nivel de confianza en una recomendación clara (Cumple, Requiere revisión o No cumple) explicada para el equipo legal.",
-    icon: Sparkles,
+      "Extrae el uso autorizado y lo contrasta con el uso requerido (tienda o CEDIS). La incompatibilidad clara, con palabras del YAML, es el caso que puede producir No cumple.",
+    icon: Scale,
+  },
+  {
+    step: "06",
+    name: "Validador cruzado",
+    role: "Corre siempre, aunque falte un documento",
+    detail:
+      "Compara dirección, número oficial, propietario (escritura y predial), superficie, clave catastral y señales de otro inmueble. El modelo solo desempata direcciones ambiguas.",
+    icon: GitCompareArrows,
   },
 ] as const;
 
@@ -80,49 +80,49 @@ const CHALLENGE_CAPABILITIES = [
     number: "01",
     requirement:
       "Identificar y clasificar automáticamente el tipo de documento recibido.",
-    owner: "Agente 01 · Clasificador",
+    owner: "Recepción",
   },
   {
     number: "02",
     requirement:
       "Extraer la información relevante definida para cada tipo documental.",
-    owner: "Agente 02 · Extractor",
+    owner: "Especialistas",
   },
   {
     number: "03",
     requirement:
       "Validar la información contra los criterios y reglas proporcionados.",
-    owner: "Agente 03 · Reglas",
+    owner: "Especialistas",
   },
   {
     number: "04",
     requirement:
       "Detectar documentos incompletos, inconsistencias, riesgos o información faltante.",
-    owner: "Agentes 03 y 04 · Riesgos",
+    owner: "Recepción y especialistas",
   },
   {
     number: "05",
     requirement:
       "Realizar validaciones cruzadas entre documentos del mismo inmueble: dirección, propietario, superficie, identificación del predio y otros datos relevantes.",
-    owner: "Agente 04 · Cruzado",
+    owner: "Validador cruzado",
   },
   {
     number: "06",
     requirement:
       "Anotar los hallazgos indicando qué información o evidencia dentro del documento sustenta cada observación.",
-    owner: "Agente 05 · Evidencia",
+    owner: "Dictamen",
   },
   {
     number: "07",
     requirement:
       "Generar una recomendación inicial: Cumple, Requiere revisión o No cumple.",
-    owner: "Agente 06 · Dictaminador",
+    owner: "Dictamen",
   },
   {
     number: "08",
     requirement:
       "Explicar con claridad las razones de la recomendación para facilitar la revisión del equipo legal.",
-    owner: "Agente 06 · Explicador",
+    owner: "Dictamen",
   },
 ] as const;
 
@@ -143,7 +143,7 @@ const READING_LAYERS = [
     level: "Nivel 3 · Caja de cristal IA",
     audience: "Auditoría legal",
     description:
-      "Sin ocultar cómo trabaja la IA: fragmento y página exacta que sustenta cada hallazgo, datos extraídos por campo y traza visible de los 6 agentes.",
+      "Sin ocultar cómo trabaja la IA: fragmento y página verificados contra el OCR, datos extraídos por campo y la bitácora real de los 6 agentes más el Dictamen.",
   },
 ] as const;
 
@@ -260,6 +260,30 @@ export function InicioPitchView({
             );
           })}
         </div>
+
+        <Card className="border-border bg-secondary/40">
+          <CardHeader>
+            <div className="flex items-center justify-between gap-2">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Sparkles className="h-4 w-4 text-primary" />
+                Cierre · Dictamen
+              </CardTitle>
+              <Badge variant="outline" className="border-border text-primary">
+                Cierre del grafo
+              </Badge>
+            </div>
+            <CardDescription>
+              La Recepción vuelve como validador final, después de los 6 agentes.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="text-sm leading-relaxed text-muted-foreground">
+            Verifica que cada fragmento citado exista en el texto OCR, calcula
+            la confianza con señales medibles y aplica las reglas de dictamen.
+            Emite Cumple, Requiere revisión o No cumple. Si no es Cumple, la
+            respuesta marca revisión humana y lista los puntos a verificar. Un
+            juicio del modelo nunca rechaza por sí solo.
+          </CardContent>
+        </Card>
       </section>
 
       <section>
@@ -271,8 +295,9 @@ export function InicioPitchView({
                   Cobertura de los 8 requisitos del reto
                 </CardTitle>
                 <CardDescription>
-                  Cada capacidad exigida se asigna explícitamente a un agente
-                  verificable del flujo.
+                  Cada capacidad queda en el agente que realmente la ejecuta en
+                  el grafo. La evidencia y la recomendación las cierra el
+                  Dictamen.
                 </CardDescription>
               </div>
               <Badge variant="default">8 / 8 cubiertos</Badge>
