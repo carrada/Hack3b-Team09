@@ -1,0 +1,35 @@
+tipo: alineamiento
+nombre: "Constancia de alineamiento y número oficial"
+clasificacion:
+  palabras_clave: [alineamiento, "numero oficial", "constancia de alineamiento", restriccion, paramento,
+                   "desarrollo urbano", "via publica", "asignacion de numero", "derecho de via"]
+campos:
+  - {nombre: direccion, obligatorio: true, descripcion: "Dirección oficial del inmueble"}
+  - {nombre: numero_oficial, obligatorio: true, descripcion: "Número oficial asignado"}
+  - {nombre: colonia, obligatorio: false, descripcion: "Colonia"}
+  - {nombre: codigo_postal, obligatorio: false, descripcion: "Código postal"}
+  - {nombre: municipio, obligatorio: false, descripcion: "Municipio"}
+  - {nombre: clave_catastral, obligatorio: false, descripcion: "Clave catastral / identificación del predio"}
+  - {nombre: lote_manzana, obligatorio: false, descripcion: "Lote, manzana o identificación del predio"}
+  - {nombre: propietario, obligatorio: false, descripcion: "Propietario o solicitante"}
+  - {nombre: superficie, obligatorio: false, descripcion: "Superficie del predio, con unidad"}
+  - {nombre: alineamiento, obligatorio: true, descripcion: "Alineamiento determinado: restricciones, afectaciones, metros de restricción"}
+  - {nombre: fecha_emision, obligatorio: true, descripcion: "Fecha de expedición"}
+  - {nombre: vigencia, obligatorio: false, descripcion: "Vigencia indicada (fecha o plazo) tal cual"}
+  - {nombre: autoridad_emisora, obligatorio: true, descripcion: "Dependencia que emite"}
+  - {nombre: folio_documento, obligatorio: false, descripcion: "Folio/número de constancia"}
+reglas:
+  - {id: ALN-01, tipo: campo_presente, campo: numero_oficial, severidad: critica, si_falla: requiere_revision,
+     descripcion: "La constancia asigna un número oficial"}
+  - {id: ALN-02, tipo: campo_presente, campo: alineamiento, severidad: menor, si_falla: requiere_revision,
+     descripcion: "La constancia determina el alineamiento"}
+  # si_vencido: requiere_revision por defecto (una constancia vencida suele poder renovarse).
+  # Cambiar a no_cumple si las reglas oficiales lo indican.
+  - {id: ALN-03, tipo: vigencia, campo_emision: fecha_emision, campo_vigencia: vigencia,
+     vigencia_default_dias: null, dias_alerta: 30, si_vencido: requiere_revision, si_indeterminable: info,
+     severidad: menor, descripcion: "La constancia está vigente (cuando aplica)"}
+  - {id: ALN-04, tipo: llm_check, severidad: menor, si_falla: requiere_revision, campos: [alineamiento],
+     pregunta: "¿El alineamiento indica afectaciones o restricciones (derecho de vía, ampliación de vialidad, zona federal) que puedan afectar la operación como {uso}? Responde 'cumple' si no hay afectaciones relevantes.",
+     descripcion: "Sin afectaciones relevantes en el alineamiento"}
+  - {id: ALN-05, tipo: autoridad_kb, campo: autoridad_emisora, severidad: info, si_falla: info,
+     descripcion: "Autoridad emisora registrada en la base de conocimiento"}

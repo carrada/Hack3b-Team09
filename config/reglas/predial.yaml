@@ -1,0 +1,30 @@
+tipo: predial
+nombre: "Boleta / recibo de impuesto predial"
+clasificacion:
+  palabras_clave: [predial, "impuesto predial", contribuyente, tesoreria, "recibo de pago", "cuenta predial",
+                   "valor catastral", bimestre, "base gravable", "clave catastral", "ejercicio fiscal"]
+campos:
+  - {nombre: propietario, obligatorio: true, descripcion: "Nombre del propietario o contribuyente"}
+  - {nombre: curp_rfc_propietario, obligatorio: false, descripcion: "RFC o CURP del contribuyente si aparece"}
+  - {nombre: direccion, obligatorio: true, descripcion: "Ubicación del PREDIO (no el domicilio fiscal o de notificación si es distinto)"}
+  - {nombre: numero_oficial, obligatorio: false, descripcion: "Número exterior del predio"}
+  - {nombre: colonia, obligatorio: false, descripcion: "Colonia"}
+  - {nombre: codigo_postal, obligatorio: false, descripcion: "Código postal"}
+  - {nombre: municipio, obligatorio: false, descripcion: "Municipio"}
+  - {nombre: clave_catastral, obligatorio: true, descripcion: "Clave catastral o cuenta predial"}
+  - {nombre: superficie, obligatorio: false, descripcion: "Superficie de TERRENO registrada, con unidad"}
+  - {nombre: superficie_construccion, obligatorio: false, descripcion: "Superficie construida, con unidad"}
+  - {nombre: periodo_pagado, obligatorio: true, descripcion: "Año/ejercicio y periodo (bimestre) pagado"}
+  - {nombre: fecha_pago, obligatorio: false, descripcion: "Fecha de pago"}
+  - {nombre: autoridad_emisora, obligatorio: false, descripcion: "Tesorería / municipio que emite"}
+reglas:
+  - {id: PRE-01, tipo: campo_presente, campo: clave_catastral, severidad: critica, si_falla: requiere_revision,
+     descripcion: "El predial indica la clave catastral / cuenta predial"}
+  - {id: PRE-02, tipo: campo_presente, campo: propietario, severidad: menor, si_falla: requiere_revision,
+     descripcion: "El predial indica propietario o contribuyente"}
+  - {id: PRE-03, tipo: anio_pagado, campo: periodo_pagado, anios_atraso_max: 0, severidad: menor, si_falla: requiere_revision,
+     descripcion: "El predial está pagado al ejercicio vigente"}
+  - {id: PRE-04, tipo: curp_rfc, campo: curp_rfc_propietario, severidad: menor, si_falla: requiere_revision,
+     descripcion: "RFC/CURP del contribuyente con formato válido (si aparece)"}
+  - {id: PRE-05, tipo: autoridad_kb, campo: autoridad_emisora, severidad: info, si_falla: info,
+     descripcion: "Autoridad emisora registrada en la base de conocimiento"}

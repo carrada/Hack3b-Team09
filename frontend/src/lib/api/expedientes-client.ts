@@ -1,5 +1,7 @@
 import { env } from "@/lib/config/env";
 import {
+  AnalisisEstado,
+  AnalisisEstadoSchema,
   CrearExpedienteInput,
   CrearExpedienteResponse,
   CrearExpedienteResponseSchema,
@@ -10,6 +12,7 @@ import {
   HealthResponseSchema,
   ListaExpedientesResponseSchema,
   RevalidarExpedientePayload,
+  UsoRequerido,
 } from "@/lib/contracts";
 import {
   mockCreateExpediente,
@@ -20,6 +23,7 @@ import { ApiClientError, apiRequest } from "./http-client";
 
 export const API_ENDPOINTS = {
   health: "/api/v1/health",
+  analisis: "/api/v1/analisis",
   expedientes: "/api/v1/expedientes",
   expedienteById: (id: string) => `/api/v1/expedientes/${encodeURIComponent(id)}`,
   revalidarExpediente: (id: string) =>
@@ -99,6 +103,32 @@ export async function createExpediente(
     schema: CrearExpedienteResponseSchema,
     signal,
     timeoutMs: 60_000,
+  });
+}
+
+export async function analizarExpediente(
+  input: { uso: UsoRequerido; archivos: File[] },
+  signal?: AbortSignal,
+): Promise<AnalisisEstado> {
+  if (env.useMocks) {
+    throw new ApiClientError(
+      "NEXT_PUBLIC_USE_MOCKS=true: el mock no inventa un dictamen. Pon la variable en false y arranca el backend en el puerto 8000.",
+      { status: 0, code: "MOCKS_ENABLED" },
+    );
+  }
+
+  const formData = new FormData();
+  formData.append("uso", input.uso);
+  for (const file of input.archivos) {
+    formData.append("files", file);
+  }
+
+  return apiRequest(API_ENDPOINTS.analisis, {
+    method: "POST",
+    body: formData,
+    schema: AnalisisEstadoSchema,
+    signal,
+    timeoutMs: 600_000,
   });
 }
 

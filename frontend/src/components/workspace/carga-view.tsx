@@ -1,7 +1,7 @@
 "use client";
 
-import { Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -10,95 +10,69 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { FileUpload } from "@/components/ui/file-upload";
-import StatusMark from "@/components/ui/StatusMark";
-import { FieldReviewPanel } from "@/components/workspace/field-review-panel";
-import type { StatusMarkState } from "@/components/ui/StatusMark";
-import {
-  DOCUMENTOS_MINIMOS_RETO_1,
-  TIPO_DOCUMENTO_LABELS,
-  type DocumentoRevision,
-  type TipoDocumento,
-} from "@/lib/contracts";
+import { DocumentoLadoALado } from "@/components/workspace/documento-lado-a-lado";
+import type { AnalisisEstado, UsoRequerido } from "@/lib/contracts";
 
 export function CargaView({
   files,
-  documentos,
-  confirmedAt,
-  isConfirming,
+  uso,
+  isRunning,
+  error,
+  elapsedSec,
+  analisis,
+  manuales,
+  onUsoChange,
   onFilesAdded,
   onRemoveByIndex,
   onClear,
-  onChangeDocType,
-  onSaveField,
-  onRestoreField,
-  onRemoveDoc,
-  onConfirmForValidation,
-  agentStatuses,
-  analysisElapsedSec,
+  onAnalizar,
+  onManualChange,
+  onVerDictamen,
 }: {
   files: File[];
-  documentos: DocumentoRevision[];
-  confirmedAt: string | null;
-  isConfirming: boolean;
+  uso: UsoRequerido;
+  isRunning: boolean;
+  error: string | null;
+  elapsedSec: number | null;
+  analisis: AnalisisEstado | null;
+  manuales: Record<string, string>;
+  onUsoChange: (uso: UsoRequerido) => void;
   onFilesAdded: (newFiles: File[]) => void;
   onRemoveByIndex: (index: number) => void;
   onClear: () => void;
-  onChangeDocType: (documentoId: string, tipo: TipoDocumento) => void;
-  onSaveField: (documentoId: string, clave: string, valor: string) => void;
-  onRestoreField: (documentoId: string, clave: string) => void;
-  onRemoveDoc: (documentoId: string) => void;
-  onConfirmForValidation: () => void;
-  agentStatuses: readonly StatusMarkState[];
-  analysisElapsedSec: number | null;
+  onAnalizar: () => void;
+  onManualChange: (documentoId: string, nombre: string, valor: string) => void;
+  onVerDictamen: () => void;
 }) {
-  const tiposPresentes = new Set(documentos.map((doc) => doc.tipoSeleccionado));
-  const completados = DOCUMENTOS_MINIMOS_RETO_1.filter((t) =>
-    tiposPresentes.has(t),
-  ).length;
-
   return (
     <div className="flex flex-col gap-6">
       <Card className="border-border bg-white">
         <CardHeader>
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <CardTitle className="text-base">
-              Subir documentos del expediente
-            </CardTitle>
+            <CardTitle className="text-base">Documentos y uso</CardTitle>
             <Badge variant="secondary" className="border-border text-primary">
-              Checklist: {completados}/4 tipos mínimos
+              {files.length} archivo{files.length === 1 ? "" : "s"}
             </Badge>
           </div>
           <CardDescription>
-            Agrega uno o varios PDFs del inmueble. Puedes quitar archivos
-            individuales o limpiar toda la carga directamente dentro del
-            cargador.
+            Elige tienda o CEDIS y sube los PDF. Al analizar, Recepción dice qué
+            documento es y cada especialista lista los campos que encontró.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-2.5 rounded-xl border border-border bg-secondary/35 p-3.5 sm:grid-cols-2">
-            {DOCUMENTOS_MINIMOS_RETO_1.map((tipo) => {
-              const presente = tiposPresentes.has(tipo);
-              return (
-                <div
-                  key={tipo}
-                  className="flex items-center justify-between rounded-lg border border-border bg-white px-3 py-2"
-                >
-                  <StatusMark
-                    status={presente ? "done" : "pending"}
-                    label={TIPO_DOCUMENTO_LABELS[tipo]}
-                    color="#7A0704"
-                    doneColor="#22c55e"
-                    errorColor="#E10600"
-                    size={18}
-                    fontSize={13}
-                    strike
-                  />
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="w-full rounded-xl border border-dashed border-border bg-white">
+          <label className="flex max-w-sm flex-col gap-1.5 text-sm font-medium text-foreground">
+            Uso requerido
+            <select
+              value={uso}
+              disabled={isRunning}
+              onChange={(event) => onUsoChange(event.target.value as UsoRequerido)}
+              className="h-9 rounded-lg border border-border bg-white px-3 text-sm font-normal"
+            >
+              <option value="tienda">Tienda (comercial)</option>
+              <option value="cedis">CEDIS (bodega / industrial)</option>
+            </select>
+          </label>
+          <div className="rounded-xl border border-dashed border-border">
             <FileUpload
               files={files}
               multiple
@@ -107,40 +81,47 @@ export function CargaView({
               onClear={onClear}
             />
           </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button type="button" disabled={files.length === 0 || isRunning} onClick={onAnalizar}>
+              {isRunning ? "Leyendo documentos…" : analisis ? "Volver a analizar" : "Detectar campos"}
+            </Button>
+            {analisis && (
+              <Button type="button" variant="outline" onClick={onVerDictamen}>
+                Ver dictamen
+              </Button>
+            )}
+            {elapsedSec !== null && (
+              <span className="text-xs text-muted-foreground">{elapsedSec.toFixed(1)} s</span>
+            )}
+          </div>
+          {error && (
+            <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+              {error}
+            </p>
+          )}
         </CardContent>
       </Card>
 
-      {documentos.length === 0 ? (
-        <Card className="border-border bg-white">
-          <CardContent className="pt-5">
-            <div className="flex items-start gap-2.5 rounded-lg border border-border bg-secondary/40 p-4 text-xs leading-relaxed text-muted-foreground">
-              <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-              <p>
-                En cuanto subas uno o más documentos arriba, se desplegará aquí
-                el{" "}
-                <span className="font-semibold text-foreground">
-                  panel interactivo de revisión y edición de campos
-                </span>{" "}
-                para verificar el tipo documental y modificar opcionalmente
-                cualquier dato que falte o salga dudoso antes de dictaminar.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <FieldReviewPanel
-          documentos={documentos}
-          files={files}
-          confirmedAt={confirmedAt}
-          isConfirming={isConfirming}
-          onChangeDocType={onChangeDocType}
-          onSaveField={onSaveField}
-          onRestoreField={onRestoreField}
-          onRemoveDoc={onRemoveDoc}
-          onConfirmForValidation={onConfirmForValidation}
-          agentStatuses={agentStatuses}
-          analysisElapsedSec={analysisElapsedSec}
-        />
+      {analisis && (
+        <section className="flex flex-col gap-3">
+          <div>
+            <h2 className="text-lg font-semibold text-foreground">
+              Campos según el documento
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              El PDF queda a la izquierda. A la derecha, lo que el especialista
+              detectó. Si falta un dato, escríbelo: queda como captura manual y
+              no vuelve a correr el grafo.
+            </p>
+          </div>
+          <DocumentoLadoALado
+            files={files}
+            resultados={analisis.resultados_verificados}
+            manuales={manuales}
+            editable
+            onManualChange={onManualChange}
+          />
+        </section>
       )}
     </div>
   );
