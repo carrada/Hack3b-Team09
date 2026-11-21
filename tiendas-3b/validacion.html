@@ -12,10 +12,10 @@
     main { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; min-height: 0; }
     .top { position: relative; flex: none; background: var(--panel); border-bottom: 1px solid var(--borde); padding: 10px 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
     .top h1 { margin: 0; font-size: 15px; font-weight: 600; } .top .m { font-size: 11px; color: var(--gris); }
-    .top .cnt { display: inline-flex; align-items: center; gap: 14px; font-size: 13px; color: #3A3A37; } .top .cnt span { display: inline-flex; align-items: center; gap: 6px; } .top .cnt i { width: 9px; height: 9px; display: inline-block; }
+    .top .cnt { display: inline-flex; align-items: center; gap: 14px; font-size: 13px; color: #0B0C0C; } .top .cnt span { display: inline-flex; align-items: center; gap: 6px; } .top .cnt i { width: 9px; height: 9px; display: inline-block; }
     .tabs { flex: none; display: flex; gap: 2px; padding: 0 20px; background: var(--panel); border-bottom: 1px solid var(--borde); overflow-x: auto; }
     .tabs button { height: 42px; padding: 0 12px; border: 0; background: transparent; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; font-size: 13px; font-weight: 500; color: var(--gris); border-bottom: 2px solid transparent; }
-    .tabs button.on { color: var(--tinta); border-bottom-color: var(--tinta); } .tabs button i { width: 7px; height: 7px; background: #D3D1CA; transition: background .3s; }
+    .tabs button.on { color: var(--tinta); border-bottom-color: var(--tinta); } .tabs button i { width: 7px; height: 7px; background: #B1B4B6; transition: background .3s; }
     .cuerpo { flex: 1 1 0; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; }
     .paralelo { flex: none; overflow-x: auto; padding: 16px 20px 16px; }
     .cols { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; min-width: 1000px; }
@@ -24,8 +24,8 @@
     .marco { display: flex; justify-content: center; padding: 10px 0; background: #E4E2DC; transition: box-shadow .3s; }
     .hojita { position: relative; width: 243px; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.14); overflow: hidden; }
     .hojita img { display: block; width: 100%; } .hojita .n { position: absolute; inset: 0; background: #fff; transition: clip-path .6s cubic-bezier(.2,.7,.2,1); }
-    .hojita .c { position: absolute; box-sizing: border-box; border: 3px solid; border-radius: 3px; transition: top .6s cubic-bezier(.2,.7,.2,1), left .6s cubic-bezier(.2,.7,.2,1), width .6s cubic-bezier(.2,.7,.2,1), height .6s cubic-bezier(.2,.7,.2,1), border-color .3s; }
-    .vacia { width: 243px; height: 314px; border: 1.5px dashed #B9B6AD; background: #EFEDE7; display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px; font-size: 13px; color: var(--gris); line-height: 1.5; }
+    .hojita .c { position: absolute; box-sizing: border-box; border: 3px solid; border-radius: 0; transition: top .6s cubic-bezier(.2,.7,.2,1), left .6s cubic-bezier(.2,.7,.2,1), width .6s cubic-bezier(.2,.7,.2,1), height .6s cubic-bezier(.2,.7,.2,1), border-color .3s; }
+    .vacia { width: 243px; height: 314px; border: 1.5px dashed #B1B4B6; background: #EFEDE7; display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px; font-size: 13px; color: var(--gris); line-height: 1.5; }
     .valor { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; background: #fff; border: 1px solid var(--borde); } .valor small { font-size: 11px; color: var(--gris); }
     .valor span { font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 14px; line-height: 1.35; }
     .banda { flex: none; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; padding: 12px 20px; border-top: 1px solid var(--borde); transition: background .3s; }
@@ -41,15 +41,15 @@
     .matriz .ic2 { flex: none; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; color: #fff; }
     .matriz .na { color: #A6A49D; } .matriz td.r { text-align: right; } .matriz .res { display: inline-block; padding: 4px 10px; font-weight: 600; font-size: 12px; }
     .nota { margin: 0 20px 0; padding: 10px 0 0; font-size: 12px; color: var(--gris); }
-    mark { background: #F6D2CE; color: #7A1812; padding: 0 2px; border-radius: 2px; }
+    mark { background: #F6D2CE; color: #7A1812; padding: 0 2px; border-radius: 0; }
     .rec { position: relative; overflow: hidden; background: #E4E2DC; cursor: zoom-in; width: calc(100% + 20px); box-sizing: border-box; margin: -8px -10px 8px; border-bottom: 1px solid var(--borde); }
     .rec img { position: absolute; display: block; max-width: none; }
-    .rec .c, .vis-pg .c { position: absolute; box-sizing: border-box; border: 2px solid; border-radius: 2px; pointer-events: none; }
+    .rec .c, .vis-pg .c { position: absolute; box-sizing: border-box; border: 2px solid; border-radius: 0; pointer-events: none; }
     .rec .lupa { position: absolute; right: 6px; bottom: 6px; padding: 3px 8px; font-size: 11px; font-weight: 500; background: rgba(27,27,26,.82); color: #fff; }
     .marco[data-ver] { cursor: zoom-in; }
-    .vis { position: fixed; inset: 0; z-index: 50; display: none; flex-direction: column; background: #1B1B1A; color: #fff; }
+    .vis { position: fixed; inset: 0; z-index: 50; display: none; flex-direction: column; background: #0B0C0C; color: #fff; }
     .vis.on { display: flex; }
-    .vis-top { flex: none; display: flex; align-items: center; gap: 10px; padding: 10px 20px; box-shadow: inset 0 -1px 0 #3A3A37; }
+    .vis-top { flex: none; display: flex; align-items: center; gap: 10px; padding: 10px 20px; box-shadow: inset 0 -1px 0 #0B0C0C; }
     .vis-top small { display: block; font-size: 11px; color: #A6A49D; } .vis-top b { font-size: 15px; font-weight: 600; }
     .vis-top button { height: 32px; min-width: 32px; padding: 0 12px; border: 1px solid #5A5A56; background: transparent; color: #fff; font: inherit; font-size: 13px; cursor: pointer; }
     .vis-top button:hover { background: #2E2E2C; } .vis-top button.cerrar { background: #B3261E; border-color: #B3261E; }
@@ -59,6 +59,7 @@
     .vis-pg { position: relative; margin: 0 auto; background: #fff; }
     .vis-pg img { display: block; width: 100%; user-select: none; -webkit-user-drag: none; }
   </style>
+  <link rel="stylesheet" href="tema.css?v=6">
 </head>
 <body>
 <div class="app">
@@ -69,7 +70,7 @@
       <span class="sep"></span>
       <div style="display:flex;flex-direction:column"><h1>Validación cruzada</h1><span class="m mono" id="sub"></span></div>
       <span class="grow"></span>
-      <span class="cnt"><span><i style="background:#2F7A4A"></i><b id="nOk">0</b>&nbsp;coinciden</span><span><i style="background:#B3261E"></i><b id="nDif">0</b>&nbsp;difieren</span><span><i style="background:#8E8E89"></i><b id="nPen">0</b>&nbsp;sin contraste</span></span>
+      <span class="cnt"><span><b id="nOk">0</b>&nbsp;coinciden</span><span><b id="nDif">0</b>&nbsp;difieren</span><span><b id="nPen">0</b>&nbsp;sin contraste</span></span>
       <button class="btn neg" id="btnRun" style="height:32px;padding:0 14px"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8z"/></svg><span id="runTxt">Analizar de nuevo</span></button>
       <div class="prog" id="prog" style="width:0"></div>
     </div>
@@ -85,7 +86,7 @@
 <div class="vis" id="vis" role="dialog" aria-label="Documento ampliado">
   <div class="vis-top">
     <div><small id="visDoc"></small><b id="visDato"></b></div><span class="grow"></span>
-    <button id="visPrev" title="Documento anterior (←)">← Anterior</button><button id="visNext" title="Documento siguiente (→)">Siguiente →</button>
+    <button id="visPrev" title="Documento anterior (←)">← Anterior</button><button id="visNext" title="Documento siguiente (→)">Siguiente</button>
     <button id="visMenos" title="Alejar (−)">−</button><button id="visMas" title="Acercar (+)">+</button><button id="visDato2" title="Volver a la zona marcada">Ir al dato</button>
     <button class="cerrar" id="visCerrar" title="Cerrar (Esc)">Cerrar</button>
   </div>
@@ -168,14 +169,14 @@
     $('sub').textContent = `EXP · ${expCat ? expCat.nombre : (typeof TIENDAS === 'undefined' ? [] : TIENDAS).find(t => t.id === EXP)?.dir || 'sin nombre'} · ${TIPOS.filter(t => docs()[t.k]).length} de 4 documentos`;
     $('runTxt').textContent = fase === 'corre' ? `Analizando ${Math.min(CAMPOS.length, CAMPOS.findIndex(x => x.id === campo) + 1)}/${CAMPOS.length}` : 'Analizar de nuevo';
     $('prog').style.width = fase === 'corre' ? (CAMPOS.filter(x => rev[x.id]).length / CAMPOS.length * 100) + '%' : '0';
-    $('tabs').innerHTML = CAMPOS.map(x => `<button role="tab" aria-selected="${x.id === campo}" class="${x.id === campo ? 'on' : ''}" data-c="${x.id}"><i style="${visible(x.id) ? `background:${COL[resultado(x)]}` : ''}"></i>${x.label}</button>`).join('');
+    $('tabs').innerHTML = CAMPOS.map(x => `<button role="tab" aria-selected="${x.id === campo}" class="${x.id === campo ? 'on' : ''}" data-c="${x.id}">${x.label}${visible(x.id) ? `<small class="est-t ${resultado(x)}"> · ${{ok: 'coincide', dif: 'difiere', pen: 'sin contraste'}[resultado(x)]}</small>` : ''}</button>`).join('');
 
     const rec = r => `inset(${r[1] * 100}% ${(1 - r[0] - r[2]) * 100}% ${(1 - r[1] - r[3]) * 100}% ${r[0] * 100}% round 3px)`;
     visor = [];
     $('cols').innerHTML = TIPOS.map(t => {
       const cl = celda(c, t), nombre = t.t, pg = ans[t.k] ? ans[t.k].paginas[(cl.p ? cl.p.pagina : 1) - 1] : null;
       const est = lee ? 'leyendo…' : cl.est === 'falta' ? 'no recibido' : cl.est === 'cola' ? 'en cola' : cl.est === 'na' ? 'no aplica' : cl.est === 'ilegible' ? 'ilegible' : (res === 'dif' ? 'difiere' : res === 'ok' ? 'coincide' : 'sin contraste');
-      const col = lee ? '#6A6A65' : cl.est === 'ok' ? COL[res] : cl.est === 'ilegible' ? COL.dif : '#8E8E89';
+      const col = lee ? '#505A5F' : cl.est === 'ok' ? COL[res] : cl.est === 'ilegible' ? COL.dif : '#8E8E89';
       const dif = !lee && cl.est === 'ok' && res === 'dif', r = cl.p ? cl.p.rect : null;
       const html = lee ? 'leyendo…' : cl.v ? (dif ? conMarca(c, t.k, cl.v, res) : escapar(cl.v)) : '—';
       let marco, ver = '', rc = '';
@@ -196,11 +197,11 @@
 
     const vals = TIPOS.map(t => Object.assign({ doc: t.t }, celda(c, t))).filter(x => x.est === 'ok'), sinDato = TIPOS.filter(t => celda(c, t).est !== 'ok').map(t => t.t);
     const grupos = []; vals.forEach(x => { const k = Modulo.normalizar(x.v), g = grupos.find(y => y.k === k); if (g) g.docs.push(x.doc); else grupos.push({ k, v: x.v, docs: [x.doc] }); });
-    const fondo = lee ? '#FAFAF8' : res === 'dif' ? '#FCEEEC' : res === 'ok' ? '#F0F6F2' : '#F4F3EF', barra = lee ? '#1B1B1A' : COL[res];
+    const fondo = lee ? '#FFFFFF' : res === 'dif' ? '#FCEEEC' : res === 'ok' ? '#F0F6F2' : '#F4F3EF', barra = lee ? '#0B0C0C' : COL[res];
     $('banda').style.cssText = `background:${fondo};box-shadow:inset 4px 0 0 ${barra}`;
     $('banda').innerHTML = `<div style="display:flex;flex-direction:column;gap:4px;min-width:200px"><span class="k">Dato seleccionado</span><span class="t">${c.label}</span></div>
-      <span class="pill" style="${lee ? 'border:1px dashed #1B1B1A' : `color:#fff;background:${barra}`}">${lee ? 'Analizando…' : res === 'dif' ? '≠  Requiere revisión' : res === 'ok' ? '=  Coincide en todos' : 'Sin contraste posible'}</span>
-      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;flex:1">${mostrar && !lee ? grupos.map(g => `<span class="grupo" style="${res === 'dif' ? 'border-color:#E7B3AE' : res === 'pen' ? 'border-color:#D3D1CA' : ''}"><b>${res === 'dif' ? marcar(g.v, grupos.filter(y => y !== g).map(y => y.v)) : escapar(g.v)}</b><span>${escapar(g.docs.join(' · '))}</span></span>`).join('') : ''}
+      <span class="pill" style="${lee ? 'border:1px dashed #0B0C0C' : `color:#fff;background:${barra}`}">${lee ? 'Analizando…' : res === 'dif' ? '≠  Requiere revisión' : res === 'ok' ? '=  Coincide en todos' : 'Sin contraste posible'}</span>
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;flex:1">${mostrar && !lee ? grupos.map(g => `<span class="grupo" style="${res === 'dif' ? 'border-color:#E7B3AE' : res === 'pen' ? 'border-color:#B1B4B6' : ''}"><b>${res === 'dif' ? marcar(g.v, grupos.filter(y => y !== g).map(y => y.v)) : escapar(g.v)}</b><span>${escapar(g.docs.join(' · '))}</span></span>`).join('') : ''}
         ${mostrar && !lee && sinDato.length ? `<span style="font-size:12px;color:#8E8E89">Sin dato en: ${escapar(sinDato.join(', '))}</span>` : ''}</div>`;
 
     $('thead').innerHTML = `<tr><th style="width:200px">Dato</th>${TIPOS.map(t => `<th>${t.t}</th>`).join('')}<th style="text-align:right;width:140px">Resultado</th></tr>`;
@@ -208,8 +209,8 @@
       const r = resultado(x), v = visible(x.id), cur = fase === 'corre' && campo === x.id;
       const cel = TIPOS.map(t => { const cl = celda(x, t); return `<td class="${cl.v && v ? '' : 'na'}">${!v ? (cur ? 'leyendo…' : '· · ·') : cl.v ? conMarca(x, t.k, cl.v, r) : cl.est === 'falta' ? 'no recibido' : '—'}</td>`; }).join('');
       const bg = !v ? '#8E8E89' : COL[r];
-      return `<tr class="${x.id === campo ? 'sel' : ''}" id="row-${x.id}"><th scope="row"><button data-c="${x.id}"><span class="ic2" style="background:${v ? bg : '#E6E4DE'};${v ? '' : 'color:#6A6A65'}">${!v ? (cur ? '…' : '·') : r === 'dif' ? '≠' : r === 'ok' ? '=' : '?'}</span>${x.label}</button></th>${cel}
-        <td class="r">${v ? `<span class="res" style="${r === 'dif' ? 'background:#B3261E;color:#fff' : r === 'ok' ? 'color:#2F7A4A;border:1px solid #BFD9C7;background:#F0F6F2' : 'color:#6A6A65;border:1px solid #D3D1CA'}">${r === 'dif' ? '≠  Revisar' : r === 'ok' ? '=  Coincide' : 'Sin contraste'}</span>` : `<span style="font-size:12px;color:#6A6A65">${cur ? 'analizando…' : '—'}</span>`}</td></tr>`;
+      return `<tr class="${x.id === campo ? 'sel' : ''}" id="row-${x.id}"><th scope="row"><button data-c="${x.id}"><span class="ic2" style="background:${v ? bg : '#E1E3E4'};${v ? '' : 'color:#505A5F'}">${!v ? (cur ? '…' : '·') : r === 'dif' ? '≠' : r === 'ok' ? '=' : '?'}</span>${x.label}</button></th>${cel}
+        <td class="r">${v ? `<span class="res" style="${r === 'dif' ? 'background:#B3261E;color:#fff' : r === 'ok' ? 'color:#2F7A4A;border:1px solid #BFD9C7;background:#F0F6F2' : 'color:#505A5F;border:1px solid #B1B4B6'}">${r === 'dif' ? '≠  Revisar' : r === 'ok' ? '=  Coincide' : 'Sin contraste'}</span>` : `<span style="font-size:12px;color:#505A5F">${cur ? 'analizando…' : '—'}</span>`}</td></tr>`;
     }).join('');
     const n = TIPOS.filter(t => docs()[t.k]).length;
     $('nota').textContent = n < 2 ? 'Solo hay un documento con análisis: para comparar un dato hacen falta al menos dos. Los datos que ningún documento recibido trae aparecen como «—».' : '';

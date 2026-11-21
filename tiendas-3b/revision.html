@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="paginas.css">
+  <link rel="stylesheet" href="tema.css?v=6">
 </head>
 <body>
 <div class="app">
@@ -122,14 +123,14 @@
   function enfoques() {
     const d = decisiones(), p = actual(), out = [];
     if (modo === 'manual') {
-      if (terminado()) pasos().forEach(s => { if (s.pagina === paginaActual) out.push({ r: s.rect, chica: true, color: d[s.n] ? DEC[d[s.n]][1] : '#1B1B1A',
+      if (terminado()) pasos().forEach(s => { if (s.pagina === paginaActual) out.push({ r: s.rect, chica: true, color: d[s.n] ? DEC[d[s.n]][1] : '#0B0C0C',
         tag: s.n + ' · ' + (d[s.n] ? DEC[d[s.n]][0] : 'sin verificar') }); });
-      else if (p) out.push({ r: p.rect, color: d[p.n] ? DEC[d[p.n]][1] : '#1B1B1A',
+      else if (p) out.push({ r: p.rect, color: d[p.n] ? DEC[d[p.n]][1] : '#0B0C0C',
         tag: `Punto ${p.n}/${N()} · ${p.campo}${p.ok ? '' : ' · marcado por el agente'}` });
     } else if (terminado()) {
       pasos().filter(s => !s.ok && s.pagina === paginaActual).forEach((s, i) => out.push({ r: s.rect, color: '#D98A00', tag: `${s.n} · ${s.campo}` }));
     } else if (p) {
-      out.push({ r: p.rect, parpadea: leyendo, color: leyendo ? '#1B1B1A' : (p.ok ? '#2F7A4A' : '#D98A00'),
+      out.push({ r: p.rect, parpadea: leyendo, color: leyendo ? '#0B0C0C' : (p.ok ? '#2F7A4A' : '#D98A00'),
         tag: leyendo ? p.agente + ' · leyendo' : p.agente + (p.ok ? ' · ok' : ' · revisar') });
     }
     return out;

@@ -91,9 +91,9 @@
 
   /* ----- gravedad, reglas y hallazgos ----- */
   const SEV = {
-    bloq: { label: 'Bloqueante',  glyph: '!', color: '#B3261E', soft: '#FBE1DD', key: '#F3B8B0', orden: 0 },
-    rev:  { label: 'Revisar',     glyph: '?', color: '#B26E00', soft: '#FFF1C2', key: '#FFD966', orden: 1 },
-    info: { label: 'Informativo', glyph: 'i', color: '#3B5E8C', soft: '#E3EBF5', key: '#C3D4EA', orden: 2 }
+    bloq: { label: 'Bloqueante',  glyph: '!', color: '#B3261E', soft: '#F3F3F3', key: '#F3B8B0', orden: 0 },
+    rev:  { label: 'Revisar',     glyph: '?', color: '#B26E00', soft: '#F3F3F3', key: '#FFD966', orden: 1 },
+    info: { label: 'Informativo', glyph: 'i', color: '#3B5E8C', soft: '#F3F3F3', key: '#C3D4EA', orden: 2 }
   };
   // reglas del expediente (VC = validación cruzada, ESC = escritura, DOC = calidad del documento)
   const REGLAS = {
@@ -215,7 +215,7 @@
     const item = (k, titulo, href) => activo === k
       ? `<button class="ic on" aria-label="${titulo}" aria-current="page">${svg(IC[k])}<span class="lb">${titulo}</span></button>`
       : `<a class="ic" href="${href}" aria-label="${titulo}" title="${titulo}">${svg(IC[k])}<span class="lb">${titulo}</span></a>`;
-    return `<div class="logo">3B</div>${item('tiendas', 'Mapa', hrefMapa(exp))}${item('expedientes', 'Documentos', 'analizador.html' + q)}${item('validacion', 'Cruce', 'validacion.html' + q)}`;
+    return `<img class="logo" src="recursos/logo3b.jpg" alt="Tiendas 3B">${item('tiendas', 'Mapa', hrefMapa(exp))}${item('expedientes', 'Documentos', 'analizador.html' + q)}${item('validacion', 'Cruce', 'validacion.html' + q)}`;
   }
   // selector de vista del mismo expediente: Documentos · Cruce de datos · Agentes
   function nav(activo, exp, docId) {
