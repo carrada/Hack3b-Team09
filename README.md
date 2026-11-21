@@ -142,3 +142,11 @@ npm run start
 La aplicación queda en http://localhost:3000.
 
 Si hace falta apuntar a un backend, copia `frontend/.env.example` a `frontend/.env.local` antes de instalar y correr.
+
+### Cargar expedientes reales (zonas en estudio)
+```powershell
+python -m api                                         # en una terminal
+python -m api.importar Expedientes --proveedor openai # en otra: cada subcarpeta = un expediente / zona del mapa
+```
+Sube los PDFs de cada subcarpeta (los demás archivos se ignoran); los chicos primero. `--proveedor` aplica solo a esa
+carga (el resto sigue con `LLM_PROVIDER` de `.env`). `Expedientes/` está en `.gitignore`: los datos nunca van al repo.

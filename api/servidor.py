@@ -28,7 +28,7 @@ from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
-from expediente.config import DIR_CACHE, RAIZ, proveedor
+from expediente.config import DIR_CACHE, RAIZ, fijar_ajustes, proveedor
 from expediente.fila import Fila
 
 from .contrato import ANCHO_IMG, convertir
@@ -73,9 +73,11 @@ def _publico(a: dict) -> dict:
 
 
 # ------------------------------------------------------------------ análisis en segundo plano
-def _procesar(exp: str, uso: str) -> None:
+def _procesar(exp: str, uso: str, prov: str | None = None) -> None:
     from expediente.reporte import ejecutar  # import tardío: carga LangGraph/LLM solo al primer análisis
 
+    if prov:  # solo para este análisis (ContextVar del hilo); el resto sigue con LLM_PROVIDER de .env
+        fijar_ajustes(prov, None)
     while True:
         with _lock:
             _trabajos[exp].update(estado="en_fila", rehacer=False, error=None)
@@ -115,14 +117,14 @@ def _procesar(exp: str, uso: str) -> None:
                 return
 
 
-def _lanzar(exp: str, uso: str) -> None:
+def _lanzar(exp: str, uso: str, prov: str | None = None) -> None:
     with _lock:
         t = _trabajos.get(exp)
         if t and t["estado"] in ("en_fila", "procesando"):
             t["rehacer"] = True
             return
         _trabajos[exp] = {"estado": "en_fila", "posicion": None, "error": None, "rehacer": False}
-    threading.Thread(target=_procesar, args=(exp, uso), daemon=True, name=f"analisis-{exp}").start()
+    threading.Thread(target=_procesar, args=(exp, uso, prov), daemon=True, name=f"analisis-{exp}").start()
 
 
 # ------------------------------------------------------------------ app
@@ -136,7 +138,7 @@ def health():
 
 @app.post("/api/expedientes/{exp}/documentos", status_code=202)
 async def subir(exp: str, files: list[UploadFile] = File(...), tipo: str | None = Form(None),
-                uso: str = Form("tienda")):
+                uso: str = Form("tienda"), proveedor_llm: str | None = Form(None, alias="proveedor")):
     exp = _id_seguro(exp)
     carpeta = DIR_EXP / exp / "docs"
     carpeta.mkdir(parents=True, exist_ok=True)
@@ -160,7 +162,8 @@ async def subir(exp: str, files: list[UploadFile] = File(...), tipo: str | None 
         destino.write_bytes(await f.read())
         recibidos.append(nombre)
     if recibidos:
-        _lanzar(exp, uso if uso in ("tienda", "cedis") else "tienda")
+        _lanzar(exp, uso if uso in ("tienda", "cedis") else "tienda",
+                proveedor_llm if proveedor_llm in ("openai", "ollama") else None)
     return {"expediente": exp, "recibidos": recibidos, "rechazados": rechazados, **estado_expediente(exp)}
 
 
