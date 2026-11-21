@@ -1,0 +1,181 @@
+{
+ "id": "tepeji5-uso",
+ "tipo": "uso",
+ "grupo": "tepeji5",
+ "archivo": "USO DE SUELO TEPEJI DEL RIO 5.pdf",
+ "titulo": "Información técnica de uso de suelo · Tepeji del Río",
+ "paginas": [
+  {
+   "n": 1,
+   "img": "paginas/tepeji5-uso/p1.jpg",
+   "w": 1000,
+   "h": 1415
+  },
+  {
+   "n": 2,
+   "img": "paginas/tepeji5-uso/p2.jpg",
+   "w": 1000,
+   "h": 1415
+  }
+ ],
+ "total_paginas": 2,
+ "pasos": [
+  {
+   "pagina": 1,
+   "rect": [
+    0.4218,
+    0.0948,
+    0.3621,
+    0.0798
+   ],
+   "agente": "Extractor",
+   "campo": "Autoridad emisora",
+   "valor": "Secretaría de Desarrollo Urbano y Ordenamiento Territorial · Tepeji del Río",
+   "ok": true,
+   "confianza": 1.0,
+   "n": 1,
+   "t": "00:00.7",
+   "nota": ""
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.7059,
+    0.1704,
+    0.1294,
+    0.0329
+   ],
+   "agente": "Extractor",
+   "campo": "Folio",
+   "valor": "SDUOT/154/25 · Expediente 284-25",
+   "ok": true,
+   "confianza": 0.75,
+   "n": 2,
+   "t": "00:01.4",
+   "nota": ""
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.5247,
+    0.196,
+    0.3107,
+    0.0205
+   ],
+   "agente": "Extractor",
+   "campo": "Tipo documental",
+   "valor": "Información técnica de uso de suelo (no es licencia ni constancia)",
+   "ok": true,
+   "confianza": 1.0,
+   "n": 3,
+   "t": "00:02.1",
+   "nota": "El propio documento lo aclara en el punto 3 de la página 2."
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.5535,
+    0.2088,
+    0.282,
+    0.0236
+   ],
+   "agente": "Extractor",
+   "campo": "Fecha de expedición",
+   "valor": "23 de abril de 2025",
+   "ok": true,
+   "confianza": 1.0,
+   "n": 4,
+   "t": "00:02.8",
+   "nota": ""
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.0987,
+    0.2529,
+    0.1957,
+    0.0245
+   ],
+   "agente": "Extractor",
+   "campo": "Titular actual",
+   "valor": "José Haber Douek",
+   "ok": true,
+   "confianza": 0.5,
+   "n": 5,
+   "t": "00:03.5",
+   "nota": "Solicitante."
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.0989,
+    0.3376,
+    0.7364,
+    0.0429
+   ],
+   "agente": "Extractor",
+   "campo": "Dirección del inmueble",
+   "valor": "Paso del Norte, Avenida Melchor Ocampo, Barrio de Atengo, Tepeji del Río de Ocampo",
+   "ok": true,
+   "confianza": 1.0,
+   "n": 6,
+   "t": "00:04.2",
+   "nota": ""
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.0989,
+    0.3376,
+    0.7364,
+    0.0269
+   ],
+   "agente": "Extractor",
+   "campo": "Identificación del predio",
+   "valor": "El Paso del Norte",
+   "ok": true,
+   "confianza": 1.0,
+   "n": 7,
+   "t": "00:04.9",
+   "nota": ""
+  },
+  {
+   "pagina": 2,
+   "rect": [
+    0.1564,
+    0.2255,
+    0.6871,
+    0.0424
+   ],
+   "agente": "Extractor",
+   "campo": "Uso de suelo",
+   "valor": "Habitacional de media densidad (HMD, 51 a 200 hab./ha)",
+   "ok": false,
+   "confianza": 0.6,
+   "n": 8,
+   "t": "00:05.6",
+   "nota": "La zona es habitacional de media densidad y el documento no autoriza el uso comercial: no es licencia ni constancia de uso de suelo."
+  },
+  {
+   "pagina": 2,
+   "rect": [
+    0.1277,
+    0.3754,
+    0.7138,
+    0.0427
+   ],
+   "agente": "Extractor",
+   "campo": "Vigencia",
+   "valor": "180 días naturales: venció el 20 de octubre de 2025",
+   "ok": false,
+   "confianza": 0.6,
+   "n": 9,
+   "t": "00:06.3",
+   "nota": "Intransferible y de 180 días naturales desde el 23 de abril de 2025. A la fecha de hoy ya venció."
+  }
+ ],
+ "resumen": {
+  "validados": 7,
+  "revisar": 2
+ }
+}

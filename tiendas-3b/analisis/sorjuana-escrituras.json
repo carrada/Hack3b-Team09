@@ -1,0 +1,184 @@
+{
+ "id": "sorjuana-escrituras",
+ "tipo": "escrituras",
+ "grupo": "sorjuana",
+ "archivo": "02. Escritura.pdf",
+ "titulo": "Escritura · sorjuana",
+ "parcial": true,
+ "paginas": [
+  {
+   "n": 1,
+   "img": "paginas/sorjuana-escrituras/p1.jpg",
+   "w": 1000,
+   "h": 1294
+  },
+  {
+   "n": 2,
+   "img": "paginas/sorjuana-escrituras/p2.jpg",
+   "w": 1000,
+   "h": 1294
+  },
+  {
+   "n": 3,
+   "img": "paginas/sorjuana-escrituras/p3.jpg",
+   "w": 1000,
+   "h": 1294
+  },
+  {
+   "n": 4,
+   "img": "paginas/sorjuana-escrituras/p4.jpg",
+   "w": 1000,
+   "h": 1294
+  },
+  {
+   "n": 5,
+   "img": "paginas/sorjuana-escrituras/p5.jpg",
+   "w": 1000,
+   "h": 1294
+  },
+  {
+   "n": 6,
+   "img": "paginas/sorjuana-escrituras/p6.jpg",
+   "w": 1000,
+   "h": 1294
+  },
+  {
+   "n": 7,
+   "img": "paginas/sorjuana-escrituras/p7.jpg",
+   "w": 1000,
+   "h": 1294
+  },
+  {
+   "n": 8,
+   "img": "paginas/sorjuana-escrituras/p8.jpg",
+   "w": 1000,
+   "h": 1294
+  }
+ ],
+ "total_paginas": 8,
+ "pasos": [
+  {
+   "campo": "Tipo documental",
+   "valor": "Escritura pública",
+   "pagina": 1,
+   "rect": [
+    0.06,
+    0.02,
+    0.88,
+    0.12
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 1,
+   "t": "00:00.7",
+   "nota": ""
+  },
+  {
+   "campo": "Dirección del inmueble",
+   "valor": "No legible",
+   "pagina": 1,
+   "rect": [
+    0.08,
+    0.1,
+    0.84,
+    0.05
+   ],
+   "ok": false,
+   "confianza": 0.0,
+   "nota": "Sin lectura automática: no se encontró el dato en el texto reconocido. Verificar en el documento original.",
+   "agente": "Extractor",
+   "n": 2,
+   "t": "00:01.4"
+  },
+  {
+   "campo": "Titular actual",
+   "valor": "ALEXA MONTSERRAT GARCIA CASTRO",
+   "pagina": 1,
+   "rect": [
+    0.1276,
+    0.8433,
+    0.7298,
+    0.0372
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 3,
+   "t": "00:02.1",
+   "nota": ""
+  },
+  {
+   "campo": "Autoridad emisora",
+   "valor": "Ayuntamiento de Tepotzotlán, Estado de México, mismos que agre",
+   "pagina": 4,
+   "rect": [
+    0.1274,
+    0.523,
+    0.7301,
+    0.0418
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 4,
+   "t": "00:02.8",
+   "nota": ""
+  },
+  {
+   "campo": "Clave catastral",
+   "valor": "0000000000000000",
+   "pagina": 6,
+   "rect": [
+    0.1199,
+    0.3961,
+    0.2451,
+    0.0222
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 5,
+   "t": "00:03.5",
+   "nota": ""
+  },
+  {
+   "campo": "Superficie del predio",
+   "valor": "627.42 m²",
+   "pagina": 6,
+   "rect": [
+    0.1293,
+    0.5094,
+    0.5797,
+    0.0283
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 6,
+   "t": "00:04.2",
+   "nota": ""
+  },
+  {
+   "campo": "Fecha de expedición",
+   "valor": "17 DE AGOSTO DEL 2022",
+   "pagina": 6,
+   "rect": [
+    0.1179,
+    0.7546,
+    0.7791,
+    0.0441
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 7,
+   "t": "00:04.9",
+   "nota": ""
+  }
+ ],
+ "resumen": {
+  "validados": 6,
+  "revisar": 1
+ }
+}

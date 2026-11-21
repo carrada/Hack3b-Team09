@@ -1,0 +1,182 @@
+{
+ "id": "sanantonio-alineamiento",
+ "tipo": "alineamiento",
+ "grupo": "sanantonio",
+ "archivo": "03 Alineamiento y Numero Oficial...pdf",
+ "titulo": "Alineamiento y número oficial · sanantonio",
+ "parcial": true,
+ "paginas": [
+  {
+   "n": 1,
+   "img": "paginas/sanantonio-alineamiento/p1.jpg",
+   "w": 1000,
+   "h": 1294
+  },
+  {
+   "n": 2,
+   "img": "paginas/sanantonio-alineamiento/p2.jpg",
+   "w": 1000,
+   "h": 1294
+  }
+ ],
+ "total_paginas": 2,
+ "pasos": [
+  {
+   "campo": "Tipo documental",
+   "valor": "Constancia de alineamiento y número oficial",
+   "pagina": 1,
+   "rect": [
+    0.06,
+    0.02,
+    0.88,
+    0.12
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 1,
+   "t": "00:00.7",
+   "nota": ""
+  },
+  {
+   "campo": "Autoridad emisora",
+   "valor": "H. AYUNTAMIENTO CONSTITUCIONAL DE SANTA INÉS TLALCOYUNCA I ENT BO",
+   "pagina": 1,
+   "rect": [
+    0.0555,
+    0.0365,
+    0.8999,
+    0.0803
+   ],
+   "ok": false,
+   "confianza": 0.6,
+   "nota": "Lectura de baja confianza: verificar contra el original.",
+   "agente": "Extractor",
+   "n": 2,
+   "t": "00:01.4"
+  },
+  {
+   "campo": "Fecha de expedición",
+   "valor": "21 de enero de 2025",
+   "pagina": 1,
+   "rect": [
+    0.0765,
+    0.1942,
+    0.5312,
+    0.0295
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 3,
+   "t": "00:02.1",
+   "nota": ""
+  },
+  {
+   "campo": "Titular actual",
+   "valor": "MARCELINO ORTIZ VELAZQUEZ",
+   "pagina": 1,
+   "rect": [
+    0.0728,
+    0.2193,
+    0.8657,
+    0.0369
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 4,
+   "t": "00:02.8",
+   "nota": ""
+  },
+  {
+   "campo": "Dirección del inmueble",
+   "valor": "Carretera Federal México-Pachuca Km 71 No. S/N, Col. Barrio San Antonio, Municipio de Santa Inés Tlalcoyunca, Estado de Hidalgo",
+   "pagina": 1,
+   "rect": [
+    0.0727,
+    0.2356,
+    0.8639,
+    0.052
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 5,
+   "t": "00:03.5",
+   "nota": ""
+  },
+  {
+   "campo": "Clave catastral",
+   "valor": "45-011-308-002",
+   "pagina": 1,
+   "rect": [
+    0.0727,
+    0.2656,
+    0.1442,
+    0.025
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 6,
+   "t": "00:04.2",
+   "nota": ""
+  },
+  {
+   "campo": "Superficie del predio",
+   "valor": "512.00 m²",
+   "pagina": 1,
+   "rect": [
+    0.3776,
+    0.4755,
+    0.1114,
+    0.0212
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 7,
+   "t": "00:04.9",
+   "nota": ""
+  },
+  {
+   "campo": "Vigencia",
+   "valor": "un año a partir de su expedición",
+   "pagina": 1,
+   "rect": [
+    0.0634,
+    0.6808,
+    0.8637,
+    0.0332
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "nota": "Verificar contra la fecha de expedición.",
+   "agente": "Extractor",
+   "n": 8,
+   "t": "00:05.6"
+  },
+  {
+   "campo": "Número oficial",
+   "valor": "S/N",
+   "pagina": 2,
+   "rect": [
+    0.1871,
+    0.3119,
+    0.6298,
+    0.0523
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 9,
+   "t": "00:06.3",
+   "nota": ""
+  }
+ ],
+ "resumen": {
+  "validados": 8,
+  "revisar": 1
+ }
+}

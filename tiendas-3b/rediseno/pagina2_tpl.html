@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="utf-8">
+<title>Tiendas 3B · Validación cruzada</title>
+<script src="5627fb54-3d8b-4c02-b85e-f6b9bae3d28c"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#1B1B1A;background:#F2F1ED}
+a{color:#1B1B1A}a:hover{color:#C8102E}
+button{font-family:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:2px solid #1B1B1A;outline-offset:2px}
+.hot{background:transparent}
+.hot:hover{background:rgba(27,27,26,0.06);outline:4px solid rgba(27,27,26,0.35);outline-offset:2px}
+@keyframes flashRed{0%{background:#F3B8B0}100%{background:#FCEEEC}}
+@keyframes flashGreen{0%{background:#CFE6D6}100%{background:#FFFFFF}}
+@keyframes pop{0%{transform:scale(0.6);opacity:0}70%{transform:scale(1.08);opacity:1}100%{transform:scale(1)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@keyframes dash{to{background-position:40px 0}}
+</style>
+</helmet>
+
+<div style="display: flex; height: 100vh; min-height: 860px; width: 100%; background: #F2F1ED; overflow: hidden">
+
+  <!-- Rail -->
+  <nav aria-label="Navegación principal" style="width: 64px; flex-shrink: 0; background: #161616; display: flex; flex-direction: column; align-items: center; padding: 16px 0; gap: 6px">
+    <div style="width: 36px; height: 36px; border-radius: 6px; background: #C8102E; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; margin-bottom: 18px">3B</div>
+    <a href="Main.dc.html" aria-label="Tiendas" style="width: 44px; height: 44px; border-radius: 6px; color: #8E8E89; display: flex; align-items: center; justify-content: center">
+      <svg width="20" height="20" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l1.5-5h15L21 9M3 9h18M3 9v2a3 3 0 006 0 3 3 0 006 0 3 3 0 006 0V9M5 13v7h14v-7M10 20v-4h4v4"></path></svg>
+    </a>
+    <a href="Analizador.dc.html" aria-label="Expedientes" style="width: 44px; height: 44px; border-radius: 6px; color: #8E8E89; display: flex; align-items: center; justify-content: center">
+      <svg width="20" height="20" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4h6v3H9zM7 5H5v16h14V5h-2M8 12h8M8 16h5"></path></svg>
+    </a>
+    <button aria-label="Validación cruzada" aria-current="page" style="width: 44px; height: 44px; border-radius: 6px; border: none; background: #2B2B29; color: #FFFFFF; display: flex; align-items: center; justify-content: center">
+      <svg width="20" height="20" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h6v14H4zM14 5h6v14h-6M10 9h4M10 15h4"></path></svg>
+    </button>
+  </nav>
+
+  <main style="flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; min-height: 0">
+    <!-- Top bar -->
+    <div style="position: relative; flex-shrink: 0; background: #FAFAF8; border-bottom: 1px solid #DEDCD5; padding: 10px 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap">
+      <a href="Analizador.dc.html" style="font-size: 12px; color: #6A6A65; text-decoration: none">← Expediente</a>
+      <span style="width: 1px; height: 18px; background: #DEDCD5"></span>
+      <div style="display: flex; flex-direction: column">
+        <h1 style="margin: 0; font-size: 15px; font-weight: 600">Validación cruzada</h1>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #6A6A65">EXP-0000 · 4 documentos en paralelo</span>
+      </div>
+      <div style="flex-grow: 1"></div>
+      <span style="display: inline-flex; align-items: center; gap: 14px; font-size: 13px; color: #3A3A37">
+        <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 9px; height: 9px; background: #2F7A4A"></span>{{nOkLabel}}</span>
+        <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 9px; height: 9px; background: #B3261E"></span>{{nDiffLabel}}</span>
+      </span>
+      <button sc-camel-on-click="{{run}}" style="height: 32px; padding: 0 14px; border-radius: 4px; border: 1px solid #1B1B1A; background: #1B1B1A; color: #FFFFFF; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px">
+        <svg width="13" height="13" sc-camel-view-box="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4l14 8-14 8z"></path></svg>{{runLabel}}
+      </button>
+      <div style="position: absolute; left: 0; bottom: -1px; height: 2px; background: #1B1B1A; transition: width 0.6s ease; {{progressWidth}}"></div>
+    </div>
+
+    <!-- Field selector -->
+    <div role="tablist" aria-label="Dato a comparar" style="flex-shrink: 0; display: flex; gap: 2px; padding: 0 20px; background: #FAFAF8; border-bottom: 1px solid #DEDCD5; overflow-x: auto">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="6">
+        <button role="tab" aria-selected="{{t.active}}" sc-camel-on-click="{{t.pick}}" style="{{t.style}}">
+          <span style="{{t.dotStyle}}"></span>{{t.label}}
+        </button>
+      </sc-for>
+    </div>
+
+    <!-- Parallel documents -->
+    <div style="flex: 1 1 auto; min-height: 0; overflow: auto; padding: 16px 20px 10px">
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; min-width: 1060px">
+        <sc-for list="{{docs}}" as="d" hint-placeholder-count="4">
+          <section style="display: flex; flex-direction: column; gap: 8px; min-width: 0">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px">
+              <span style="font-size: 13px; font-weight: 600">{{d.name}}</span>
+              <span style="{{d.statusStyle}}">{{d.statusLabel}}</span>
+            </div>
+            <div style="{{d.frameStyle}}">
+              <div style="zoom: 0.38; position: relative; width: 640px; height: 828px; background: #FFFFFF; box-shadow: 0 2px 6px rgba(0,0,0,0.14); overflow: hidden">
+                <sc-for list="{{d.layers}}" as="ly" hint-placeholder-count="2">
+                  <div style="{{ly.style}}">
+                    <sc-for list="{{d.blocks}}" as="bk" hint-placeholder-count="8">
+                      <div style="{{bk.style}}">{{bk.text}}</div>
+                    </sc-for>
+                  </div>
+                </sc-for>
+                <sc-if value="{{d.hasBox}}" hint-placeholder-val="{{true}}">
+                  <div style="{{d.boxStyle}}"></div>
+                </sc-if>
+                <sc-for list="{{d.hots}}" as="h" hint-placeholder-count="3">
+                  <button class="hot" sc-camel-on-click="{{h.pick}}" aria-label="{{h.label}}" title="{{h.label}}" style="{{h.style}}"></button>
+                </sc-for>
+                <sc-if value="{{d.isNa}}" hint-placeholder-val="{{false}}">
+                  <div style="position: absolute; left: 0; right: 0; top: 360px; text-align: center; pointer-events: none"><span style="display: inline-block; background: #FFFFFF; border: 2px solid #8E8E89; padding: 16px 28px; font-size: 30px; color: #3A3A37">No contiene este dato</span></div>
+                </sc-if>
+              </div>
+            </div>
+            <div style="{{d.valueBox}}">
+              <span style="font-size: 11px; color: #6A6A65">{{fieldLabel}}</span>
+              <span style="{{d.valueStyle}}">{{d.value}}</span>
+            </div>
+          </section>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- Verdict band for the selected field -->
+    <div style="{{bandStyle}}">
+      <div style="display: flex; flex-direction: column; gap: 4px; min-width: 200px">
+        <span style="font-size: 12px; color: #6A6A65">Dato seleccionado</span>
+        <span style="font-size: 17px; font-weight: 600">{{fieldLabel}}</span>
+      </div>
+      <span style="{{verdictPill}}">{{verdictText}}</span>
+      <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap; flex-grow: 1; min-width: 0">
+        <sc-for list="{{groups}}" as="gr" hint-placeholder-count="2">
+          <span style="display: inline-flex; align-items: center; gap: 14px; animation: fadeUp 0.35s ease-out">
+            <sc-if value="{{gr.sep}}" hint-placeholder-val="{{false}}">
+              <span style="{{gr.sepStyle}}">{{gr.sepGlyph}}</span>
+            </sc-if>
+            <span style="{{gr.style}}">
+              <span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; color: #1B1B1A">{{gr.v}}</span>
+              <span style="font-size: 12px; color: #6A6A65">{{gr.docs}}</span>
+            </span>
+          </span>
+        </sc-for>
+        <sc-if value="{{hasNa}}" hint-placeholder-val="{{false}}">
+          <span style="font-size: 12px; color: #8E8E89">No aplica: {{naDocs}}</span>
+        </sc-if>
+      </div>
+    </div>
+
+    <!-- Matrix -->
+    <div style="flex-shrink: 0; background: #FAFAF8; padding: 6px 20px 14px; overflow: auto; max-height: 300px">
+      <sc-raw-table style="width: 100%; min-width: 1060px; border-collapse: separate; border-spacing: 0 4px; font-size: 13px">
+        <sc-raw-thead>
+          <sc-raw-tr>
+            <sc-raw-th scope="col" style="text-align: left; font-weight: 500; font-size: 12px; color: #6A6A65; padding: 4px 12px; width: 190px">Dato</sc-raw-th>
+            <sc-for list="{{docNames}}" as="n" hint-placeholder-count="4">
+              <sc-raw-th scope="col" style="text-align: left; font-weight: 500; font-size: 12px; color: #6A6A65; padding: 4px 12px">{{n}}</sc-raw-th>
+            </sc-for>
+            <sc-raw-th scope="col" style="text-align: right; font-weight: 500; font-size: 12px; color: #6A6A65; padding: 4px 12px; width: 130px">Resultado</sc-raw-th>
+          </sc-raw-tr>
+        </sc-raw-thead>
+        <sc-raw-tbody>
+          <sc-for list="{{rows}}" as="r" hint-placeholder-count="6">
+            <sc-raw-tr id="{{r.rowId}}" style="{{r.trStyle}}">
+              <sc-raw-th scope="row" style="{{r.thStyle}}">
+                <button sc-camel-on-click="{{r.pick}}" style="width: 100%; text-align: left; border: none; background: transparent; padding: 10px 12px; font-size: 13px; font-weight: 600; color: #1B1B1A; display: flex; align-items: center; gap: 10px">
+                  <span style="{{r.iconStyle}}">{{r.icon}}</span>{{r.label}}
+                </button>
+              </sc-raw-th>
+              <sc-for list="{{r.cells}}" as="c" hint-placeholder-count="4">
+                <sc-raw-td style="{{c.style}}"><span style="{{c.inner}}">{{c.v}}</span></sc-raw-td>
+              </sc-for>
+              <sc-raw-td style="{{r.resCell}}"><span style="{{r.resStyle}}">{{r.res}}</span></sc-raw-td>
+            </sc-raw-tr>
+          </sc-for>
+        </sc-raw-tbody>
+      </sc-raw-table>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { field: 'superficie', phase: 'done', cur: -1, reading: false, revealed: null, flash: null };
+    this.timers = [];
+  }
+  componentWillUnmount() { this.timers.forEach(clearTimeout); }
+  scrollRow(id) {
+    setTimeout(function () {
+      var el = document.getElementById('row-' + id);
+      if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 30);
+  }
+  pickField(id) { this.setState({ field: id, flash: null }); this.scrollRow(id); }
+  run(ids) {
+    var self = this, STEP = 1900, READ = 1000;
+    this.timers.forEach(clearTimeout); this.timers = [];
+    this.setState({ phase: 'run', revealed: {}, cur: 0, field: ids[0], reading: true, flash: null });
+    ids.forEach(function (id, i) {
+      self.timers.push(setTimeout(function () { self.setState({ cur: i, field: id, reading: true, flash: null }); self.scrollRow(id); }, i * STEP));
+      self.timers.push(setTimeout(function () {
+        var r = Object.assign({}, self.state.revealed || {}); r[id] = true;
+        self.setState({ revealed: r, reading: false, flash: id });
+      }, i * STEP + READ));
+    });
+    this.timers.push(setTimeout(function () { self.setState({ phase: 'done', cur: -1, revealed: null }); }, ids.length * STEP + 200));
+  }
+  renderVals() {
+    var s = this.state, self = this, W = 640, H = 828;
+    var SERIF = "font-family: 'Source Serif 4', Georgia, serif; ";
+    function B(top, text, extra) { return { style: 'position: absolute; top: ' + top + 'px; left: 64px; width: 512px; ' + SERIF + 'font-size: 13.5px; line-height: 24px; color: #1B1B1A; ' + (extra || ''), text: text }; }
+    function head(issuer, ref, title) {
+      return [
+        { style: 'position: absolute; top: 44px; left: 64px; width: 330px; ' + SERIF + 'font-size: 12px; line-height: 1.45; color: #2B2B29; white-space: pre-line', text: issuer },
+        { style: "position: absolute; top: 44px; left: 416px; width: 160px; text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 10px; line-height: 1.6; color: #55554F; white-space: pre-line", text: ref },
+        { style: 'position: absolute; top: 100px; left: 64px; width: 512px; height: 1px; background: #1B1B1A', text: '' },
+        { style: 'position: absolute; top: 122px; left: 64px; width: 512px; text-align: center; ' + SERIF + 'font-size: 14px; font-weight: 600; letter-spacing: 0.06em', text: title }
+      ];
+    }
+    function sign(label) {
+      return [
+        { style: 'position: absolute; top: 740px; left: 64px; width: 220px; height: 1px; background: #55554F', text: '' },
+        { style: 'position: absolute; top: 748px; left: 64px; width: 220px; text-align: center; ' + SERIF + 'font-size: 11px; color: #2B2B29', text: label }
+      ];
+    }
+    var DOCS = [
+      { id: 'esc', name: 'Escritura',
+        blocks: head('Notaría Pública\nCiudad de México', 'Vol. 000\nFolio 0000', 'ESCRITURA PÚBLICA').concat([
+          B(170, 'En la Ciudad de México, ante el Notario Público que suscribe, se formaliza la compraventa del inmueble que se describe a continuación, conforme a las siguientes cláusulas.', 'text-align: justify'),
+          B(262, 'Adquirente: Inmobiliaria Ejemplo, S.A. de C.V.'),
+          B(300, 'Inmueble: Calle Ejemplo número 120, Colonia Centro, Alcaldía Tlalpan, C.P. 14000.'),
+          B(362, 'Lote 7, Manzana 3, de la zona catastral correspondiente.'),
+          B(400, 'Superficie: 438.50 m² (cuatrocientos treinta y ocho metros cincuenta decímetros cuadrados).'),
+          B(462, 'Cuenta catastral: 000-000-00-000-0.'),
+          B(510, 'Las partes manifiestan que el inmueble se encuentra libre de gravámenes y al corriente en el pago de sus contribuciones, según certificado que se agrega al apéndice de este instrumento.', 'text-align: justify')
+        ]).concat(sign('El Notario')),
+        f: {
+          direccion: { v: 'Calle Ejemplo 120, Col. Centro, Tlalpan, 14000', r: [294, 56, 528, 60], st: 'ok' },
+          titular: { v: 'Inmobiliaria Ejemplo, S.A. de C.V.', r: [256, 56, 528, 36], st: 'diff' },
+          superficie: { v: '438.50 m²', r: [394, 56, 528, 60], st: 'diff' },
+          numero: { v: '120', r: [294, 56, 528, 60], st: 'ok' },
+          predio: { v: 'Lote 7, Manzana 3', r: [356, 56, 528, 36], st: 'ok' },
+          cuenta: { v: '000-000-00-000-0', r: [456, 56, 528, 36], st: 'ok' }
+        } },
+      { id: 'pre', name: 'Predial',
+        blocks: head('Secretaría de Administración\ny Finanzas', 'Ejercicio 2026\nBim. 1–6', 'BOLETA DE PAGO DEL IMPUESTO PREDIAL').concat([
+          B(170, 'Cuenta predial: 000-000-00-000-0', "font-family: 'IBM Plex Mono', monospace; font-size: 13px"),
+          B(208, 'Contribuyente: Juan Ejemplo Pérez'),
+          B(246, 'Ubicación: Calle Ejemplo 120, Col. Centro, Alcaldía Tlalpan, C.P. 14000.'),
+          B(310, 'Superficie de terreno: 412.00 m²'),
+          B(344, 'Superficie de construcción: 380.00 m²'),
+          B(378, 'Valor catastral: $0,000,000.00'),
+          B(430, 'El pago se realiza conforme al Código Fiscal vigente. Conserve este comprobante para cualquier aclaración.', 'text-align: justify')
+        ]).concat(sign('Sello de caja')),
+        f: {
+          direccion: { v: 'Calle Ejemplo 120, Col. Centro, Tlalpan, 14000', r: [240, 56, 528, 60], st: 'ok' },
+          titular: { v: 'Juan Ejemplo Pérez', r: [202, 56, 528, 36], st: 'diff' },
+          superficie: { v: '412.00 m²', r: [304, 56, 528, 36], st: 'ok' },
+          numero: { v: '120', r: [240, 56, 528, 60], st: 'ok' },
+          predio: null,
+          cuenta: { v: '000-000-00-000-0', r: [164, 56, 528, 36], st: 'ok' }
+        } },
+      { id: 'ali', name: 'Alineamiento y Núm. Oficial',
+        blocks: head('Alcaldía Tlalpan\nVentanilla Única', 'Folio 0000\n02/02/2026', 'CONSTANCIA DE ALINEAMIENTO Y NÚMERO OFICIAL').concat([
+          B(170, 'Se hace constar que al predio ubicado en Calle Ejemplo, Colonia Centro, Alcaldía Tlalpan, identificado como Lote 7, Manzana 3, le corresponde:', 'text-align: justify'),
+          B(262, 'Número oficial: 120', 'font-size: 16px; font-weight: 600'),
+          B(300, 'Cuenta catastral: 000-000-00-000-0'),
+          B(338, 'Alineamiento: sin afectación sobre la vía pública.'),
+          B(376, 'Vigencia: dos años a partir del 2 de febrero de 2026.')
+        ]).concat(sign('Responsable de la Ventanilla')),
+        f: {
+          direccion: { v: 'Calle Ejemplo, Col. Centro, Tlalpan', r: [164, 56, 528, 60], st: 'ok' },
+          titular: null,
+          superficie: null,
+          numero: { v: '120', r: [256, 56, 528, 36], st: 'ok' },
+          predio: { v: 'Lote 7, Manzana 3', r: [188, 56, 528, 36], st: 'ok' },
+          cuenta: { v: '000-000-00-000-0', r: [294, 56, 528, 36], st: 'ok' }
+        } },
+      { id: 'uso', name: 'Uso de Suelo',
+        blocks: head('Secretaría de Desarrollo Urbano\ny Vivienda', 'Folio 0000\n14/03/2025', 'CERTIFICADO DE ZONIFICACIÓN DE USO DEL SUELO').concat([
+          B(170, 'Se certifica que al predio ubicado en Calle Ejemplo 120, Colonia Centro, Alcaldía Tlalpan, C.P. 14000, le corresponde la zonificación que se indica.', 'text-align: justify'),
+          B(262, 'Superficie del predio: 412.00 m²'),
+          B(300, 'Zonificación: Habitacional con comercio en planta baja'),
+          B(348, 'Uso permitido: comercio al por menor de abarrotes, comestibles y productos básicos, condicionado a contar con los cajones de estacionamiento que establece la norma y a no exceder 250 m² de área de ventas.', 'text-align: justify')
+        ]).concat(sign('Director de Desarrollo Urbano')),
+        f: {
+          direccion: { v: 'Calle Ejemplo 120, Col. Centro, Tlalpan, 14000', r: [164, 56, 528, 84], st: 'ok' },
+          titular: null,
+          superficie: { v: '412.00 m²', r: [256, 56, 528, 36], st: 'ok' },
+          numero: { v: '120', r: [164, 56, 528, 84], st: 'ok' },
+          predio: null,
+          cuenta: null
+        } }
+    ];
+        var FIELDS = [
+      { id: 'direccion', label: 'Dirección', res: 'Coincide' },
+      { id: 'titular', label: 'Propietario o titular', res: 'Difiere' },
+      { id: 'superficie', label: 'Superficie', res: 'Difiere' },
+      { id: 'numero', label: 'Número oficial', res: 'Coincide' },
+      { id: 'predio', label: 'Identificación del predio', res: 'Coincide' },
+      { id: 'cuenta', label: 'Cuenta catastral', res: 'Coincide' }
+    ];
+    var C = { ok: '#2F7A4A', diff: '#B3261E', na: '#8E8E89' };
+    var ease = 'cubic-bezier(.2,.7,.2,1)';
+    var running = s.phase === 'run';
+    function isRev(id) { return !running || !!(s.revealed && s.revealed[id]); }
+    var field = FIELDS.find(function (f) { return f.id === s.field; });
+    var fRev = isRev(field.id);
+    var reading = running && s.reading;
+    var fDiff = field.res === 'Difiere';
+
+    function clip(r) { return 'inset(' + r[0] + 'px ' + (W - r[1] - r[2]) + 'px ' + (H - r[0] - r[3]) + 'px ' + r[1] + 'px round 3px)'; }
+    function pick(id) { return function () {
+      if (running) { self.timers.forEach(clearTimeout); self.timers = []; self.setState({ phase: 'done', cur: -1, revealed: null, reading: false }); }
+      self.pickField(id);
+    }; }
+
+    var docs = DOCS.map(function (d) {
+      var c = d.f[s.field];
+      var st = c ? c.st : 'na';
+      var layers = [{ style: 'position: absolute; inset: 0; transition: filter 0.35s, opacity 0.35s; filter: blur(4px) grayscale(0.4); opacity: ' + (c ? '0.5' : '0.35') + ';' }];
+      if (c) layers.push({ style: 'position: absolute; inset: 0; background: #FFFFFF; clip-path: ' + clip(c.r) + '; transition: clip-path 0.6s ' + ease + ';' });
+      var color = reading ? '#1B1B1A' : C[st];
+      var seen = {}, hots = [];
+      FIELDS.forEach(function (f) {
+        var cc = d.f[f.id]; if (!cc) return;
+        var k = cc.r.join(','); if (seen[k]) return; seen[k] = 1;
+        hots.push({ label: 'Comparar ' + f.label.toLowerCase() + ' en los 4 documentos', pick: pick(f.id),
+          style: 'position: absolute; top: ' + cc.r[0] + 'px; left: ' + cc.r[1] + 'px; width: ' + cc.r[2] + 'px; height: ' + cc.r[3] + 'px; border: none; padding: 0; border-radius: 4px; cursor: pointer;' });
+      });
+      var lbl = reading ? (c ? 'leyendo…' : '') : (st === 'ok' ? 'coincide' : st === 'diff' ? 'difiere' : 'no aplica');
+      var flagged = !reading && st === 'diff';
+      return {
+        name: d.name, blocks: d.blocks, layers: layers, hots: hots,
+        hasBox: !!c, isNa: !c,
+        boxStyle: c ? 'position: absolute; box-sizing: border-box; pointer-events: none; top: ' + c.r[0] + 'px; left: ' + c.r[1] + 'px; width: ' + c.r[2] + 'px; height: ' + c.r[3] + 'px; border: 6px ' + (reading ? 'dashed' : 'solid') + ' ' + color + '; border-radius: 4px; transition: top 0.6s ' + ease + ', left 0.6s ' + ease + ', width 0.6s ' + ease + ', height 0.6s ' + ease + ', border-color 0.3s;' + (flagged ? ' box-shadow: 0 0 0 14px rgba(179,38,30,0.16);' : '') : '',
+        frameStyle: 'display: flex; justify-content: center; padding: 10px 0; background: #E4E2DC; transition: box-shadow 0.3s; ' + (flagged ? 'box-shadow: inset 0 0 0 2px #B3261E;' : ''),
+        value: c ? (reading ? 'leyendo…' : c.v) : '—',
+        valueStyle: SERIF + 'font-size: 14px; line-height: 1.35; ' + (flagged ? 'color: #B3261E; font-weight: 600;' : c ? 'color: #1B1B1A;' : 'color: #8E8E89;') + (reading ? ' color: #8E8E89;' : ''),
+        statusLabel: lbl,
+        statusStyle: 'font-size: 12px; font-weight: 600; color: ' + (reading ? '#6A6A65' : C[st]),
+        valueBox: 'display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; background: #FFFFFF; transition: border-color 0.3s; border: 1px solid ' + (flagged ? '#B3261E' : '#DEDCD5') + ';'
+      };
+    });
+
+    // Verdict band
+    var groups = [], na = [];
+    if (fRev && !reading) {
+      var okG = null;
+      DOCS.forEach(function (d) {
+        var c = d.f[field.id];
+        if (!c) { na.push(d.name); return; }
+        if (c.st === 'ok') { if (!okG) okG = { v: c.v, docs: [], diff: false }; okG.docs.push(d.name); }
+        else groups.push({ v: c.v, docs: [d.name], diff: true });
+      });
+      if (okG) groups.push(okG);
+    }
+    groups = groups.map(function (g, i) {
+      return { v: g.v, docs: g.docs.join(' · '), sep: i > 0, sepGlyph: '≠',
+        sepStyle: 'font-size: 26px; font-weight: 600; color: #B3261E; line-height: 1',
+        style: 'display: flex; flex-direction: column; gap: 2px; padding: 8px 12px; background: #FFFFFF; border: 1px solid ' + (g.diff || fDiff ? '#E7B3AE' : '#BFD9C7') + ';' };
+    });
+    var bandBg = reading ? '#FAFAF8' : (fDiff ? '#FCEEEC' : '#F0F6F2');
+    var bandBar = reading ? '#1B1B1A' : (fDiff ? '#B3261E' : '#2F7A4A');
+
+    // Matrix rows
+    var rows = FIELDS.map(function (f) {
+      var rev = isRev(f.id), cur = running && s.field === f.id, sel = s.field === f.id, diff = f.res === 'Difiere';
+      var flash = s.flash === f.id;
+      var bg = rev ? (diff ? '#FCEEEC' : '#FFFFFF') : (cur ? '#FFFFFF' : '#F4F3EF');
+      var bd = sel ? '1.5px solid #1B1B1A' : '1px solid ' + (rev && diff ? '#EFC3BD' : '#E6E4DE');
+      var anim = flash ? (diff ? ' animation: flashRed 1.4s ease-out;' : ' animation: flashGreen 1.2s ease-out;') : '';
+      var cellBase = 'background: ' + bg + '; border-top: ' + bd + '; border-bottom: ' + bd + '; transition: background 0.3s;' + anim;
+      var bar = rev ? (diff ? '#B3261E' : '#2F7A4A') : (cur ? '#1B1B1A' : '#D3D1CA');
+      var cells = DOCS.map(function (d) {
+        var c = d.f[f.id], st = c ? c.st : 'na';
+        var v, inner;
+        if (!rev) { v = cur ? 'leyendo…' : '· · ·'; inner = 'color: #A6A49D;'; }
+        else if (!c) { v = '—'; inner = 'color: #A6A49D;'; }
+        else if (st === 'diff') { v = c.v; inner = 'color: #B3261E; font-weight: 600; background: #F6D3CE; padding: 2px 6px;' + (flash ? ' display: inline-block; animation: pop 0.45s ease-out;' : ''); }
+        else { v = c.v; inner = 'color: #1B1B1A;'; }
+        return { v: v, inner: inner, style: cellBase + ' padding: 10px 12px; vertical-align: middle;' };
+      });
+      var res, resStyle;
+      if (rev) {
+        res = diff ? '≠  Revisar' : '=  Coincide';
+        resStyle = diff
+          ? 'display: inline-block; padding: 4px 10px; background: #B3261E; color: #FFFFFF; font-weight: 600; font-size: 12px;' + (flash ? ' animation: pop 0.45s ease-out;' : '')
+          : 'display: inline-block; padding: 4px 10px; color: #2F7A4A; font-weight: 600; font-size: 12px; border: 1px solid #BFD9C7; background: #F0F6F2;';
+      } else { res = cur ? 'analizando…' : '—'; resStyle = 'font-size: 12px; color: #6A6A65;'; }
+      return {
+        rowId: 'row-' + f.id, label: f.label, cells: cells, res: res, resStyle: resStyle,
+        pick: pick(f.id),
+        icon: rev ? (diff ? '≠' : '=') : (cur ? '…' : '·'),
+        iconStyle: 'flex-shrink: 0; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; ' + (rev ? 'color: #FFFFFF; background: ' + (diff ? '#B3261E' : '#2F7A4A') + ';' : 'color: #6A6A65; background: #E6E4DE;') + (flash ? ' animation: pop 0.45s ease-out;' : ''),
+        trStyle: '',
+        thStyle: cellBase + ' padding: 0; text-align: left; box-shadow: inset 4px 0 0 ' + bar + '; border-left: ' + bd + ';',
+        resCell: cellBase + ' padding: 10px 12px; text-align: right; border-right: ' + bd + ';'
+      };
+    });
+
+    var tabs = FIELDS.map(function (f) {
+      var on = f.id === s.field, rev = isRev(f.id), diff = f.res === 'Difiere';
+      return {
+        label: f.label, active: on, pick: pick(f.id),
+        style: 'height: 42px; padding: 0 12px; border: none; background: transparent; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; font-size: 13px; font-weight: 500; border-bottom: 2px solid ' + (on ? '#1B1B1A; color: #1B1B1A;' : 'transparent; color: #6A6A65;'),
+        dotStyle: 'width: 7px; height: 7px; transition: background 0.3s; background: ' + (rev ? (diff ? '#B3261E' : '#2F7A4A') : '#D3D1CA')
+      };
+    });
+
+    var revIds = FIELDS.filter(function (f) { return isRev(f.id); });
+    var nDiff = revIds.filter(function (f) { return f.res === 'Difiere'; }).length;
+    var nOk = revIds.length - nDiff;
+    return {
+      docs: docs, rows: rows, tabs: tabs, groups: groups,
+      hasNa: na.length > 0 && !reading, naDocs: na.join(', '),
+      docNames: DOCS.map(function (d) { return d.name; }),
+      fieldLabel: field.label,
+      bandStyle: 'flex-shrink: 0; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; padding: 12px 20px; border-top: 1px solid #DEDCD5; transition: background 0.3s; background: ' + bandBg + '; box-shadow: inset 4px 0 0 ' + bandBar + ';',
+      verdictPill: 'flex-shrink: 0; padding: 6px 12px; font-size: 13px; font-weight: 600; ' + (reading ? 'border: 1px dashed #1B1B1A; color: #1B1B1A;' : 'color: #FFFFFF; background: ' + (fDiff ? '#B3261E' : '#2F7A4A') + '; animation: pop 0.4s ease-out;'),
+      verdictText: reading ? 'Analizando…' : (fDiff ? '≠  Requiere revisión' : '=  Coincide en todos'),
+      nOkLabel: nOk + ' coinciden',
+      nDiffLabel: nDiff + ' para revisión',
+      runLabel: running ? 'Analizando ' + Math.min(6, (s.cur + 1)) + '/6' : 'Analizar de nuevo',
+      progressWidth: 'width: ' + (running ? (revIds.length / 6 * 100) : 0) + '%',
+      run: function () { if (!running) self.run(FIELDS.map(function (f) { return f.id; })); }
+    };
+  }
+}
+</script>
+
+
+</body></html>

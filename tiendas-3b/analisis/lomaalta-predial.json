@@ -1,0 +1,108 @@
+{
+ "id": "lomaalta-predial",
+ "tipo": "predial",
+ "grupo": "lomaalta",
+ "archivo": "Predial 2025.jpeg",
+ "titulo": "Predial · lomaalta",
+ "parcial": true,
+ "paginas": [
+  {
+   "n": 1,
+   "img": "paginas/lomaalta-predial/p1.jpg",
+   "w": 1000,
+   "h": 1296
+  }
+ ],
+ "total_paginas": 1,
+ "pasos": [
+  {
+   "campo": "Tipo documental",
+   "valor": "Predial",
+   "pagina": 1,
+   "rect": [
+    0.06,
+    0.02,
+    0.88,
+    0.12
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 1,
+   "t": "00:00.7",
+   "nota": ""
+  },
+  {
+   "campo": "Titular actual",
+   "valor": "No legible",
+   "pagina": 1,
+   "rect": [
+    0.08,
+    0.1,
+    0.84,
+    0.05
+   ],
+   "ok": false,
+   "confianza": 0.0,
+   "nota": "Sin lectura automática: no se encontró el dato en el texto reconocido. Verificar en el documento original.",
+   "agente": "Extractor",
+   "n": 2,
+   "t": "00:01.4"
+  },
+  {
+   "campo": "Autoridad emisora",
+   "valor": "H. AYUNTAMIENTO DE VILLA DEL CARBÓN FORMATO GRATUITO LINEA DE CAP",
+   "pagina": 1,
+   "rect": [
+    0.0428,
+    0.1625,
+    0.8953,
+    0.049
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 3,
+   "t": "00:02.1",
+   "nota": ""
+  },
+  {
+   "campo": "Fecha de expedición",
+   "valor": "2 de enero de 2025",
+   "pagina": 1,
+   "rect": [
+    0.7738,
+    0.2169,
+    0.153,
+    0.0197
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 4,
+   "t": "00:02.8",
+   "nota": ""
+  },
+  {
+   "campo": "Clave catastral",
+   "valor": "0370603322000000",
+   "pagina": 1,
+   "rect": [
+    0.028,
+    0.3361,
+    0.1662,
+    0.0211
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 5,
+   "t": "00:03.5",
+   "nota": ""
+  }
+ ],
+ "resumen": {
+  "validados": 4,
+  "revisar": 1
+ }
+}

@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tiendas 3B · Revisión por agentes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="paginas.css">
+</head>
+<body>
+<div class="app">
+  <nav class="rail" id="rail" aria-label="Navegación principal"></nav>
+
+  <main class="visor-col">
+    <div class="barra">
+      <a class="volver" id="volver" href="analizador.html">← Expediente</a>
+      <span class="sep"></span>
+      <select id="selDoc" aria-label="Documento"></select>
+      <span class="etq" id="pagLabel">pág. 1 / 1</span>
+      <span class="grow"></span>
+      <div class="seg" role="group" aria-label="Modo de revisión">
+        <button id="btnAuto" class="on">Automático</button>
+        <button id="btnManual">Manual</button>
+      </div>
+      <span class="etq mono" id="progreso" style="min-width:96px;text-align:right"></span>
+      <div style="display:flex;gap:4px">
+        <button class="btn ico" id="btnPrev" aria-label="Paso anterior" title="Anterior (←)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+        <button class="btn neg" id="btnPlay" style="min-width:116px;justify-content:center"></button>
+        <button class="btn ico" id="btnNext" aria-label="Paso siguiente" title="Siguiente (→)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+      </div>
+      <div class="prog" id="barraProg" style="width:0"></div>
+    </div>
+    <div class="scroll" id="scroll"><div class="hoja" id="hoja"></div></div>
+  </main>
+
+  <aside class="lado" aria-label="Actividad de los agentes">
+    <div class="cab"><h2 id="tituloLado">Actividad de los agentes</h2><span class="sub" id="subLado"></span></div>
+    <div class="cuerpo" id="cuerpoLado"></div>
+  </aside>
+</div>
+<div class="aviso-flotante" id="aviso" hidden></div>
+
+<script src="modulo.js"></script>
+<script>
+(() => {
+  const { Datos, Estado, rail, escapar, parametros } = Modulo;
+  const $ = id => document.getElementById(id);
+  const P = parametros();
+  const EXP = P.get('exp') || 'demo';
+  const ANCHO = 640;                                  // ancho de la hoja en pantalla (px)
+  const DEC = { ok: ['Correcto', '#2F7A4A'], fix: ['Corregido', '#1F5FA8'], no: ['No cumple', '#B3261E'] };
+
+  let indice = [], an = null;                         // análisis cargado
+  let modo = 'auto', paso = 0, leyendo = false, reproduciendo = false, editando = false;
+  let temporizadores = [], paginaActual = 1;
+
+  $('rail').innerHTML = rail('expedientes');
+  $('volver').href = 'analizador.html?exp=' + encodeURIComponent(EXP);
+
+  /* ---------- estado derivado ---------- */
+  const pasos = () => an ? an.pasos : [];
+  const N = () => pasos().length;                      // el paso N+1 es «terminado»
+  const decisiones = () => (Estado.get(EXP).dec[an.id]) || {};
+  const terminado = () => paso === N() + 1;
+  const actual = () => (paso >= 1 && paso <= N()) ? pasos()[paso - 1] : null;
+  const limpiar = () => { temporizadores.forEach(clearTimeout); temporizadores = []; };
+  const aviso = t => { const a = $('aviso'); a.textContent = t; a.hidden = false; clearTimeout(aviso.t); aviso.t = setTimeout(() => a.hidden = true, 2400); };
+
+  /* ---------- navegación entre pasos ---------- */
+  function ir(n, autoplay) {
+    limpiar();
+    n = Math.max(0, Math.min(N() + 1, n));
+    editando = false;
+    if (modo === 'manual' || n === N() + 1 || n === 0) { paso = n; leyendo = false; reproduciendo = false; return pintar(); }
+    paso = n; leyendo = true; reproduciendo = !!autoplay; pintar();
+    temporizadores.push(setTimeout(() => { leyendo = false; pintar(); }, 1200));
+    if (autoplay) temporizadores.push(setTimeout(() => ir(n + 1, true), 2600));
+  }
+  function cambiarModo(m) {
+    limpiar(); modo = m; leyendo = false; reproduciendo = false; editando = false;
+    if (m === 'manual') { const d = decisiones(); const sig = pasos().findIndex(p => !d[p.n]); paso = N() ? (sig < 0 ? N() + 1 : sig + 1) : 0; }
+    else paso = 0;
+    pintar();
+  }
+  function decidir(valor, corregido) {
+    const p = actual(); if (!p) return;
+    Estado.decidir(EXP, an.id, p.n, valor, corregido);
+    editando = false;
+    ir(paso + 1, false);
+  }
+
+  /* ---------- hoja: capa borrosa + copias nítidas recortadas + cajas de los agentes ---------- */
+  let capasNitidas = [], cajas = [];
+  function montarHoja() {
+    const pg = an.paginas[paginaActual - 1], alto = Math.round(ANCHO * pg.h / pg.w);
+    const hoja = $('hoja'); hoja.style.width = ANCHO + 'px'; hoja.style.height = alto + 'px';
+    hoja.innerHTML = `<div class="capa base" id="capaBase"><img alt="Página ${paginaActual} del documento" src="${pg.img}"></div>`;
+    capasNitidas = []; cajas = [];
+  }
+  const asegurar = (lista, n, crear) => { while (lista.length < n) lista.push(crear()); };
+  const crearNitida = () => { const d = document.createElement('div'); d.className = 'capa nitida'; d.setAttribute('aria-hidden', 'true');
+    d.innerHTML = `<img alt="" src="${an.paginas[paginaActual - 1].img}">`; $('hoja').appendChild(d); return d; };
+  const crearCaja = () => { const d = document.createElement('div'); d.className = 'caja'; d.innerHTML = '<span class="tag"></span>'; $('hoja').appendChild(d); return d; };
+  const recorte = r => `inset(${r[1] * 100}% ${(1 - r[0] - r[2]) * 100}% ${(1 - r[1] - r[3]) * 100}% ${r[0] * 100}% round 3px)`;
+
+  function dibujarEnfoque(items) {                      // items: [{r, color, tag, parpadea, chica}]
+    $('capaBase').classList.toggle('enfoque', items.length > 0);
+    asegurar(capasNitidas, items.length, crearNitida); asegurar(cajas, items.length, crearCaja);
+    capasNitidas.forEach((c, i) => { c.style.clipPath = i < items.length ? recorte(items[i].r) : 'inset(50% 50% 50% 50%)'; });
+    cajas.forEach((c, i) => {
+      const it = items[i];
+      c.classList.toggle('v', !!it);
+      if (!it) return;
+      c.style.top = it.r[1] * 100 + '%'; c.style.left = it.r[0] * 100 + '%'; c.style.width = it.r[2] * 100 + '%'; c.style.height = it.r[3] * 100 + '%';
+      c.style.borderColor = it.color; c.classList.toggle('parpadea', !!it.parpadea); c.classList.toggle('chica', !!it.chica);
+      c.classList.toggle('abajo', it.r[1] < 0.045);
+      const t = c.querySelector('.tag'); t.textContent = it.tag; t.style.background = it.color;
+    });
+  }
+
+  function enfoques() {
+    const d = decisiones(), p = actual(), out = [];
+    if (modo === 'manual') {
+      if (terminado()) pasos().forEach(s => { if (s.pagina === paginaActual) out.push({ r: s.rect, chica: true, color: d[s.n] ? DEC[d[s.n]][1] : '#1B1B1A',
+        tag: s.n + ' · ' + (d[s.n] ? DEC[d[s.n]][0] : 'sin verificar') }); });
+      else if (p) out.push({ r: p.rect, color: d[p.n] ? DEC[d[p.n]][1] : '#1B1B1A',
+        tag: `Punto ${p.n}/${N()} · ${p.campo}${p.ok ? '' : ' · marcado por el agente'}` });
+    } else if (terminado()) {
+      pasos().filter(s => !s.ok && s.pagina === paginaActual).forEach((s, i) => out.push({ r: s.rect, color: '#D98A00', tag: `${s.n} · ${s.campo}` }));
+    } else if (p) {
+      out.push({ r: p.rect, parpadea: leyendo, color: leyendo ? '#1B1B1A' : (p.ok ? '#2F7A4A' : '#D98A00'),
+        tag: leyendo ? p.agente + ' · leyendo' : p.agente + (p.ok ? ' · ok' : ' · revisar') });
+    }
+    return out;
+  }
+
+  /* ---------- panel derecho ---------- */
+  function panelAuto() {
+    const log = [], hasta = terminado() ? N() : paso;
+    for (let i = 1; i <= hasta; i++) {
+      const e = pasos()[i - 1], cur = i === paso, pend = cur && leyendo;
+      log.push(`<button class="fila ${cur ? 'sel' : ''}" data-ir="${i}">
+        <span class="l1"><span><span class="mono">${escapar(e.t)}</span> · ${escapar(e.agente)}</span>
+          <span class="${e.ok ? 'estado-ok' : 'estado-rev'}">${pend ? '' : (e.ok ? 'ok' : 'revisar')}</span></span>
+        <span class="campo">${escapar(e.campo)}</span>
+        <span class="valor">${pend ? 'leyendo…' : escapar(e.valor)}</span>
+        ${!pend && e.nota ? `<span class="nota">${escapar(e.nota)}</span>` : ''}</button>`);
+    }
+    const ok = pasos().filter(s => s.ok).length, rev = N() - ok;
+    const final = terminado() ? `<div class="tarjeta"><span class="k">Resultado del documento</span>
+        <span class="v"><span class="cuadro" style="background:${rev ? '#E0A100' : '#2F7A4A'}"></span>${rev ? 'Requiere revisión' : 'Sin observaciones'}</span>
+        <p>${ok} datos validados automáticamente.${rev ? ` ${rev} ${rev === 1 ? 'zona queda' : 'zonas quedan'} para revisión humana: ${pasos().filter(s => !s.ok).map(s => escapar(s.campo.toLowerCase())).join(', ')}.` : ''}</p>
+        ${rev ? '<button class="btn neg" id="aManual" style="align-self:flex-start;height:32px">Verificar punto por punto</button>' : ''}</div>` : '';
+    return (paso === 0 ? '<p class="vacio">Pulsa <strong>Iniciar revisión</strong> para ver, paso a paso, qué zona del documento lee cada agente y qué concluye.</p>' : '')
+      + `<ol style="list-style:none;margin:0;padding:0">${log.map(l => `<li>${l}</li>`).join('')}</ol>` + final;
+  }
+
+  function panelManual() {
+    const d = decisiones(), p = actual(), corr = (Estado.get(EXP).corr[an.id] || {});
+    const lista = pasos().map(s => `<li><button class="punto ${s.n === paso ? 'sel' : ''}" data-ir="${s.n}">
+        <span class="n">${s.n}</span><span class="c">${escapar(s.campo)}</span>
+        <span class="a">${s.ok ? '' : 'agente: revisar'}</span>
+        <span class="d" style="${d[s.n] ? 'color:' + DEC[d[s.n]][1] : ''}">${d[s.n] ? DEC[d[s.n]][0] : (s.n === paso ? 'en revisión' : '—')}</span></button></li>`).join('');
+    let actualHtml = '';
+    if (p && !terminado()) {
+      const valor = corr[p.n] ? `${escapar(corr[p.n])} <span class="etq">(corregido)</span>` : escapar(p.valor);
+      actualHtml = `<div class="actual"><span class="k"><span>Punto ${p.n} de ${N()} · ${escapar(p.agente)}</span>
+          <span class="${p.ok ? 'estado-ok' : 'estado-rev'}">agente: ${p.ok ? 'ok' : 'revisar'}</span></span>
+        <div><div class="campo">${escapar(p.campo)}</div><div class="valor">${valor}</div></div>
+        ${p.nota ? `<p>${escapar(p.nota)}</p>` : ''}
+        <p class="peq">Compara el valor con la zona resaltada del documento.</p>
+        ${editando ? `<div class="editor"><input id="valCorr" value="${escapar(corr[p.n] || p.valor)}" aria-label="Valor corregido"><button class="btn neg" id="gCorr">Guardar</button><button class="btn" id="cCorr">Cancelar</button></div>`
+          : `<div class="acciones"><button class="btn neg" data-dec="ok">Correcto <kbd>C</kbd></button><button class="btn" data-dec="fix">Corregir <kbd>E</kbd></button><button class="btn mal" data-dec="no">No cumple <kbd>N</kbd></button></div>`}</div>`;
+    }
+    const c = { ok: 0, fix: 0, no: 0 }; let ver = 0; Object.keys(d).forEach(k => { if (c[d[k]] !== undefined) { c[d[k]]++; ver++; } });
+    const v = c.no ? ['No cumple', '#B3261E'] : ver < N() ? ['Verificación incompleta', '#E0A100'] : ['Cumple', '#2F7A4A'];
+    const final = terminado() ? `<div class="tarjeta"><span class="k">Verificación humana terminada</span>
+        <span class="v"><span class="cuadro" style="background:${v[1]}"></span>${v[0]}</span>
+        <p>${c.ok} correctos, ${c.fix} corregidos y ${c.no} marcados como no cumple, de ${N()} puntos.</p>
+        <span style="display:flex;gap:6px"><a class="btn neg" href="analizador.html?exp=${encodeURIComponent(EXP)}" style="height:32px">Ver en el expediente</a>
+        <button class="btn" id="reiniciar" style="height:32px">Reiniciar verificación</button></span></div>` : '';
+    return actualHtml + `<ol style="list-style:none;margin:0;padding:0">${lista}</ol>` + final;
+  }
+
+  /* ---------- pintar todo ---------- */
+  function pintar() {
+    if (!an) return;
+    const p = actual(), d = decisiones();
+    // la hoja cambia de página si el punto está en otra
+    const pag = p ? p.pagina : (terminado() && modo === 'auto' ? (pasos().find(s => !s.ok) || { pagina: 1 }).pagina : paginaActual);
+    if (pag !== paginaActual || !$('capaBase')) { paginaActual = pag; montarHoja(); }
+    const en = enfoques(); dibujarEnfoque(en);
+    // si el enfoque está fuera de vista, la hoja se desplaza hasta él
+    if (en.length) { const r = en[0].r, sc = $('scroll'), alto = $('hoja').offsetHeight;
+      sc.scrollTo({ top: Math.max(0, 28 + (r[1] + r[3] / 2) * alto - sc.clientHeight / 2), behavior: 'smooth' }); }
+    else $('scroll').scrollTo({ top: 0, behavior: 'smooth' });
+
+    $('pagLabel').textContent = `pág. ${paginaActual} / ${an.paginas.length}`;
+    $('btnAuto').classList.toggle('on', modo === 'auto'); $('btnManual').classList.toggle('on', modo === 'manual');
+    $('btnPlay').hidden = modo !== 'auto';
+    $('btnPlay').textContent = paso === 0 ? 'Iniciar revisión' : terminado() ? 'Repetir' : reproduciendo ? 'Pausar' : 'Continuar';
+    $('btnPrev').disabled = paso <= (modo === 'manual' ? 1 : 0);
+    $('btnNext').disabled = paso >= N() + 1;
+    const ver = Object.keys(d).length;
+    $('progreso').textContent = modo === 'manual' ? (terminado() ? `${ver} / ${N()} verificados` : `punto ${paso} / ${N()}`)
+      : paso === 0 ? 'listo para iniciar' : terminado() ? 'análisis terminado' : `paso ${paso} / ${N()}`;
+    $('barraProg').style.width = ((modo === 'manual' ? ver : Math.min(paso, N())) / Math.max(1, N()) * 100) + '%';
+    $('tituloLado').textContent = modo === 'manual' ? 'Verificación humana' : 'Actividad de los agentes';
+    $('subLado').textContent = `${an.titulo} · expediente ${EXP === 'demo' ? 'de demostración' : EXP}`;
+    $('cuerpoLado').innerHTML = modo === 'manual' ? panelManual() : panelAuto();
+    const sel = $('cuerpoLado').querySelector('.sel'); if (sel) sel.scrollIntoView({ block: 'nearest' });
+  }
+
+  /* ---------- eventos ---------- */
+  $('btnAuto').onclick = () => cambiarModo('auto');
+  $('btnManual').onclick = () => cambiarModo('manual');
+  $('btnPrev').onclick = () => ir(paso - 1, false);
+  $('btnNext').onclick = () => ir(paso + 1, false);
+  $('btnPlay').onclick = () => {
+    if (paso === 0 || terminado()) return ir(1, true);
+    if (reproduciendo) { limpiar(); reproduciendo = false; leyendo = false; pintar(); } else ir(paso + 1, true);
+  };
+  $('cuerpoLado').addEventListener('click', e => {
+    const j = e.target.closest('[data-ir]'); if (j) return ir(+j.dataset.ir, false);
+    const dd = e.target.closest('[data-dec]');
+    if (dd) { if (dd.dataset.dec === 'fix') { editando = true; return pintar(); } return decidir(dd.dataset.dec); }
+    if (e.target.closest('#aManual')) return cambiarModo('manual');
+    if (e.target.closest('#gCorr')) { const v = $('valCorr').value.trim(); return decidir('fix', v || undefined); }
+    if (e.target.closest('#cCorr')) { editando = false; return pintar(); }
+    if (e.target.closest('#reiniciar')) { Estado.reiniciar(EXP, an.id); aviso('Verificación reiniciada.'); return cambiarModo('manual'); }
+  });
+  document.addEventListener('keydown', e => {
+    if (/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName) || e.metaKey || e.ctrlKey) return;
+    if (e.key === 'ArrowRight') ir(paso + 1, false); else if (e.key === 'ArrowLeft') ir(paso - 1, false);
+    else if (modo === 'manual' && actual() && !editando) {
+      const k = e.key.toLowerCase();
+      if (k === 'c') decidir('ok'); else if (k === 'n') decidir('no'); else if (k === 'e') { editando = true; pintar(); setTimeout(() => $('valCorr') && $('valCorr').focus(), 0); }
+    } else if (modo === 'auto' && e.key === ' ') { e.preventDefault(); $('btnPlay').click(); }
+  });
+  $('selDoc').onchange = async () => { await cargar($('selDoc').value); };
+
+  /* ---------- carga ---------- */
+  async function cargar(id) {
+    limpiar(); an = await Datos.analisis(id); paso = 0; leyendo = false; reproduciendo = false; editando = false; paginaActual = 1;
+    $('selDoc').value = id; $('hoja').innerHTML = '';
+    history.replaceState(null, '', `?${new URLSearchParams({ exp: EXP, doc: id, modo })}`);
+    if (modo === 'manual') cambiarModo('manual'); else pintar();
+  }
+  (async () => {
+    indice = await Datos.indice();
+    $('selDoc').innerHTML = indice.map(d => `<option value="${escapar(d.id)}">${escapar(d.titulo)} — ${escapar(d.archivo)}</option>`).join('');
+    const e = Estado.get(EXP), doc = P.get('doc') || (e.docs.escrituras && e.docs.escrituras.analisis) || (indice[1] || indice[0]).id;
+    if (P.get('modo') === 'manual') modo = 'manual';
+    await cargar(indice.some(d => d.id === doc) ? doc : indice[0].id);
+  })();
+
+  // para pruebas automáticas
+  window.__revision = { ir, cambiarModo, decidir, estado: () => ({ modo, paso, leyendo, N: N(), terminado: terminado(), pagina: paginaActual, enfoques: enfoques().length, id: an && an.id }) };
+})();
+</script>
+</body>
+</html>

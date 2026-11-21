@@ -1,0 +1,199 @@
+{
+ "id": "fresnos-alineamiento",
+ "tipo": "alineamiento",
+ "grupo": "fresnos",
+ "archivo": "03 Alineamiento y Numero Oficialv.pdf",
+ "titulo": "Alineamiento y número oficial · fresnos",
+ "parcial": true,
+ "paginas": [
+  {
+   "n": 1,
+   "img": "paginas/fresnos-alineamiento/p1.jpg",
+   "w": 1000,
+   "h": 1294
+  },
+  {
+   "n": 2,
+   "img": "paginas/fresnos-alineamiento/p2.jpg",
+   "w": 1000,
+   "h": 1294
+  }
+ ],
+ "total_paginas": 2,
+ "pasos": [
+  {
+   "campo": "Tipo documental",
+   "valor": "Constancia de alineamiento y número oficial",
+   "pagina": 1,
+   "rect": [
+    0.06,
+    0.02,
+    0.88,
+    0.12
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 1,
+   "t": "00:00.7",
+   "nota": ""
+  },
+  {
+   "campo": "Autoridad emisora",
+   "valor": "H. AYUNTAMIENTO CONSTITUCIONAL DE HUEHUETLÁN DEL MONTE Estado de",
+   "pagina": 1,
+   "rect": [
+    0.1611,
+    0.0324,
+    0.768,
+    0.0531
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 2,
+   "t": "00:01.4",
+   "nota": ""
+  },
+  {
+   "campo": "Número oficial",
+   "valor": "No legible",
+   "pagina": 1,
+   "rect": [
+    0.08,
+    0.1,
+    0.84,
+    0.05
+   ],
+   "ok": false,
+   "confianza": 0.0,
+   "nota": "Sin lectura automática: no se encontró el dato en el texto reconocido. Verificar en el documento original.",
+   "agente": "Extractor",
+   "n": 3,
+   "t": "00:02.1"
+  },
+  {
+   "campo": "Fecha de expedición",
+   "valor": "14 de mayo de 2025",
+   "pagina": 1,
+   "rect": [
+    0.0615,
+    0.1991,
+    0.5198,
+    0.0312
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 4,
+   "t": "00:02.8",
+   "nota": ""
+  },
+  {
+   "campo": "Titular actual",
+   "valor": "JUAN CARLOS BENITEZ ARROYO",
+   "pagina": 1,
+   "rect": [
+    0.0615,
+    0.2181,
+    0.8639,
+    0.0385
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 5,
+   "t": "00:03.5",
+   "nota": ""
+  },
+  {
+   "campo": "Dirección del inmueble",
+   "valor": "Calle Laureles No. 15, Lote 9, Manzana 4, Col. Villa de los Fresnos, Municipio de Huehuetlán del Monte, Estado de México",
+   "pagina": 1,
+   "rect": [
+    0.0615,
+    0.2345,
+    0.8655,
+    0.0528
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 6,
+   "t": "00:04.2",
+   "nota": ""
+  },
+  {
+   "campo": "Identificación del predio",
+   "valor": "Lote 9, Manzana 4",
+   "pagina": 1,
+   "rect": [
+    0.0634,
+    0.2345,
+    0.8637,
+    0.0353
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 7,
+   "t": "00:04.9",
+   "nota": ""
+  },
+  {
+   "campo": "Clave catastral",
+   "valor": "098 01 223 09 00 0000",
+   "pagina": 1,
+   "rect": [
+    0.0615,
+    0.2506,
+    0.862,
+    0.0499
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 8,
+   "t": "00:05.6",
+   "nota": ""
+  },
+  {
+   "campo": "Superficie del predio",
+   "valor": "312.50 m²",
+   "pagina": 1,
+   "rect": [
+    0.3776,
+    0.4771,
+    0.1095,
+    0.0211
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 9,
+   "t": "00:06.3",
+   "nota": ""
+  },
+  {
+   "campo": "Vigencia",
+   "valor": "un año a partir de su expedición",
+   "pagina": 1,
+   "rect": [
+    0.0729,
+    0.6803,
+    0.8637,
+    0.0437
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "nota": "Verificar contra la fecha de expedición.",
+   "agente": "Extractor",
+   "n": 10,
+   "t": "00:07.0"
+  }
+ ],
+ "resumen": {
+  "validados": 9,
+  "revisar": 1
+ }
+}

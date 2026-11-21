@@ -1,0 +1,421 @@
+{
+ "id": "tepeji5-escritura",
+ "tipo": "escrituras",
+ "grupo": "tepeji5",
+ "archivo": "Escrituras_Tepeji del Río 5.pdf",
+ "titulo": "Compraventa · Tepeji del Río · Notaría 101",
+ "paginas": [
+  {
+   "n": 1,
+   "img": "paginas/tepeji5-escritura/p1.jpg",
+   "w": 1000,
+   "h": 1415
+  },
+  {
+   "n": 2,
+   "img": "paginas/tepeji5-escritura/p2.jpg",
+   "w": 1000,
+   "h": 1415
+  },
+  {
+   "n": 3,
+   "img": "paginas/tepeji5-escritura/p3.jpg",
+   "w": 1000,
+   "h": 1415
+  },
+  {
+   "n": 4,
+   "img": "paginas/tepeji5-escritura/p4.jpg",
+   "w": 1000,
+   "h": 1415
+  },
+  {
+   "n": 5,
+   "img": "paginas/tepeji5-escritura/p5.jpg",
+   "w": 1000,
+   "h": 1415
+  },
+  {
+   "n": 6,
+   "img": "paginas/tepeji5-escritura/p6.jpg",
+   "w": 1000,
+   "h": 1415
+  },
+  {
+   "n": 7,
+   "img": "paginas/tepeji5-escritura/p7.jpg",
+   "w": 1000,
+   "h": 1415
+  },
+  {
+   "n": 8,
+   "img": "paginas/tepeji5-escritura/p8.jpg",
+   "w": 1000,
+   "h": 1415
+  },
+  {
+   "n": 9,
+   "img": "paginas/tepeji5-escritura/p9.jpg",
+   "w": 1000,
+   "h": 1415
+  },
+  {
+   "n": 10,
+   "img": "paginas/tepeji5-escritura/p10.jpg",
+   "w": 1000,
+   "h": 1415
+  },
+  {
+   "n": 11,
+   "img": "paginas/tepeji5-escritura/p11.jpg",
+   "w": 1000,
+   "h": 1415
+  },
+  {
+   "n": 12,
+   "img": "paginas/tepeji5-escritura/p12.jpg",
+   "w": 1000,
+   "h": 1415
+  },
+  {
+   "n": 13,
+   "img": "paginas/tepeji5-escritura/p13.jpg",
+   "w": 1000,
+   "h": 1415
+  },
+  {
+   "n": 14,
+   "img": "paginas/tepeji5-escritura/p14.jpg",
+   "w": 1000,
+   "h": 1415
+  },
+  {
+   "n": 15,
+   "img": "paginas/tepeji5-escritura/p15.jpg",
+   "w": 1000,
+   "h": 1415
+  },
+  {
+   "n": 16,
+   "img": "paginas/tepeji5-escritura/p16.jpg",
+   "w": 1000,
+   "h": 1415
+  },
+  {
+   "n": 17,
+   "img": "paginas/tepeji5-escritura/p17.jpg",
+   "w": 1000,
+   "h": 1415
+  },
+  {
+   "n": 18,
+   "img": "paginas/tepeji5-escritura/p18.jpg",
+   "w": 1000,
+   "h": 1415
+  },
+  {
+   "n": 19,
+   "img": "paginas/tepeji5-escritura/p19.jpg",
+   "w": 1000,
+   "h": 1415
+  },
+  {
+   "n": 20,
+   "img": "paginas/tepeji5-escritura/p20.jpg",
+   "w": 1000,
+   "h": 1415
+  },
+  {
+   "n": 21,
+   "img": "paginas/tepeji5-escritura/p21.jpg",
+   "w": 1000,
+   "h": 1415
+  },
+  {
+   "n": 22,
+   "img": "paginas/tepeji5-escritura/p22.jpg",
+   "w": 1000,
+   "h": 1415
+  },
+  {
+   "n": 23,
+   "img": "paginas/tepeji5-escritura/p23.jpg",
+   "w": 1000,
+   "h": 1415
+  },
+  {
+   "n": 24,
+   "img": "paginas/tepeji5-escritura/p24.jpg",
+   "w": 1000,
+   "h": 1415
+  },
+  {
+   "n": 25,
+   "img": "paginas/tepeji5-escritura/p25.jpg",
+   "w": 1000,
+   "h": 1415
+  }
+ ],
+ "total_paginas": 25,
+ "pasos": [
+  {
+   "pagina": 1,
+   "rect": [
+    0.3293,
+    0.1065,
+    0.2693,
+    0.0329
+   ],
+   "agente": "Extractor",
+   "campo": "Autoridad emisora",
+   "valor": "Notaría Pública No. 101 · Estado de México",
+   "ok": true,
+   "confianza": 1.0,
+   "n": 1,
+   "t": "00:00.7",
+   "nota": ""
+  },
+  {
+   "pagina": 2,
+   "rect": [
+    0.1376,
+    0.1238,
+    0.6503,
+    0.405
+   ],
+   "agente": "Extractor",
+   "campo": "Instrumento y volumen",
+   "valor": "Escritura número 33,239 · Volumen 499",
+   "ok": true,
+   "confianza": 1.0,
+   "n": 2,
+   "t": "00:01.4",
+   "nota": ""
+  },
+  {
+   "pagina": 2,
+   "rect": [
+    0.1483,
+    0.1688,
+    0.6459,
+    0.0214
+   ],
+   "agente": "Extractor",
+   "campo": "Fecha de otorgamiento",
+   "valor": "6 de marzo de 2025",
+   "ok": true,
+   "confianza": 1.0,
+   "n": 3,
+   "t": "00:02.1",
+   "nota": ""
+  },
+  {
+   "pagina": 2,
+   "rect": [
+    0.1461,
+    0.2282,
+    0.646,
+    0.0237
+   ],
+   "agente": "Extractor",
+   "campo": "Tipo documental",
+   "valor": "Escritura pública · Contrato de compraventa",
+   "ok": true,
+   "confianza": 1.0,
+   "n": 4,
+   "t": "00:02.8",
+   "nota": ""
+  },
+  {
+   "pagina": 2,
+   "rect": [
+    0.1461,
+    0.2282,
+    0.646,
+    0.456
+   ],
+   "agente": "Extractor",
+   "campo": "Transmitente (vendedor)",
+   "valor": "Regalos Ultramar, S.A. de C.V.",
+   "ok": true,
+   "confianza": 1.0,
+   "n": 5,
+   "t": "00:03.5",
+   "nota": ""
+  },
+  {
+   "pagina": 2,
+   "rect": [
+    0.1482,
+    0.3074,
+    0.646,
+    0.0244
+   ],
+   "agente": "Extractor",
+   "campo": "Adquirente (comprador)",
+   "valor": "José Haber Douek",
+   "ok": true,
+   "confianza": 1.0,
+   "n": 6,
+   "t": "00:04.2",
+   "nota": ""
+  },
+  {
+   "pagina": 2,
+   "rect": [
+    0.1482,
+    0.3074,
+    0.646,
+    0.0244
+   ],
+   "agente": "Extractor",
+   "campo": "Titular actual",
+   "valor": "José Haber Douek",
+   "ok": true,
+   "confianza": 1.0,
+   "n": 7,
+   "t": "00:04.9",
+   "nota": "El comprador pasa a ser el titular del predio al firmarse la escritura."
+  },
+  {
+   "pagina": 2,
+   "rect": [
+    0.1482,
+    0.685,
+    0.6398,
+    0.0603
+   ],
+   "agente": "Extractor",
+   "campo": "Dirección del inmueble",
+   "valor": "Predio urbano «El Paso del Norte», Barrio de Atengo, Tepeji del Río de Ocampo, Hidalgo",
+   "ok": false,
+   "confianza": 0.6,
+   "n": 8,
+   "t": "00:05.6",
+   "nota": "La escritura describe el predio por su nombre y barrio, sin calle ni número oficial. El anexo catastral lo ubica en Av. Melchor Ocampo S/N, Colonia Atengo."
+  },
+  {
+   "pagina": 2,
+   "rect": [
+    0.1483,
+    0.685,
+    0.6397,
+    0.0385
+   ],
+   "agente": "Extractor",
+   "campo": "Identificación del predio",
+   "valor": "El Paso del Norte, Barrio de Atengo",
+   "ok": true,
+   "confianza": 1.0,
+   "n": 9,
+   "t": "00:06.3",
+   "nota": ""
+  },
+  {
+   "pagina": 2,
+   "rect": [
+    0.1462,
+    0.8214,
+    0.6417,
+    0.0402
+   ],
+   "agente": "Extractor",
+   "campo": "Superficie del predio",
+   "valor": "890.00 m²",
+   "ok": true,
+   "confianza": 1.0,
+   "n": 10,
+   "t": "00:07.0",
+   "nota": "La escritura la declara «aproximada»; coincide con el certificado del Registro y la constancia catastral anexos."
+  },
+  {
+   "pagina": 3,
+   "rect": [
+    0.1956,
+    0.1501,
+    0.6397,
+    0.024
+   ],
+   "agente": "Extractor",
+   "campo": "Cuenta predial",
+   "valor": "U0003410",
+   "ok": true,
+   "confianza": 1.0,
+   "n": 11,
+   "t": "00:07.7",
+   "nota": ""
+  },
+  {
+   "pagina": 3,
+   "rect": [
+    0.1935,
+    0.1704,
+    0.6398,
+    0.0454
+   ],
+   "agente": "Extractor",
+   "campo": "Clave catastral",
+   "valor": "63 01 144 006",
+   "ok": true,
+   "confianza": 1.0,
+   "n": 12,
+   "t": "00:08.4",
+   "nota": ""
+  },
+  {
+   "pagina": 4,
+   "rect": [
+    0.1461,
+    0.3288,
+    0.644,
+    0.043
+   ],
+   "agente": "Extractor",
+   "campo": "Precio de la operación",
+   "valor": "$6,900,000.00",
+   "ok": true,
+   "confianza": 1.0,
+   "n": 13,
+   "t": "00:09.1",
+   "nota": ""
+  },
+  {
+   "pagina": 16,
+   "rect": [
+    0.0719,
+    0.5229,
+    0.1689,
+    0.0221
+   ],
+   "agente": "Extractor",
+   "campo": "Libertad de gravamen",
+   "valor": "Libre de gravámenes · certificado del 13 de febrero de 2025",
+   "ok": true,
+   "confianza": 1.0,
+   "n": 14,
+   "t": "00:09.8",
+   "nota": "El certificado del Registro Público (Tula de Allende) va en el apéndice: «No reporta gravamen». Tenía 21 días de antigüedad al firmarse."
+  },
+  {
+   "pagina": 18,
+   "rect": [
+    0.0865,
+    0.48,
+    0.8044,
+    0.0386
+   ],
+   "agente": "Extractor",
+   "campo": "Número oficial",
+   "valor": "S/N",
+   "ok": true,
+   "confianza": 1.0,
+   "n": 15,
+   "t": "00:10.5",
+   "nota": "Según la constancia catastral anexa a la escritura (pág. 18)."
+  }
+ ],
+ "resumen": {
+  "validados": 14,
+  "revisar": 1
+ }
+}

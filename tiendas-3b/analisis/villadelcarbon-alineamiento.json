@@ -1,0 +1,165 @@
+{
+ "id": "villadelcarbon-alineamiento",
+ "tipo": "alineamiento",
+ "grupo": "villadelcarbon",
+ "archivo": "ALINEAMIENTO Y NUMERO OFICIAL.pdf",
+ "titulo": "Alineamiento y número oficial · villadelcarbon",
+ "parcial": true,
+ "paginas": [
+  {
+   "n": 1,
+   "img": "paginas/villadelcarbon-alineamiento/p1.jpg",
+   "w": 1000,
+   "h": 1647
+  },
+  {
+   "n": 2,
+   "img": "paginas/villadelcarbon-alineamiento/p2.jpg",
+   "w": 1000,
+   "h": 1294
+  }
+ ],
+ "total_paginas": 2,
+ "pasos": [
+  {
+   "campo": "Tipo documental",
+   "valor": "Constancia de alineamiento y número oficial",
+   "pagina": 1,
+   "rect": [
+    0.06,
+    0.02,
+    0.88,
+    0.12
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 1,
+   "t": "00:00.7",
+   "nota": ""
+  },
+  {
+   "campo": "Autoridad emisora",
+   "valor": "AYUNTAMIENTO CONSTITUCIONAL DE VILLA DEL CARBÓN, EDO. DE MÉXIC",
+   "pagina": 1,
+   "rect": [
+    0.1846,
+    0.034,
+    0.4201,
+    0.0431
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 2,
+   "t": "00:01.4",
+   "nota": ""
+  },
+  {
+   "campo": "Dirección del inmueble",
+   "valor": "No legible",
+   "pagina": 1,
+   "rect": [
+    0.08,
+    0.1,
+    0.84,
+    0.05
+   ],
+   "ok": false,
+   "confianza": 0.0,
+   "nota": "Sin lectura automática: no se encontró el dato en el texto reconocido. Verificar en el documento original.",
+   "agente": "Extractor",
+   "n": 3,
+   "t": "00:02.1"
+  },
+  {
+   "campo": "Número oficial",
+   "valor": "No legible",
+   "pagina": 1,
+   "rect": [
+    0.08,
+    0.1,
+    0.84,
+    0.05
+   ],
+   "ok": false,
+   "confianza": 0.0,
+   "nota": "Sin lectura automática: no se encontró el dato en el texto reconocido. Verificar en el documento original.",
+   "agente": "Extractor",
+   "n": 4,
+   "t": "00:02.8"
+  },
+  {
+   "campo": "Fecha de expedición",
+   "valor": "27 DE JUNIO DEL 2024",
+   "pagina": 1,
+   "rect": [
+    0.3735,
+    0.1425,
+    0.4755,
+    0.0295
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 5,
+   "t": "00:03.5",
+   "nota": ""
+  },
+  {
+   "campo": "Titular actual",
+   "valor": "ROGELIO HERNANDEZ BARRERA POSEEDOR",
+   "pagina": 1,
+   "rect": [
+    0.089,
+    0.2612,
+    0.6547,
+    0.0347
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 6,
+   "t": "00:04.2",
+   "nota": ""
+  },
+  {
+   "campo": "Superficie del predio",
+   "valor": "783.20 m²",
+   "pagina": 1,
+   "rect": [
+    0.3571,
+    0.3431,
+    0.0848,
+    0.0187
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 7,
+   "t": "00:04.9",
+   "nota": ""
+  },
+  {
+   "campo": "Clave catastral",
+   "valor": "037 01 154 51 00 0000",
+   "pagina": 1,
+   "rect": [
+    0.7065,
+    0.3491,
+    0.1635,
+    0.0183
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 8,
+   "t": "00:05.6",
+   "nota": ""
+  }
+ ],
+ "resumen": {
+  "validados": 6,
+  "revisar": 2
+ }
+}

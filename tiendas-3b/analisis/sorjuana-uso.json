@@ -1,0 +1,159 @@
+{
+ "id": "sorjuana-uso",
+ "tipo": "uso",
+ "grupo": "sorjuana",
+ "archivo": "05. Licencia de Uso de Suelo Sor Juana.pdf",
+ "titulo": "Uso de suelo · sorjuana",
+ "parcial": true,
+ "paginas": [
+  {
+   "n": 1,
+   "img": "paginas/sorjuana-uso/p1.jpg",
+   "w": 1000,
+   "h": 1647
+  }
+ ],
+ "total_paginas": 1,
+ "pasos": [
+  {
+   "campo": "Tipo documental",
+   "valor": "Uso de suelo",
+   "pagina": 1,
+   "rect": [
+    0.06,
+    0.02,
+    0.88,
+    0.12
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 1,
+   "t": "00:00.7",
+   "nota": ""
+  },
+  {
+   "campo": "Autoridad emisora",
+   "valor": "H. Ayuntamiento Constitucional . Imor y Servicio por de Tepotzotl",
+   "pagina": 1,
+   "rect": [
+    0.2304,
+    0.0225,
+    0.7021,
+    0.0513
+   ],
+   "ok": true,
+   "confianza": 0.83,
+   "agente": "Extractor",
+   "n": 2,
+   "t": "00:01.4",
+   "nota": ""
+  },
+  {
+   "campo": "Uso de suelo",
+   "valor": "No legible",
+   "pagina": 1,
+   "rect": [
+    0.08,
+    0.1,
+    0.84,
+    0.05
+   ],
+   "ok": false,
+   "confianza": 0.0,
+   "nota": "Sin lectura automática: no se encontró el dato en el texto reconocido. Verificar en el documento original.",
+   "agente": "Extractor",
+   "n": 3,
+   "t": "00:02.1"
+  },
+  {
+   "campo": "Titular actual",
+   "valor": "GARCIA CERVANTES ALEJANDRO FELIX",
+   "pagina": 1,
+   "rect": [
+    0.1442,
+    0.1813,
+    0.6756,
+    0.0204
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 4,
+   "t": "00:02.8",
+   "nota": ""
+  },
+  {
+   "campo": "Dirección del inmueble",
+   "valor": "AV. SOR JUANA INES DE LA CRUZ (LT-7), NUMERO 15",
+   "pagina": 1,
+   "rect": [
+    0.1441,
+    0.1977,
+    0.4176,
+    0.0225
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 5,
+   "t": "00:03.5",
+   "nota": ""
+  },
+  {
+   "campo": "Clave catastral",
+   "valor": "006 01 407 07 00 0000",
+   "pagina": 1,
+   "rect": [
+    0.5724,
+    0.2187,
+    0.2667,
+    0.0194
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 6,
+   "t": "00:04.2",
+   "nota": ""
+  },
+  {
+   "campo": "Superficie del predio",
+   "valor": "120 m²",
+   "pagina": 1,
+   "rect": [
+    0.2257,
+    0.4174,
+    0.3214,
+    0.0198
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 7,
+   "t": "00:04.9",
+   "nota": ""
+  },
+  {
+   "campo": "Vigencia",
+   "valor": "un año natural a partir de la fecha",
+   "pagina": 1,
+   "rect": [
+    0.1011,
+    0.7417,
+    0.8121,
+    0.0241
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "nota": "Verificar contra la fecha de expedición.",
+   "agente": "Extractor",
+   "n": 8,
+   "t": "00:05.6"
+  }
+ ],
+ "resumen": {
+  "validados": 7,
+  "revisar": 1
+ }
+}

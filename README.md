@@ -99,3 +99,22 @@ Límites conocidos (aceptables para el hackatón):
 | Modelo | Ollama, 1 GPU de 4 GB, 1 petición a la vez | vLLM/TGI en GPU(s) de 24 GB+ con *continuous batching* (decenas de peticiones a la vez) o API en la nube; desborde automático a la nube cuando la cola crece |
 | Estado | `InMemorySaver` | Checkpointer de LangGraph en Postgres (sobrevive reinicios, permite HITL días después) |
 | Archivos | `.cache/` local | Almacenamiento de objetos (S3/Blob) con caché de lectura por hash compartida |
+
+## Frontend Next.js (`frontend/`)
+
+Frontend de expedientes (Next.js). El código está en la carpeta `frontend/`.
+
+## Instalación y ejecución
+
+Desde `frontend/`:
+
+```bash
+cd frontend
+npm install
+npm run build
+npm run start
+```
+
+La aplicación queda en http://localhost:3000.
+
+Si hace falta apuntar a un backend, copia `frontend/.env.example` a `frontend/.env.local` antes de instalar y correr.

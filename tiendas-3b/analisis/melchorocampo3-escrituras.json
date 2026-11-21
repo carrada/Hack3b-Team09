@@ -1,0 +1,167 @@
+{
+ "id": "melchorocampo3-escrituras",
+ "tipo": "escrituras",
+ "grupo": "melchorocampo3",
+ "archivo": "02. Escritura (1).pdf",
+ "titulo": "Escritura · melchorocampo3",
+ "parcial": true,
+ "paginas": [
+  {
+   "n": 1,
+   "img": "paginas/melchorocampo3-escrituras/p1.jpg",
+   "w": 1000,
+   "h": 1647
+  },
+  {
+   "n": 2,
+   "img": "paginas/melchorocampo3-escrituras/p2.jpg",
+   "w": 1000,
+   "h": 1647
+  },
+  {
+   "n": 3,
+   "img": "paginas/melchorocampo3-escrituras/p3.jpg",
+   "w": 1000,
+   "h": 1647
+  },
+  {
+   "n": 4,
+   "img": "paginas/melchorocampo3-escrituras/p4.jpg",
+   "w": 1000,
+   "h": 1647
+  },
+  {
+   "n": 5,
+   "img": "paginas/melchorocampo3-escrituras/p5.jpg",
+   "w": 1000,
+   "h": 1647
+  },
+  {
+   "n": 6,
+   "img": "paginas/melchorocampo3-escrituras/p6.jpg",
+   "w": 1000,
+   "h": 1647
+  },
+  {
+   "n": 7,
+   "img": "paginas/melchorocampo3-escrituras/p7.jpg",
+   "w": 1000,
+   "h": 1647
+  },
+  {
+   "n": 8,
+   "img": "paginas/melchorocampo3-escrituras/p8.jpg",
+   "w": 1000,
+   "h": 1647
+  }
+ ],
+ "total_paginas": 8,
+ "pasos": [
+  {
+   "campo": "Tipo documental",
+   "valor": "Escritura pública",
+   "pagina": 1,
+   "rect": [
+    0.06,
+    0.02,
+    0.88,
+    0.12
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 1,
+   "t": "00:00.7",
+   "nota": ""
+  },
+  {
+   "campo": "Dirección del inmueble",
+   "valor": "No legible",
+   "pagina": 1,
+   "rect": [
+    0.08,
+    0.1,
+    0.84,
+    0.05
+   ],
+   "ok": false,
+   "confianza": 0.0,
+   "nota": "Sin lectura automática: no se encontró el dato en el texto reconocido. Verificar en el documento original.",
+   "agente": "Extractor",
+   "n": 2,
+   "t": "00:01.4"
+  },
+  {
+   "campo": "Superficie del predio",
+   "valor": "No legible",
+   "pagina": 1,
+   "rect": [
+    0.08,
+    0.1,
+    0.84,
+    0.05
+   ],
+   "ok": false,
+   "confianza": 0.0,
+   "nota": "Sin lectura automática: no se encontró el dato en el texto reconocido. Verificar en el documento original.",
+   "agente": "Extractor",
+   "n": 3,
+   "t": "00:02.1"
+  },
+  {
+   "campo": "Autoridad emisora",
+   "valor": "DIRECCION GENERAL DE HACIENDA TITULO DE PROPIEDAD DELEGACION DEL REGI",
+   "pagina": 1,
+   "rect": [
+    0.0434,
+    0.6008,
+    0.9106,
+    0.1561
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 4,
+   "t": "00:02.8",
+   "nota": ""
+  },
+  {
+   "campo": "Titular actual",
+   "valor": "FRANCISCO SANDOVAL ESCALONA",
+   "pagina": 3,
+   "rect": [
+    0.1419,
+    0.1994,
+    0.618,
+    0.0183
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 5,
+   "t": "00:03.5",
+   "nota": ""
+  },
+  {
+   "campo": "Identificación del predio",
+   "valor": "Lote LA TANAYA",
+   "pagina": 3,
+   "rect": [
+    0.1898,
+    0.4306,
+    0.5917,
+    0.0212
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 6,
+   "t": "00:04.2",
+   "nota": ""
+  }
+ ],
+ "resumen": {
+  "validados": 4,
+  "revisar": 2
+ }
+}

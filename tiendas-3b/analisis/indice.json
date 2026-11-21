@@ -1,0 +1,874 @@
+[
+ {
+  "id": "01-escritura",
+  "archivo": "01 Escritura...pdf",
+  "originales": [
+   "01 Escritura...pdf"
+  ],
+  "bytes": 139518,
+  "titulo": "Compraventa · escaneo desvanecido",
+  "paginas": 2,
+  "pasos": 7,
+  "revisar": 7,
+  "tipo": "escrituras",
+  "grupo": "sanantonio"
+ },
+ {
+  "id": "01-escritura-2",
+  "archivo": "01 Escritura.pdf",
+  "originales": [
+   "01 Escritura!!.pdf"
+  ],
+  "bytes": 635187,
+  "titulo": "Compraventa · Ecatepec · Notaría 57",
+  "paginas": 2,
+  "pasos": 11,
+  "revisar": 2,
+  "tipo": "escrituras",
+  "grupo": "mirador"
+ },
+ {
+  "id": "01-escritura-1",
+  "archivo": "01 Escritura_1.pdf",
+  "originales": [
+   "01 Escritura.pdf"
+  ],
+  "bytes": 636766,
+  "titulo": "Compraventa · Zumpango · Notaría 18",
+  "paginas": 2,
+  "pasos": 11,
+  "revisar": 2,
+  "tipo": "escrituras",
+  "grupo": "laloma"
+ },
+ {
+  "id": "01-escriturav",
+  "archivo": "01 Escriturav.pdf",
+  "originales": [
+   "01 Escriturav.pdf"
+  ],
+  "bytes": 640745,
+  "titulo": "Compraventa · Texcoco · Notaría 131",
+  "paginas": 2,
+  "pasos": 11,
+  "revisar": 2,
+  "tipo": "escrituras",
+  "grupo": "fresnos"
+ },
+ {
+  "id": "mirador-predial",
+  "tipo": "predial",
+  "grupo": "mirador",
+  "archivo": "02 Predial!!.pdf",
+  "originales": [
+   "02 Predial!!.pdf"
+  ],
+  "bytes": 178898,
+  "titulo": "Predial · mirador",
+  "paginas": 1,
+  "pasos": 7,
+  "revisar": 0
+ },
+ {
+  "id": "mirador-alineamiento",
+  "tipo": "alineamiento",
+  "grupo": "mirador",
+  "archivo": "03 Alineamiento y Numero Oficial!!.pdf",
+  "originales": [
+   "03 Alineamiento y Numero Oficial!!.pdf"
+  ],
+  "bytes": 498545,
+  "titulo": "Alineamiento y número oficial · mirador",
+  "paginas": 2,
+  "pasos": 10,
+  "revisar": 0
+ },
+ {
+  "id": "mirador-uso",
+  "tipo": "uso",
+  "grupo": "mirador",
+  "archivo": "04 Licencia de Uso de Suelo!!.pdf",
+  "originales": [
+   "04 Licencia de Uso de Suelo!!.pdf"
+  ],
+  "bytes": 280867,
+  "titulo": "Uso de suelo · mirador",
+  "paginas": 1,
+  "pasos": 9,
+  "revisar": 2
+ },
+ {
+  "id": "laloma-predial",
+  "tipo": "predial",
+  "grupo": "laloma",
+  "archivo": "02 Predial.pdf",
+  "originales": [
+   "02 Predial.pdf"
+  ],
+  "bytes": 225587,
+  "titulo": "Predial · laloma",
+  "paginas": 1,
+  "pasos": 5,
+  "revisar": 0
+ },
+ {
+  "id": "laloma-alineamiento",
+  "tipo": "alineamiento",
+  "grupo": "laloma",
+  "archivo": "03 Alineamiento y Numero Oficial.pdf",
+  "originales": [
+   "03 Alineamiento y Numero Oficial.pdf"
+  ],
+  "bytes": 474805,
+  "titulo": "Alineamiento y número oficial · laloma",
+  "paginas": 2,
+  "pasos": 10,
+  "revisar": 1
+ },
+ {
+  "id": "laloma-uso",
+  "tipo": "uso",
+  "grupo": "laloma",
+  "archivo": "04 Licencia de Uso de Suelo.pdf",
+  "originales": [
+   "04 Licencia de Uso de Suelo.pdf"
+  ],
+  "bytes": 289664,
+  "titulo": "Uso de suelo · laloma",
+  "paginas": 1,
+  "pasos": 9,
+  "revisar": 1
+ },
+ {
+  "id": "fresnos-predial",
+  "tipo": "predial",
+  "grupo": "fresnos",
+  "archivo": "02 Predialv.pdf",
+  "originales": [
+   "02 Predialv.pdf"
+  ],
+  "bytes": 226972,
+  "titulo": "Predial · fresnos",
+  "paginas": 1,
+  "pasos": 5,
+  "revisar": 0
+ },
+ {
+  "id": "fresnos-alineamiento",
+  "tipo": "alineamiento",
+  "grupo": "fresnos",
+  "archivo": "03 Alineamiento y Numero Oficialv.pdf",
+  "originales": [
+   "03 Alineamiento y Numero Oficialv.pdf"
+  ],
+  "bytes": 476712,
+  "titulo": "Alineamiento y número oficial · fresnos",
+  "paginas": 2,
+  "pasos": 10,
+  "revisar": 1
+ },
+ {
+  "id": "fresnos-uso",
+  "tipo": "uso",
+  "grupo": "fresnos",
+  "archivo": "04 Licencia de Uso de Suelov.pdf",
+  "originales": [
+   "04 Licencia de Uso de Suelov.pdf"
+  ],
+  "bytes": 281177,
+  "titulo": "Uso de suelo · fresnos",
+  "paginas": 1,
+  "pasos": 9,
+  "revisar": 2
+ },
+ {
+  "id": "sanantonio-predial",
+  "tipo": "predial",
+  "grupo": "sanantonio",
+  "archivo": "02 Predial...pdf",
+  "originales": [
+   "02 Predial...pdf"
+  ],
+  "bytes": 58605,
+  "titulo": "Predial · sanantonio",
+  "paginas": 1,
+  "pasos": 2,
+  "revisar": 1
+ },
+ {
+  "id": "sanantonio-alineamiento",
+  "tipo": "alineamiento",
+  "grupo": "sanantonio",
+  "archivo": "03 Alineamiento y Numero Oficial...pdf",
+  "originales": [
+   "03 Alineamiento y Numero Oficial...pdf"
+  ],
+  "bytes": 484104,
+  "titulo": "Alineamiento y número oficial · sanantonio",
+  "paginas": 2,
+  "pasos": 9,
+  "revisar": 1
+ },
+ {
+  "id": "sanantonio-uso",
+  "tipo": "uso",
+  "grupo": "sanantonio",
+  "archivo": "04 Licencia de Uso de Suelo...pdf",
+  "originales": [
+   "04 Licencia de Uso de Suelo...pdf"
+  ],
+  "bytes": 71219,
+  "titulo": "Uso de suelo · sanantonio",
+  "paginas": 1,
+  "pasos": 5,
+  "revisar": 3
+ },
+ {
+  "id": "sorjuana-escrituras",
+  "tipo": "escrituras",
+  "grupo": "sorjuana",
+  "archivo": "02. Escritura.pdf",
+  "originales": [
+   "02. Escritura.pdf"
+  ],
+  "bytes": 2056145,
+  "titulo": "Escritura · sorjuana",
+  "paginas": 8,
+  "pasos": 7,
+  "revisar": 1
+ },
+ {
+  "id": "sorjuana-predial",
+  "tipo": "predial",
+  "grupo": "sorjuana",
+  "archivo": "1. Pago de Predial 2025 Sor Juana.pdf",
+  "originales": [
+   "1. Pago de Predial 2025 Sor Juana.pdf"
+  ],
+  "bytes": 133356,
+  "titulo": "Predial · sorjuana",
+  "paginas": 2,
+  "pasos": 5,
+  "revisar": 1
+ },
+ {
+  "id": "sorjuana-alineamiento",
+  "tipo": "alineamiento",
+  "grupo": "sorjuana",
+  "archivo": "03. Número Oficial Sor Juana.pdf",
+  "originales": [
+   "03. Número Oficial Sor Juana.pdf"
+  ],
+  "bytes": 118058,
+  "titulo": "Alineamiento y número oficial · sorjuana",
+  "paginas": 1,
+  "pasos": 6,
+  "revisar": 3
+ },
+ {
+  "id": "sorjuana-uso",
+  "tipo": "uso",
+  "grupo": "sorjuana",
+  "archivo": "05. Licencia de Uso de Suelo Sor Juana.pdf",
+  "originales": [
+   "05. Licencia de Uso de Suelo Sor Juana.pdf"
+  ],
+  "bytes": 159581,
+  "titulo": "Uso de suelo · sorjuana",
+  "paginas": 1,
+  "pasos": 8,
+  "revisar": 1
+ },
+ {
+  "id": "sorjuana-alineamiento-2",
+  "tipo": "alineamiento",
+  "grupo": "sorjuana",
+  "archivo": "03. Constancia de Alineamiento Sor Juana.pdf",
+  "originales": [
+   "03. Constancia de Alineamiento Sor Juana.pdf"
+  ],
+  "bytes": 114357,
+  "titulo": "Alineamiento y número oficial · sorjuana",
+  "paginas": 1,
+  "pasos": 7,
+  "revisar": 3
+ },
+ {
+  "id": "melchorocampo3-escrituras",
+  "tipo": "escrituras",
+  "grupo": "melchorocampo3",
+  "archivo": "02. Escritura (1).pdf",
+  "originales": [
+   "02. Escritura (1).pdf"
+  ],
+  "bytes": 512896,
+  "titulo": "Escritura · melchorocampo3",
+  "paginas": 8,
+  "pasos": 6,
+  "revisar": 2
+ },
+ {
+  "id": "melchorocampo3-predial",
+  "tipo": "predial",
+  "grupo": "melchorocampo3",
+  "archivo": "01 Boleta Predial  2025 Melchor Ocampo III.pdf",
+  "originales": [
+   "01 Boleta Predial  2025 Melchor Ocampo III.pdf"
+  ],
+  "bytes": 435645,
+  "titulo": "Predial · melchorocampo3",
+  "paginas": 1,
+  "pasos": 5,
+  "revisar": 1
+ },
+ {
+  "id": "melchorocampo3-alineamiento",
+  "tipo": "alineamiento",
+  "grupo": "melchorocampo3",
+  "archivo": "03 Alineamiento y numero oficial  Melcho Ocampo III..pdf",
+  "originales": [
+   "03 Alineamiento y numero oficial  Melcho Ocampo III..pdf"
+  ],
+  "bytes": 126734,
+  "titulo": "Alineamiento y número oficial · melchorocampo3",
+  "paginas": 1,
+  "pasos": 8,
+  "revisar": 2
+ },
+ {
+  "id": "melchorocampo3-uso",
+  "tipo": "uso",
+  "grupo": "melchorocampo3",
+  "archivo": "05 Licencia de uso de suelo actualizado al año en curso (uso comercial – minisúper) Melchor Ocampo III.pdf",
+  "originales": [
+   "05 Licencia de uso de suelo actualizado al año en curso (uso comercial – minisúper) Melchor Ocampo III.pdf"
+  ],
+  "bytes": 3776169,
+  "titulo": "Uso de suelo · melchorocampo3",
+  "paginas": 4,
+  "pasos": 8,
+  "revisar": 1
+ },
+ {
+  "id": "crispin-uso",
+  "tipo": "uso",
+  "grupo": "crispin",
+  "archivo": "Licencia de Uso de Suelo (1).pdf",
+  "originales": [
+   "Licencia de Uso de Suelo (1).pdf"
+  ],
+  "bytes": 635602,
+  "titulo": "Uso de suelo · crispin",
+  "paginas": 2,
+  "pasos": 6,
+  "revisar": 3
+ },
+ {
+  "id": "tultepec-insurgentes-predial",
+  "tipo": "predial",
+  "grupo": "tultepec-insurgentes",
+  "archivo": "PREDIAL 2024-TULTEPEC INSURGENTES.pdf",
+  "originales": [
+   "PREDIAL 2024-TULTEPEC INSURGENTES.pdf"
+  ],
+  "bytes": 461485,
+  "titulo": "Predial · tultepec-insurgentes",
+  "paginas": 1,
+  "pasos": 7,
+  "revisar": 0
+ },
+ {
+  "id": "tultepec-insurgentes-alineamiento",
+  "tipo": "alineamiento",
+  "grupo": "tultepec-insurgentes",
+  "archivo": "ALINEAMIENTO Y NUMERO OFICIAL-TULTEPEC INSURGENTES.pdf",
+  "originales": [
+   "ALINEAMIENTO Y NUMERO OFICIAL-TULTEPEC INSURGENTES.pdf"
+  ],
+  "bytes": 513235,
+  "titulo": "Alineamiento y número oficial · tultepec-insurgentes",
+  "paginas": 1,
+  "pasos": 9,
+  "revisar": 1
+ },
+ {
+  "id": "tultepec-insurgentes-uso",
+  "tipo": "uso",
+  "grupo": "tultepec-insurgentes",
+  "archivo": "USO DE SUELO-TULTEPEC INSURGENTES.pdf",
+  "originales": [
+   "USO DE SUELO-TULTEPEC INSURGENTES.pdf"
+  ],
+  "bytes": 2417001,
+  "titulo": "Uso de suelo · tultepec-insurgentes",
+  "paginas": 3,
+  "pasos": 8,
+  "revisar": 1
+ },
+ {
+  "id": "tultepec-sanjuan-predial",
+  "tipo": "predial",
+  "grupo": "tultepec-sanjuan",
+  "archivo": "PREDIAL-TULTEPEC SAN JUAN.pdf",
+  "originales": [
+   "PREDIAL-TULTEPEC SAN JUAN.pdf"
+  ],
+  "bytes": 1743210,
+  "titulo": "Predial · tultepec-sanjuan",
+  "paginas": 1,
+  "pasos": 7,
+  "revisar": 0
+ },
+ {
+  "id": "tultepec-sanjuan-alineamiento",
+  "tipo": "alineamiento",
+  "grupo": "tultepec-sanjuan",
+  "archivo": "ALINEAMIENTO Y NUMERO OFICIAL-TULTEPEC SAN JUAN.pdf",
+  "originales": [
+   "ALINEAMIENTO Y NUMERO OFICIAL-TULTEPEC SAN JUAN.pdf"
+  ],
+  "bytes": 166242,
+  "titulo": "Alineamiento y número oficial · tultepec-sanjuan",
+  "paginas": 1,
+  "pasos": 6,
+  "revisar": 2
+ },
+ {
+  "id": "quma-pedregal-escrituras",
+  "tipo": "escrituras",
+  "grupo": "quma-pedregal",
+  "archivo": "ESCRITURA QUMA.pdf",
+  "originales": [
+   "ESCRITURA QUMA.pdf"
+  ],
+  "bytes": 20185657,
+  "titulo": "Escritura · quma-pedregal",
+  "paginas": 8,
+  "pasos": 8,
+  "revisar": 0
+ },
+ {
+  "id": "quma-pedregal-alineamiento",
+  "tipo": "alineamiento",
+  "grupo": "quma-pedregal",
+  "archivo": "ALINEAMIENTO Y NUMERO OFICIAL QUMA.pdf",
+  "originales": [
+   "ALINEAMIENTO Y NUMERO OFICIAL QUMA.pdf"
+  ],
+  "bytes": 356756,
+  "titulo": "Alineamiento y número oficial · quma-pedregal",
+  "paginas": 1,
+  "pasos": 6,
+  "revisar": 2
+ },
+ {
+  "id": "toscana-escrituras",
+  "tipo": "escrituras",
+  "grupo": "toscana",
+  "archivo": "ESCRITURA 30,025 RELOTIFICACION DE MZAS 88-A A 93-A, 31-B A 71-B Y 1-C A...-HGO PASEOS DE LA PRADERA.pdf",
+  "originales": [
+   "ESCRITURA 30,025 RELOTIFICACION DE MZAS 88-A A 93-A, 31-B A 71-B Y 1-C A...-HGO PASEOS DE LA PRADERA.pdf"
+  ],
+  "bytes": 7654773,
+  "titulo": "Escritura · toscana",
+  "paginas": 8,
+  "pasos": 7,
+  "revisar": 1
+ },
+ {
+  "id": "toscana-predial",
+  "tipo": "predial",
+  "grupo": "toscana",
+  "archivo": "2024 - Comprobante Predial Toscana.pdf",
+  "originales": [
+   "2024 - Comprobante Predial Toscana.pdf"
+  ],
+  "bytes": 209365,
+  "titulo": "Predial · toscana",
+  "paginas": 1,
+  "pasos": 6,
+  "revisar": 1
+ },
+ {
+  "id": "toscana-uso",
+  "tipo": "uso",
+  "grupo": "toscana",
+  "archivo": "USO DE SUELO Y ANTECEDENTE CB-HGO PASESO DE LA PRADERA.pdf",
+  "originales": [
+   "USO DE SUELO Y ANTECEDENTE CB-HGO PASESO DE LA PRADERA.pdf"
+  ],
+  "bytes": 988879,
+  "titulo": "Uso de suelo · toscana",
+  "paginas": 4,
+  "pasos": 7,
+  "revisar": 1
+ },
+ {
+  "id": "tlahuelilpan-escrituras",
+  "tipo": "escrituras",
+  "grupo": "tlahuelilpan",
+  "archivo": "02 ESCRITURA.pdf",
+  "originales": [
+   "02 ESCRITURA.pdf"
+  ],
+  "bytes": 3204149,
+  "titulo": "Escritura · tlahuelilpan",
+  "paginas": 3,
+  "pasos": 6,
+  "revisar": 1
+ },
+ {
+  "id": "tlahuelilpan-predial",
+  "tipo": "predial",
+  "grupo": "tlahuelilpan",
+  "archivo": "PAGO PREDIAL 20205.pdf",
+  "originales": [
+   "PAGO PREDIAL 20205.pdf"
+  ],
+  "bytes": 3410748,
+  "titulo": "Predial · tlahuelilpan",
+  "paginas": 4,
+  "pasos": 7,
+  "revisar": 0
+ },
+ {
+  "id": "tlahuelilpan-alineamiento",
+  "tipo": "alineamiento",
+  "grupo": "tlahuelilpan",
+  "archivo": "ALINEAMIENTO 2024.pdf",
+  "originales": [
+   "ALINEAMIENTO 2024.pdf"
+  ],
+  "bytes": 668343,
+  "titulo": "Alineamiento y número oficial · tlahuelilpan",
+  "paginas": 1,
+  "pasos": 6,
+  "revisar": 2
+ },
+ {
+  "id": "tlahuelilpan-uso",
+  "tipo": "uso",
+  "grupo": "tlahuelilpan",
+  "archivo": "USO DE SUELO COMERCIAL.pdf",
+  "originales": [
+   "USO DE SUELO COMERCIAL.pdf"
+  ],
+  "bytes": 749848,
+  "titulo": "Uso de suelo · tlahuelilpan",
+  "paginas": 1,
+  "pasos": 6,
+  "revisar": 1
+ },
+ {
+  "id": "mixquiahuala-predial",
+  "tipo": "predial",
+  "grupo": "mixquiahuala",
+  "archivo": "PREDIAL 2025 (1).pdf",
+  "originales": [
+   "PREDIAL 2025 (1).pdf"
+  ],
+  "bytes": 858315,
+  "titulo": "Predial · mixquiahuala",
+  "paginas": 1,
+  "pasos": 5,
+  "revisar": 1
+ },
+ {
+  "id": "mixquiahuala-alineamiento",
+  "tipo": "alineamiento",
+  "grupo": "mixquiahuala",
+  "archivo": "ALINEAMIANTO Y NUMERO OFICIAL.pdf",
+  "originales": [
+   "ALINEAMIANTO Y NUMERO OFICIAL.pdf"
+  ],
+  "bytes": 1946247,
+  "titulo": "Alineamiento y número oficial · mixquiahuala",
+  "paginas": 2,
+  "pasos": 5,
+  "revisar": 2
+ },
+ {
+  "id": "mixquiahuala-uso",
+  "tipo": "uso",
+  "grupo": "mixquiahuala",
+  "archivo": "3737 LIC DE USO DE SUELO.pdf",
+  "originales": [
+   "3737 LIC DE USO DE SUELO.pdf"
+  ],
+  "bytes": 700546,
+  "titulo": "Uso de suelo · mixquiahuala",
+  "paginas": 1,
+  "pasos": 6,
+  "revisar": 1
+ },
+ {
+  "id": "tezontepec-predial",
+  "tipo": "predial",
+  "grupo": "tezontepec",
+  "archivo": "PREDIAL 2025.pdf",
+  "originales": [
+   "PREDIAL 2025.pdf"
+  ],
+  "bytes": 2686135,
+  "titulo": "Predial · tezontepec",
+  "paginas": 4,
+  "pasos": 7,
+  "revisar": 0
+ },
+ {
+  "id": "tezontepec-alineamiento",
+  "tipo": "alineamiento",
+  "grupo": "tezontepec",
+  "archivo": "ALINEAMIENTO Y NUMERO OFICIAL (3).pdf",
+  "originales": [
+   "ALINEAMIENTO Y NUMERO OFICIAL (3).pdf"
+  ],
+  "bytes": 689653,
+  "titulo": "Alineamiento y número oficial · tezontepec",
+  "paginas": 1,
+  "pasos": 7,
+  "revisar": 1
+ },
+ {
+  "id": "tezontepec-uso",
+  "tipo": "uso",
+  "grupo": "tezontepec",
+  "archivo": "USO DE SUELO COMERCIAL (1).pdf",
+  "originales": [
+   "USO DE SUELO COMERCIAL (1).pdf"
+  ],
+  "bytes": 761365,
+  "titulo": "Uso de suelo · tezontepec",
+  "paginas": 1,
+  "pasos": 6,
+  "revisar": 2
+ },
+ {
+  "id": "ixmiquilpan-escrituras",
+  "tipo": "escrituras",
+  "grupo": "ixmiquilpan",
+  "archivo": "ESCRITURA.pdf",
+  "originales": [
+   "ESCRITURA.pdf"
+  ],
+  "bytes": 307746,
+  "titulo": "Escritura · ixmiquilpan",
+  "paginas": 5,
+  "pasos": 7,
+  "revisar": 1
+ },
+ {
+  "id": "ixmiquilpan-predial",
+  "tipo": "predial",
+  "grupo": "ixmiquilpan",
+  "archivo": "PAGO PREDIAL 2025.pdf",
+  "originales": [
+   "PAGO PREDIAL 2025.pdf"
+  ],
+  "bytes": 225054,
+  "titulo": "Predial · ixmiquilpan",
+  "paginas": 2,
+  "pasos": 3,
+  "revisar": 1
+ },
+ {
+  "id": "ixmiquilpan-alineamiento",
+  "tipo": "alineamiento",
+  "grupo": "ixmiquilpan",
+  "archivo": "NUMERO OFICIAL Y ALINEACION DE SUELO.pdf",
+  "originales": [
+   "NUMERO OFICIAL Y ALINEACION DE SUELO.pdf"
+  ],
+  "bytes": 95606,
+  "titulo": "Alineamiento y número oficial · ixmiquilpan",
+  "paginas": 1,
+  "pasos": 5,
+  "revisar": 1
+ },
+ {
+  "id": "temascalcingo-alineamiento",
+  "tipo": "alineamiento",
+  "grupo": "temascalcingo",
+  "archivo": "Alineamiento y numero oficial (1).pdf",
+  "originales": [
+   "Alineamiento y numero oficial (1).pdf"
+  ],
+  "bytes": 904059,
+  "titulo": "Alineamiento y número oficial · temascalcingo",
+  "paginas": 1,
+  "pasos": 7,
+  "revisar": 2
+ },
+ {
+  "id": "temascalcingo-uso",
+  "tipo": "uso",
+  "grupo": "temascalcingo",
+  "archivo": "licencia de uso de suelo.pdf",
+  "originales": [
+   "licencia de uso de suelo.pdf"
+  ],
+  "bytes": 1573909,
+  "titulo": "Uso de suelo · temascalcingo",
+  "paginas": 2,
+  "pasos": 8,
+  "revisar": 1
+ },
+ {
+  "id": "villadelcarbon-predial",
+  "tipo": "predial",
+  "grupo": "villadelcarbon",
+  "archivo": "PREDIAL 2024.pdf",
+  "originales": [
+   "PREDIAL 2024.pdf"
+  ],
+  "bytes": 244964,
+  "titulo": "Predial · villadelcarbon",
+  "paginas": 1,
+  "pasos": 5,
+  "revisar": 1
+ },
+ {
+  "id": "villadelcarbon-alineamiento",
+  "tipo": "alineamiento",
+  "grupo": "villadelcarbon",
+  "archivo": "ALINEAMIENTO Y NUMERO OFICIAL.pdf",
+  "originales": [
+   "ALINEAMIENTO Y NUMERO OFICIAL.pdf"
+  ],
+  "bytes": 710106,
+  "titulo": "Alineamiento y número oficial · villadelcarbon",
+  "paginas": 2,
+  "pasos": 8,
+  "revisar": 2
+ },
+ {
+  "id": "villadelcarbon-uso",
+  "tipo": "uso",
+  "grupo": "villadelcarbon",
+  "archivo": "USO DE SUELO Villa del Carbon 3.pdf",
+  "originales": [
+   "USO DE SUELO Villa del Carbon 3.pdf"
+  ],
+  "bytes": 5718625,
+  "titulo": "Uso de suelo · villadelcarbon",
+  "paginas": 2,
+  "pasos": 9,
+  "revisar": 2
+ },
+ {
+  "id": "cassidy-alineamiento",
+  "tipo": "alineamiento",
+  "grupo": "cassidy",
+  "archivo": "ALINEAMIENTO Y NUMERO OFICIAL (2).pdf",
+  "originales": [
+   "ALINEAMIENTO Y NUMERO OFICIAL (2).pdf"
+  ],
+  "bytes": 586904,
+  "titulo": "Alineamiento y número oficial · cassidy",
+  "paginas": 1,
+  "pasos": 8,
+  "revisar": 3
+ },
+ {
+  "id": "cassidy-uso",
+  "tipo": "uso",
+  "grupo": "cassidy",
+  "archivo": "USO DE SUELO CASSIDY BARRIOS.pdf",
+  "originales": [
+   "USO DE SUELO CASSIDY BARRIOS.pdf"
+  ],
+  "bytes": 1404322,
+  "titulo": "Uso de suelo · cassidy",
+  "paginas": 2,
+  "pasos": 8,
+  "revisar": 3
+ },
+ {
+  "id": "lomaalta-predial",
+  "tipo": "predial",
+  "grupo": "lomaalta",
+  "archivo": "Predial 2025.jpeg",
+  "originales": [
+   "Predial 2025.jpeg"
+  ],
+  "bytes": 122105,
+  "titulo": "Predial · lomaalta",
+  "paginas": 1,
+  "pasos": 5,
+  "revisar": 1
+ },
+ {
+  "id": "xhala-predial",
+  "tipo": "predial",
+  "grupo": "xhala",
+  "archivo": "PREDIAL 2025-SAN SEBASTIAN XHALA.pdf",
+  "originales": [
+   "PREDIAL 2025-SAN SEBASTIAN XHALA.pdf"
+  ],
+  "bytes": 148141,
+  "titulo": "Predial · xhala",
+  "paginas": 1,
+  "pasos": 5,
+  "revisar": 0
+ },
+ {
+  "id": "tepeji5-escritura",
+  "tipo": "escrituras",
+  "grupo": "tepeji5",
+  "archivo": "Escrituras_Tepeji del Río 5.pdf",
+  "originales": [
+   "Escrituras_Tepeji del Río 5.pdf",
+   "Escrituras_Tepeji_del_Rio_5.pdf"
+  ],
+  "bytes": 10428067,
+  "titulo": "Compraventa · Tepeji del Río · Notaría 101",
+  "paginas": 25,
+  "pasos": 15,
+  "revisar": 1
+ },
+ {
+  "id": "tepeji5-predial",
+  "tipo": "predial",
+  "grupo": "tepeji5",
+  "archivo": "1. Predial 2025 Tepeji 5.pdf",
+  "originales": [
+   "1. Predial 2025 Tepeji 5.pdf",
+   "1. Predial 2025 Tepeji 5.pdf"
+  ],
+  "bytes": 223112,
+  "titulo": "Predial 2025 · Tepeji del Río · cuenta U0003410",
+  "paginas": 1,
+  "pasos": 8,
+  "revisar": 1
+ },
+ {
+  "id": "tepeji5-alineamiento",
+  "tipo": "alineamiento",
+  "grupo": "tepeji5",
+  "archivo": "3. Alineamiento y numero oficial  Tepeji 5.pdf",
+  "originales": [
+   "3. Alineamiento y numero oficial  Tepeji 5.pdf",
+   "3. Alineamiento y numero oficial  Tepeji 5.pdf"
+  ],
+  "bytes": 1234443,
+  "titulo": "Alineamiento y número oficial · Tepeji del Río · No. 298",
+  "paginas": 2,
+  "pasos": 9,
+  "revisar": 1
+ },
+ {
+  "id": "tepeji5-uso",
+  "tipo": "uso",
+  "grupo": "tepeji5",
+  "archivo": "USO DE SUELO TEPEJI DEL RIO 5.pdf",
+  "originales": [
+   "USO DE SUELO TEPEJI DEL RIO 5.pdf",
+   "USO DE SUELO TEPEJI DEL RIO 5.pdf"
+  ],
+  "bytes": 953681,
+  "titulo": "Información técnica de uso de suelo · Tepeji del Río",
+  "paginas": 2,
+  "pasos": 9,
+  "revisar": 2
+ }
+]

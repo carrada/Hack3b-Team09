@@ -1,0 +1,142 @@
+{
+ "id": "temascalcingo-alineamiento",
+ "tipo": "alineamiento",
+ "grupo": "temascalcingo",
+ "archivo": "Alineamiento y numero oficial (1).pdf",
+ "titulo": "Alineamiento y número oficial · temascalcingo",
+ "parcial": true,
+ "paginas": [
+  {
+   "n": 1,
+   "img": "paginas/temascalcingo-alineamiento/p1.jpg",
+   "w": 1000,
+   "h": 1415
+  }
+ ],
+ "total_paginas": 1,
+ "pasos": [
+  {
+   "campo": "Tipo documental",
+   "valor": "Constancia de alineamiento y número oficial",
+   "pagina": 1,
+   "rect": [
+    0.06,
+    0.02,
+    0.88,
+    0.12
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 1,
+   "t": "00:00.7",
+   "nota": ""
+  },
+  {
+   "campo": "Autoridad emisora",
+   "valor": "AYUNTAMIENTO DE TEMASCALCINGO GOBIERNO MUNICIPAL 2022 2024 CON",
+   "pagina": 1,
+   "rect": [
+    0.1524,
+    0.0511,
+    0.7015,
+    0.0649
+   ],
+   "ok": true,
+   "confianza": 0.88,
+   "agente": "Extractor",
+   "n": 2,
+   "t": "00:01.4",
+   "nota": ""
+  },
+  {
+   "campo": "Dirección del inmueble",
+   "valor": "No legible",
+   "pagina": 1,
+   "rect": [
+    0.08,
+    0.1,
+    0.84,
+    0.05
+   ],
+   "ok": false,
+   "confianza": 0.0,
+   "nota": "Sin lectura automática: no se encontró el dato en el texto reconocido. Verificar en el documento original.",
+   "agente": "Extractor",
+   "n": 3,
+   "t": "00:02.1"
+  },
+  {
+   "campo": "Número oficial",
+   "valor": "No legible",
+   "pagina": 1,
+   "rect": [
+    0.08,
+    0.1,
+    0.84,
+    0.05
+   ],
+   "ok": false,
+   "confianza": 0.0,
+   "nota": "Sin lectura automática: no se encontró el dato en el texto reconocido. Verificar en el documento original.",
+   "agente": "Extractor",
+   "n": 4,
+   "t": "00:02.8"
+  },
+  {
+   "campo": "Titular actual",
+   "valor": "CATALINA MA. DE LOURDES Y ROSA",
+   "pagina": 1,
+   "rect": [
+    0.1523,
+    0.1656,
+    0.6254,
+    0.0202
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 5,
+   "t": "00:03.5",
+   "nota": ""
+  },
+  {
+   "campo": "Clave catastral",
+   "valor": "025 01 172 04 000000",
+   "pagina": 1,
+   "rect": [
+    0.1524,
+    0.262,
+    0.2673,
+    0.0183
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 6,
+   "t": "00:04.2",
+   "nota": ""
+  },
+  {
+   "campo": "Fecha de expedición",
+   "valor": "13 DE NOVIEMBRE DE 2024",
+   "pagina": 1,
+   "rect": [
+    0.2697,
+    0.3055,
+    0.4607,
+    0.0211
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 7,
+   "t": "00:04.9",
+   "nota": ""
+  }
+ ],
+ "resumen": {
+  "validados": 5,
+  "revisar": 2
+ }
+}
