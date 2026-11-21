@@ -1,0 +1,126 @@
+/* Tema sobrio compartido por el mapa y las pantallas de análisis.
+   Criterio tomado del GOV.UK Design System (alphagov/govuk-frontend, MIT):
+   texto claro y legible, estados dichos con palabras, sin cajas teñidas, sin etiquetas en mayúsculas,
+   enlaces subrayados y esquinas rectas. El rojo de la marca se usa solo en la barra lateral, el logotipo
+   y la acción principal. */
+:root {
+  --tinta: #0B0C0C; --gris: #505A5F; --borde: #B1B4B6; --linea: #E1E3E4; --fondo: #F3F3F3; --panel: #FFFFFF;
+  --ok: #00703C; --aviso: #8A4B00; --mal: #B3261E; --azul: #1D70B8;
+}
+body { color: var(--tinta); }
+a { text-underline-offset: 2px; }
+
+/* esquinas rectas y sin sombras */
+.bt, .btn-mapa, .card, .chip, #chips, .toggle, .toggle div, input, select, textarea, details.mas, .clave, .doc, .cr-wrap,
+#zpop, #cpop, #aviso, #bannerSel, #barraSel, .buscar, .opt, .rb > * { border-radius: 0 !important; box-shadow: none !important; }
+#barraSel { border-top: 2px solid var(--tinta); }
+
+/* ninguna etiqueta en mayúsculas */
+.kicker, .clave h3, .kvb small, table.cr thead th, .falta-card .r { text-transform: none !important; letter-spacing: 0 !important; }
+.kicker { font-size: 14px; font-weight: 400; color: var(--gris); }
+.dh2 h2 { font-size: 22px; font-weight: 700; }
+
+/* estados con palabras: sin píldoras, sin fondos de color */
+.badge, .pill, .est, .est-b, .badge-s, .rs, .est.ok, .est.rev, .est.falta, .est.cola, .badge.ambar, .badge.verde,
+.est-b.detalle, .est-b.listo, .est-b.cola, .est-b.analizando, .badge-s.ok, .rs.ok, .pill.verde, .pill.rojo {
+  background: none !important; padding: 0 !important; border: 0 !important; font-size: 13px; font-weight: 700; color: var(--tinta);
+}
+.est.rev, .badge.ambar, .est-b.detalle { color: var(--aviso) !important; }
+.est.ok, .badge.verde, .est-b.listo, .badge-s.ok, .rs.ok, .pill.verde { color: var(--ok) !important; }
+.est.falta, .est.cola, .est-b.cola, .est-b.analizando, .rs { color: var(--gris) !important; }
+.est-b.dictamen { color: var(--tinta) !important; text-decoration: underline; text-underline-offset: 3px; }
+.rs.dif, .pill.rojo { color: var(--mal) !important; }
+
+/* contadores de pestañas: «Zonas (21)» en vez de píldora */
+.vistas button b { background: none !important; color: inherit !important; padding: 0; margin-left: 4px; font-size: inherit; font-weight: inherit; }
+.vistas button b::before { content: '('; } .vistas button b::after { content: ')'; }
+.vistas button.on b { background: none; color: inherit; }
+.vistas button.on { border-bottom-width: 3px; }
+
+/* segmentos de filtro: texto subrayado cuando está activo */
+#chips { border: 0; background: none; gap: 18px; padding: 0; margin: 14px 0 12px; }
+.chip { background: none !important; border: 0; height: auto; padding: 2px 0; flex: none; font-size: 14px; font-weight: 400; color: var(--gris); border-bottom: 2px solid transparent; }
+.chip:hover { background: none; color: var(--tinta); }
+.chip.on { background: none !important; color: var(--tinta) !important; font-weight: 700; border-bottom-color: var(--tinta); }
+
+/* botones: uno principal (rojo de la marca) y el resto con borde */
+.bt { height: 38px; font-size: 15px; font-weight: 600; border: 2px solid var(--tinta); color: var(--tinta); background: #fff; }
+.bt:hover { background: var(--fondo); }
+.bt.neg, .bt.rojo { background: var(--rojo); border-color: var(--rojo); color: #fff; }
+.bt.neg:hover, .bt.rojo:hover { background: var(--rojo-osc); border-color: var(--rojo-osc); }
+.btn-mapa { border: 2px solid var(--tinta); font-weight: 600; }
+.btn-mapa.on { background: var(--tinta); }
+
+/* paso recomendado: aviso con «!» y texto, sin caja ni borde de color */
+.paso { display: block; padding: 0; border: 0 !important; background: none !important; }
+.paso > div { gap: 6px; }
+.paso b { position: relative; display: block; padding-left: 40px; font-size: 19px; line-height: 1.3; min-height: 28px; }
+.paso b::before { content: '!'; position: absolute; left: 0; top: 0; width: 28px; height: 28px; box-sizing: border-box; border: 3px solid var(--tinta); border-radius: 50% !important; font-size: 17px; line-height: 22px; text-align: center; font-weight: 700; }
+.paso span { padding-left: 40px; font-size: 15px; color: var(--tinta); line-height: 1.45; }
+.paso .bt { margin: 14px 0 0 40px; }
+
+/* ayuda de la lista: párrafo normal */
+.ayuda { border: 0 !important; background: none !important; padding: 0 !important; margin: 14px 16px 8px; font-size: 14px; }
+
+/* datos clave: lista de resumen (etiqueta | valor | nota), sin cuadros de color */
+.clave { border: 0; border-top: 2px solid var(--tinta); background: none; }
+.clave h3 { padding: 12px 0 10px; font-size: 19px; font-weight: 700; color: var(--tinta); border-bottom: 0; }
+.clave h3 a { font-size: 15px; font-weight: 400; color: var(--azul); text-decoration: underline; }
+.clave h3 .alerta { background: none; padding: 0; color: var(--mal); font-weight: 700; font-size: 15px; }
+.kv { display: grid; grid-template-columns: 130px 1fr; gap: 6px 16px; padding: 12px 0; border-bottom: 1px solid var(--linea); }
+.kv:hover { background: none; }
+.ik { display: none !important; }
+.kvb { display: contents; }
+.kvb small { grid-column: 1; grid-row: 1 / span 2; font-size: 15px; font-weight: 700; color: var(--tinta); }
+.kvb b { grid-column: 2; font-size: 16px; font-weight: 400; margin: 0; }
+.kvb em { grid-column: 2; font-size: 14px; color: var(--gris); }
+.kv.dif .kvb em { color: var(--mal); font-weight: 700; }
+
+/* pestañas del panel */
+.tabs2 button { font-size: 15px; }
+.tabs2 button.on { border-bottom-width: 3px; }
+.doc { background: none; border: 0; border-bottom: 1px solid var(--linea); padding: 14px 0; }
+.doc.falta { border-style: solid; background: none; }
+.dropz { border-radius: 0; }
+
+/* lista: sin cuadritos; el estado y los documentos se dicen con palabras */
+.docs, .estado i, .est-b i { display: none !important; }
+.estado { font-weight: 700; font-size: 13px; color: var(--gris); }
+.tools .bt { border: 0; background: none; color: var(--azul); text-decoration: underline; font-weight: 400; height: auto; padding: 0 2px; font-size: 15px; }
+.tools .bt.neg { color: var(--tinta); font-weight: 700; background: none; }
+.tools .bt:hover { background: none; text-decoration-thickness: 2px; }
+.card.fz { padding: 16px 16px 16px 14px; }
+
+/* ── validación cruzada ── */
+.cnt { gap: 18px; }
+.cnt i { display: none !important; }
+.matriz .ic2 { display: none !important; }
+.matriz .res { background: none !important; border: 0 !important; padding: 0 !important; font-size: 14px; font-weight: 700; color: var(--tinta) !important; }
+.matriz .res[style*="B3261E"] { color: var(--mal) !important; }
+.matriz .res[style*="2F7A4A"] { color: var(--ok) !important; }
+.est-t { font-weight: 400; color: var(--gris); }
+.est-t.dif { color: var(--mal); font-weight: 700; }
+#tabs button.on .est-t { color: inherit; }
+mark { background: none !important; color: inherit !important; text-decoration: underline; text-decoration-color: var(--mal); text-decoration-thickness: 2px; text-underline-offset: 3px; font-weight: 700; padding: 0 !important; }
+.banda { background: #fff !important; border-top: 2px solid var(--tinta); }
+.banda .res, .banda [class*="badge"], .banda button { border-radius: 0; }
+
+/* ── analizador y revisión ── */
+.cuadro { display: none !important; }
+.gl, .sv { display: none !important; }
+.gl + *, .sv + * { margin-left: 0; }
+i[style*="background"][title], #razones b { background: none !important; color: var(--tinta) !important; width: auto !important; min-width: 0; padding: 0 !important; font-weight: 700; font-style: normal; }
+#razones li { gap: 8px; }
+.nota-n { background: #fff !important; color: var(--tinta) !important; border: 2px solid var(--tinta) !important; }
+.nota-n.sel { background: var(--tinta) !important; color: #fff !important; }
+.btn { border: 2px solid var(--tinta); font-size: 14px; font-weight: 600; }
+.btn:hover { background: var(--fondo); }
+.btn.neg { background: var(--rojo); border-color: var(--rojo); color: #fff; }
+.btn.neg:hover { background: var(--rojo-osc); border-color: var(--rojo-osc); }
+.btn.peligro { border-color: var(--mal); color: var(--mal); }
+.btn.mal { border: 0; }
+.btn.ico { border-width: 1px; }
+.btn, .bt { white-space: nowrap; }
+
+/* logo de la marca en la barra lateral: círculo, no cuadro */
+img.logo { border-radius: 50% !important; }

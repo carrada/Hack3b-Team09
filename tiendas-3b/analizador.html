@@ -22,20 +22,20 @@
     .veredicto li b { flex: none; min-width: 22px; height: 20px; padding: 0 4px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; color: #fff; }
     .completo { padding: 18px 18px 8px; display: flex; flex-direction: column; gap: 8px; }
     .completo .cf { display: flex; justify-content: space-between; font-size: 12px; color: var(--gris); }
-    .segmentos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 3px; } .segmentos i { height: 6px; background: var(--tinta); } .segmentos i.f { background: #D3D1CA; }
+    .segmentos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 3px; } .segmentos i { height: 6px; background: var(--tinta); } .segmentos i.f { background: #B1B4B6; }
     .docs { padding: 4px 8px 16px; display: flex; flex-direction: column; }
-    .doc { width: 100%; display: flex; align-items: center; gap: 10px; padding: 9px 10px; border: 0; border-radius: 4px; background: transparent; text-align: left; }
-    .doc.on { background: #ECEAE4; }
+    .doc { width: 100%; display: flex; align-items: center; gap: 10px; padding: 9px 10px; border: 0; border-radius: 0; background: transparent; text-align: left; }
+    .doc.on { background: #E8EAEB; }
     .doc .ico { width: 26px; height: 32px; flex: none; display: flex; align-items: center; justify-content: center; border: 1px solid #CFCCC4; background: #fff;
-      box-shadow: inset 0 6px 0 -3px #fff, inset 0 7px 0 -3px #D3D1CA, inset 0 12px 0 -3px #fff, inset 0 13px 0 -3px #D3D1CA; }
-    .doc.falta .ico { border: 1.5px dashed #B9B6AD; background: transparent; box-shadow: none; }
+      box-shadow: inset 0 6px 0 -3px #fff, inset 0 7px 0 -3px #B1B4B6, inset 0 12px 0 -3px #fff, inset 0 13px 0 -3px #B1B4B6; }
+    .doc.falta .ico { border: 1.5px dashed #B1B4B6; background: transparent; box-shadow: none; }
     .doc .tx { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
     .doc .tx b { font-size: 13px; font-weight: 500; }
     .doc .tx span { font-size: 11px; color: var(--gris); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: 'IBM Plex Sans', system-ui, sans-serif; }
     .doc.falta .tx span { color: #8A5A00; font-family: 'IBM Plex Sans', sans-serif; }
     .doc .cuentas { display: flex; gap: 3px; }
     .doc .cuentas i { font-style: normal; min-width: 20px; height: 20px; padding: 0 4px; font-size: 11px; font-weight: 600; color: #fff; display: flex; align-items: center; justify-content: center; }
-    .leyenda { margin-top: auto; padding: 14px 18px; border-top: 1px solid var(--linea); display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: #3A3A37; }
+    .leyenda { margin-top: auto; padding: 14px 18px; border-top: 1px solid var(--linea); display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: #0B0C0C; }
     .leyenda > span:first-child { color: var(--gris); }
     .leyenda div { display: flex; align-items: center; gap: 8px; }
     .gl { width: 18px; height: 18px; color: #fff; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex: none; }
@@ -49,25 +49,25 @@
     .nitida img { display: block; width: 100%; }
     .marca { position: absolute; mix-blend-mode: multiply; pointer-events: none; transition: background .2s; }
     .foco { position: absolute; pointer-events: none; }
-    .nota-n { position: absolute; right: 10px; width: 26px; height: 26px; border-radius: 3px; font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; padding: 0; background: #fff; }
+    .nota-n { position: absolute; right: 10px; width: 26px; height: 26px; border-radius: 0; font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; padding: 0; background: #fff; }
     .mini { position: absolute; top: 16px; bottom: 16px; right: 12px; width: 18px; display: flex; flex-direction: column; gap: 4px; }
     .mini div { position: relative; flex: 1 1 0; background: #fff; border: 1px solid #CFCCC4; }
     .mini button { position: absolute; left: 1px; right: 1px; height: 6px; border: 0; padding: 0; } .mini button.sel { left: -3px; right: -3px; height: 8px; }
-    .falta-card { width: 560px; max-width: 100%; min-height: 640px; border: 2px dashed #B9B6AD; background: #EFEDE7; padding: 48px 44px; display: flex; flex-direction: column; gap: 18px; }
+    .falta-card { width: 560px; max-width: 100%; min-height: 640px; border: 2px dashed #B1B4B6; background: #EFEDE7; padding: 48px 44px; display: flex; flex-direction: column; gap: 18px; }
     .falta-card .r { font-size: 12px; color: var(--gris); text-transform: uppercase; letter-spacing: .08em; }
     .falta-card h2 { margin: 0; font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 24px; font-weight: 600; }
-    .falta-card p { margin: 0; font-size: 14px; color: #3A3A37; line-height: 1.55; }
-    .falta-card ul { margin: 0; padding: 0; list-style: none; border-top: 1px solid #D3D1CA; }
-    .falta-card li { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid #D3D1CA; font-size: 14px; } .falta-card li span:last-child { color: var(--gris); font-size: 12px; }
+    .falta-card p { margin: 0; font-size: 14px; color: #0B0C0C; line-height: 1.55; }
+    .falta-card ul { margin: 0; padding: 0; list-style: none; border-top: 1px solid #B1B4B6; }
+    .falta-card li { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid #B1B4B6; font-size: 14px; } .falta-card li span:last-child { color: var(--gris); font-size: 12px; }
     .falta-card .acc { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; } .falta-card .acc small { font-size: 12px; color: var(--ok); }
-    .btn.g { height: 36px; padding: 0 14px; } .btn.neg { border-radius: 4px; }
+    .btn.g { height: 36px; padding: 0 14px; } .btn.neg { border-radius: 0; }
     .btn.peligro { border-color: #E7B3AE; color: var(--mal); }
 
     /* derecha: revisión */
     .lado { width: 400px; }
     .lado .cab { padding: 14px 16px 12px 20px; border-bottom: 1px solid var(--linea); display: flex; flex-direction: row; align-items: center; gap: 10px; }
     .lado .cab .tt { display: flex; flex-direction: column; gap: 2px; flex: 1; }
-    .hall { padding: 16px 20px; border-bottom: 1px solid #ECEAE4; }
+    .hall { padding: 16px 20px; border-bottom: 1px solid #E8EAEB; }
     .hall.sel { background: #fff; }
     .hall > button { width: 100%; border: 0; background: transparent; padding: 0; display: flex; gap: 12px; align-items: flex-start; text-align: left; }
     .hall .sv { flex: none; width: 24px; height: 24px; margin-top: 1px; color: #fff; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
@@ -78,20 +78,21 @@
     .det { display: flex; flex-direction: column; gap: 14px; margin-top: 14px; }
     .det .k { font-size: 12px; color: var(--gris); }
     .det table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; border: 1px solid var(--borde); }
-    .det tr { border-bottom: 1px solid #ECEAE4; } .det th { text-align: left; font-weight: 500; color: #3A3A37; padding: 8px 10px; width: 108px; vertical-align: top; }
+    .det tr { border-bottom: 1px solid #E8EAEB; } .det th { text-align: left; font-weight: 500; color: #0B0C0C; padding: 8px 10px; width: 108px; vertical-align: top; }
     .det td { padding: 8px 10px; vertical-align: top; } .det td.tg { text-align: right; white-space: nowrap; font-size: 11px; font-weight: 600; }
     .det p { margin: 0; font-size: 13px; line-height: 1.55; }
-    .det .bloque { display: flex; flex-direction: column; gap: 4px; } .det .bloque.l { border-top: 1px solid #ECEAE4; padding-top: 10px; }
+    .det .bloque { display: flex; flex-direction: column; gap: 4px; } .det .bloque.l { border-top: 1px solid #E8EAEB; padding-top: 10px; }
     .det .bloque span { font-size: 13px; line-height: 1.5; } .det .bloque code { font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 12px; }
     .det .acc { display: flex; gap: 6px; flex-wrap: nowrap; } .det .acc .btn { height: 34px; padding: 0 14px; white-space: nowrap; }
-    .audit { display: flex; justify-content: space-between; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--borde); padding: 8px 10px; font-size: 12px; color: #3A3A37; }
+    .audit { display: flex; justify-content: space-between; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--borde); padding: 8px 10px; font-size: 12px; color: #0B0C0C; }
     .audit button { border: 0; background: transparent; padding: 0; font-size: 12px; font-weight: 500; text-decoration: underline; color: var(--tinta); }
     .valores { padding: 16px 20px 24px; display: flex; flex-direction: column; gap: 8px; } .valores > span { font-size: 12px; color: var(--gris); }
     .valores ul { margin: 0; padding: 0; list-style: none; }
-    .valores li button { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px; border: 0; border-bottom: 1px solid #ECEAE4; background: transparent; text-align: left; }
+    .valores li button { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px; border: 0; border-bottom: 1px solid #E8EAEB; background: transparent; text-align: left; }
     .valores li button.on { background: #E2EEE5; }
     .valores .l { font-size: 12px; color: var(--gris); } .valores .v { font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 14px; display: block; margin-top: 2px; } .valores .ok { font-size: 12px; font-weight: 600; color: var(--ok); }
   </style>
+  <link rel="stylesheet" href="tema.css?v=6">
 </head>
 <body>
 <div class="app">
@@ -129,7 +130,7 @@
       <span id="archivo" style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">—</span>
       <span class="etq" id="paginasEtq"></span>
       <span class="grow"></span>
-      <label id="lblDim" style="display:inline-flex;align-items:center;gap:8px;font-size:13px;color:#3A3A37;white-space:nowrap;cursor:pointer"><input type="checkbox" id="chkDim" checked style="width:16px;height:16px;accent-color:var(--tinta);margin:0">Atenuar lo validado</label>
+      <label id="lblDim" style="display:inline-flex;align-items:center;gap:8px;font-size:13px;color:#0B0C0C;white-space:nowrap;cursor:pointer"><input type="checkbox" id="chkDim" checked style="width:16px;height:16px;accent-color:var(--tinta);margin:0">Atenuar lo validado</label>
       <a class="btn" id="btnAgentes" href="revision.html">Revisión por agentes</a>
       <select id="selZoom" aria-label="Zoom"><option value="75">75%</option><option value="100" selected>100%</option><option value="125">125%</option></select>
     </div>
@@ -204,7 +205,7 @@
     const razones = [];
     const R = (n, t, c) => razones.push(`<li><b style="background:${c}">${n}</b><span>${t}</span></li>`);
     if (nNo) R(nNo, nNo === 1 ? 'hallazgo marcado como no cumple' : 'hallazgos marcados como no cumple', '#B3261E');
-    if (faltan.length) R(faltan.length, 'documentos faltantes: ' + escapar(faltan.map(t => NOMBRES[t.k]).join(', ')), '#6A6A65');
+    if (faltan.length) R(faltan.length, 'documentos faltantes: ' + escapar(faltan.map(t => NOMBRES[t.k]).join(', ')), '#505A5F');
     if (pB) R(pB, pB === 1 ? 'hallazgo bloqueante sin resolver' : 'hallazgos bloqueantes sin resolver', '#B3261E');
     if (pR) R(pR, pR === 1 ? 'hallazgo por revisar' : 'hallazgos por revisar', '#B26E00');
     R(nOk, 'datos validados sin observaciones', '#2F7A4A');
@@ -268,7 +269,7 @@
   /* ---------- derecha ---------- */
   function pintarLado() {
     const dd = docs()[docSel];
-    if (!dd) { $('pendLabel').textContent = 'Documento faltante'; $('cuerpoLado').innerHTML = '<p class="vacio" style="border-bottom:1px solid #ECEAE4">Este documento aún no se recibe. Las validaciones que dependen de él aparecen como bloqueadas.</p>'; return; }
+    if (!dd) { $('pendLabel').textContent = 'Documento faltante'; $('cuerpoLado').innerHTML = '<p class="vacio" style="border-bottom:1px solid #E8EAEB">Este documento aún no se recibe. Las validaciones que dependen de él aparecen como bloqueadas.</p>'; return; }
     if (!an) { $('pendLabel').textContent = 'En cola de análisis'; $('cuerpoLado').innerHTML = '<p class="vacio">El documento se recibió. Cuando el backend devuelva su análisis, los hallazgos aparecerán aquí.</p>'; return; }
     const p = pend().length, d = dec(), c = corr(), t = tiempos();
     $('pendLabel').textContent = !lista.length ? 'Sin hallazgos' : p === 0 ? 'Todo resuelto en este documento' : `${p} ${p === 1 ? 'pendiente' : 'pendientes'} de ${lista.length}`;
@@ -282,7 +283,7 @@
       return `<div class="hall ${on ? 'sel' : ''}" style="${on ? `box-shadow:inset 3px 0 0 ${sv.color}` : ''}"><button data-sel="${on ? '' : h.n}" aria-expanded="${on}">
           <span class="sv" style="background:${sv.color}">${sv.glyph}</span>
           <span class="cuerpo2"><span class="l1"><b style="color:${sv.color}">${sv.label}</b><span>${h.num} · pág. ${h.pagina}</span></span><span class="ti">${escapar(h.titulo)}</span></span>
-          <span class="es" style="color:${e ? FIN[e][1] : '#6A6A65'}">${e ? FIN[e][0] : 'Pendiente'}</span></button>
+          <span class="es" style="color:${e ? FIN[e][1] : '#505A5F'}">${e ? FIN[e][0] : 'Pendiente'}</span></button>
         ${on ? `<div class="det"><div style="display:flex;flex-direction:column;gap:6px"><span class="k">Qué dice cada documento</span><table><tbody>${cmp}</tbody></table></div>
           <p>${escapar(h.reason)}</p>
           <div class="bloque l"><span class="k">Fundamento</span><span><code>${h.ruleId}</code> · ${escapar(h.rule)}</span></div>
