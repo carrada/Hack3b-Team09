@@ -46,3 +46,30 @@ function parsePublicEnv(): FrontendConfig {
 }
 
 export const env: FrontendConfig = parsePublicEnv();
+
+const LOOPBACK = new Set(["localhost", "127.0.0.1", "::1", "[::1]"]);
+
+function hostDe(url: string): string | null {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * En el navegador, si la página no está en esta máquina —o el API configurado
+ * es loopback— la carga usa el mismo origen. Next reenvía `/api/v1` al proceso
+ * en 127.0.0.1:8000, así un solo puerto sirve la app y el análisis.
+ * En el servidor se conserva la URL configurada.
+ */
+export function resolveApiBaseUrl(): string {
+  const configured = env.apiBaseUrl;
+  if (typeof window === "undefined") return configured;
+
+  const paginaAqui = LOOPBACK.has(window.location.hostname);
+  const apiHost = hostDe(configured);
+  const apiAqui = apiHost !== null && LOOPBACK.has(apiHost);
+  if (!paginaAqui || apiAqui) return "";
+  return configured;
+}
