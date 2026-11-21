@@ -20,7 +20,7 @@ from ..schemas import (Campo, Documento, EnvioEspecialista, Evidencia, Extraccio
 INSTRUCCIONES = """Eres el agente especialista en «{nombre}» de un equipo legal que revisa expedientes inmobiliarios en México.
 Extrae del documento ÚNICAMENTE la información que aparece en él. Reglas:
 - Devuelve un elemento por cada campo solicitado, con el mismo nombre.
-- 'fragmento' debe ser una copia LITERAL (tal como está, incluso con errores de OCR) de 10 a 200 caracteres del texto que sustenta el valor, y 'pagina' el número del marcador === PÁGINA n === donde aparece.
+- 'fragmento' debe ser una copia LITERAL (tal como está, incluso con errores de lectura) de 10 a 200 caracteres del texto que sustenta el valor, y 'pagina' el número del marcador === PÁGINA n === donde aparece.
 - Si un campo no aparece, valor=null, fragmento=null. No inventes ni deduzcas datos ausentes.
 - En 'direccion' pon la dirección COMPLETA (calle, número, colonia, municipio) tal como aparece.
 - Fechas en 'valor' como AAAA-MM-DD cuando sea posible. Superficies con su unidad.
@@ -35,12 +35,16 @@ def extraer(doc: Documento, tipo_cfg: dict) -> tuple[dict[str, Campo], list[str]
     lista = "\n".join(f"- {c['nombre']}{' (obligatorio)' if c.get('obligatorio') else ''}: {c['descripcion']}"
                       for c in tipo_cfg["campos"])
     sistema = INSTRUCCIONES.format(nombre=tipo_cfg["nombre"], campos=lista)
-    texto = doc.texto_con_paginas(cfg()["ocr"]["max_chars_por_documento"])
+    texto = doc.texto_con_paginas(cfg()["lectura"]["max_chars_por_documento"])
     r: ExtraccionLLM = llm_estructurado(ExtraccionLLM).invoke(
         [("system", sistema), ("human", f"Documento: {doc.id}\n\n{texto}")])
-    calidad_pag = {p.numero: p.calidad for p in doc.paginas}
     campos: dict[str, Campo] = {}
     for c in r.campos:
+        # los modelos locales a veces devuelven el TEXTO "null"/"N/A" en vez de un nulo
+        if (c.valor or "").strip().lower() in ("", "null", "none", "n/a", "no aparece"):
+            c.valor = None
+        if (c.fragmento or "").strip().lower() in ("", "null", "none", "n/a"):
+            c.fragmento = None
         if c.nombre in campos and campos[c.nombre].valor:
             continue
         ev = None
@@ -48,7 +52,7 @@ def extraer(doc: Documento, tipo_cfg: dict) -> tuple[dict[str, Campo], list[str]
             ev = Evidencia(documento_id=doc.id, pagina=c.pagina or 1, fragmento=c.fragmento)
         conf = 0.0
         if c.valor:
-            conf = calidad_pag.get(c.pagina or 1, doc.calidad) * (1.0 if ev else 0.6)
+            conf = 1.0 if ev else 0.6
         campos[c.nombre] = Campo(nombre=c.nombre, valor=c.valor, evidencia=ev, confianza=round(conf, 3))
     for c in tipo_cfg["campos"]:  # garantiza todos los campos aunque el LLM omita alguno
         campos.setdefault(c["nombre"], Campo(nombre=c["nombre"]))
@@ -71,7 +75,7 @@ def analizar_documento(doc: Documento, tipo: str, uso: str, bitacora: list[str])
             hallazgos=[Hallazgo(regla_id="EXTRACCION", documento_id=doc.id, severidad="critica",
                                 resultado="requiere_revision", descripcion=f"No se pudo extraer información: {e}")],
             estado="requiere_revision", motivos=["No se pudo extraer la información automáticamente; revisar manualmente"],
-            obligatorios_total=len(oblig), calidad_ocr=doc.calidad, error=str(e))
+            obligatorios_total=len(oblig), error=str(e))
 
     encontrados = sum(1 for n in oblig if campos[n].valor)
     bitacora.append(f"🔎 {agente}: {doc.id} — {encontrados}/{len(oblig)} campos obligatorios extraídos")
@@ -79,9 +83,6 @@ def analizar_documento(doc: Documento, tipo: str, uso: str, bitacora: list[str])
     for o in observaciones:
         hallazgos.append(Hallazgo(regla_id="OBS", documento_id=doc.id, severidad="info", resultado="cumple",
                                   descripcion=f"Observación del agente: {o}"))
-    if doc.calidad < 0.6:
-        hallazgos.append(Hallazgo(regla_id="OCR", documento_id=doc.id, severidad="menor", resultado="requiere_revision",
-                                  descripcion=f"Calidad de OCR baja ({doc.calidad:.0%}); los valores pueden tener errores"))
 
     evaluables = [h for h in hallazgos if h.severidad != "info"]
     estado = peor(*[h.resultado for h in evaluables]) if evaluables else "requiere_revision"
@@ -91,7 +92,7 @@ def analizar_documento(doc: Documento, tipo: str, uso: str, bitacora: list[str])
         documento_id=doc.id, nombre_archivo=doc.nombre_archivo, tipo=tipo, agente=agente,
         campos=list(campos.values()), hallazgos=hallazgos, estado=estado, motivos=motivos,
         reglas_evaluadas=len(evaluables), reglas_pasan=sum(h.resultado == "cumple" for h in evaluables),
-        obligatorios_total=len(oblig), obligatorios_encontrados=encontrados, calidad_ocr=doc.calidad)
+        obligatorios_total=len(oblig), obligatorios_encontrados=encontrados)
 
 
 def crear_especialista(tipo: str):

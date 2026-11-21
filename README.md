@@ -8,7 +8,7 @@ con evidencia trazable (documento + página + fragmento verificado) en cada hall
 
 ```powershell
 .venv\Scripts\activate
-copy .env.example .env            # y coloca OPENAI_API_KEY
+copy .env.example .env            # LLM_PROVIDER=ollama (local) u openai + OPENAI_API_KEY
 python -m tests.generar_ejemplos  # expedientes sintéticos de prueba
 streamlit run app.py              # prototipo (sube PDFs o usa un ejemplo)
 ```
@@ -22,13 +22,13 @@ python -m expediente.cli diagrama                                     # → sali
 python -m pytest -q tests
 ```
 
-Requisitos externos: Tesseract con idioma `spa` (ruta en `TESSERACT_CMD`).
+Requisitos externos (modo local): [Ollama](https://ollama.com) con un modelo con visión: `ollama pull qwen2.5vl:3b`.
 
 ## Arquitectura
 
 ```mermaid
 graph TD
-  A[Usuario: archivos + uso tienda/CEDIS] --> R[1 · Recepción<br/>OCR · clasificación por contenido · agrupación · faltantes]
+  A[Usuario: archivos + uso tienda/CEDIS] --> R[1 · Recepción<br/>lectura con visión · clasificación por contenido · agrupación · faltantes]
   R -- Send --> E[2 · Escrituras]
   R -- Send --> P[3 · Predial]
   R -- Send --> L[4 · Alineamiento y N° oficial]
@@ -43,32 +43,29 @@ graph TD
 
 | Agente | Archivo | Qué hace |
 |---|---|---|
-| Recepción | [expediente/agents/recepcion.py](expediente/agents/recepcion.py) | Descarta no-documentos y duplicados, OCR, clasifica por contenido (palabras clave del YAML + LLM), extrae huella y agrupa por inmueble |
+| Recepción | [expediente/agents/recepcion.py](expediente/agents/recepcion.py) | Descarta no-documentos y duplicados, lee el texto (capa nativa o LLM con visión), clasifica por contenido (palabras clave del YAML + LLM), extrae huella y agrupa por inmueble |
 | Especialistas ×4 | [expediente/agents/especialistas.py](expediente/agents/especialistas.py) | Extracción estructurada `{valor, página, fragmento}`, reglas del YAML, consulta de KB, estado de 3 valores + motivos |
 | Validador cruzado | [expediente/agents/validador.py](expediente/agents/validador.py) | Dirección, número oficial, propietario (escritura↔predial), superficie, clave catastral, documentos de otro inmueble |
-| Dictamen | [expediente/agents/dictamen.py](expediente/agents/dictamen.py) | Verifica cada cita contra el OCR, calcula confianza, aplica reglas de dictamen, human in the loop |
+| Dictamen | [expediente/agents/dictamen.py](expediente/agents/dictamen.py) | Verifica cada cita contra el texto leído, calcula confianza, aplica reglas de dictamen, human in the loop |
 
 ### Decisiones clave
 - **Reglas en configuración, no en prompts**: [config/reglas/*.yaml](config/reglas/) (campos, reglas críticas/menores, vigencias) y [config/dictamen.yaml](config/dictamen.yaml) (umbral, pesos, usos compatibles, tolerancias). Cambiar a las reglas oficiales no toca código.
 - **Nada se corta antes de tiempo**: si falta un documento o un especialista falla, el resultado es *Requiere revisión* y el validador cruzado corre igual.
 - **No cumple solo con evidencia clara y verificada**: uso de suelo incompatible por palabras clave, o documento de otro inmueble con ≥2 señales independientes. Un juicio del LLM nunca rechaza por sí solo; un incumplimiento cuya cita no se verifica baja a *Requiere revisión*.
-- **Anti-alucinación**: cada fragmento citado se busca en el texto OCR (fuzzy ≥ 85, todas las páginas si la página citada no cuadra).
-- **Confianza calculada**: calidad OCR, % campos obligatorios, % reglas que pasan, score de cruces y % de citas verificadas (pesos en YAML). Con faltantes nunca supera el umbral.
-- **CURP/RFC**: formato + dígito verificador; corrige confusiones típicas del OCR (O↔0, I↔1…) y lo deja anotado.
+- **Anti-alucinación**: cada fragmento citado se busca en el texto leído (fuzzy ≥ 85, todas las páginas si la página citada no cuadra).
+- **Confianza calculada**: % campos obligatorios, % reglas que pasan, score de cruces y % de citas verificadas (pesos en YAML). Con faltantes nunca supera el umbral.
+- **CURP/RFC**: formato + dígito verificador; corrige confusiones típicas de lectura (O↔0, I↔1…) y lo deja anotado.
 - **Predial a nombre de otra persona** = discrepancia menor (*Requiere revisión*), no rechazo.
 - **KB por especialista** ([kb/](kb/)): contexto, no prueba de autenticidad. Altas automáticas quedan como *Pendientes* y se guardan sin datos personales.
 
-## Motor OCR (elegible)
-Selector en la barra lateral de la app, `--ocr tesseract|vision` en la CLI, o `OCR_MOTOR=` en `.env`.
+## Lectura de documentos (sin OCR clásico)
+- **PDF digital** (trae capa de texto): se usa esa capa tal cual, exacta e instantánea.
+- **Escaneo o imagen**: la página se reduce a `lado_max_px` (1280 px) y la transcribe el **LLM con visión**: el mismo
+  modelo que corre los agentes (`OLLAMA_MODEL`; opcionalmente otro en `OLLAMA_VISION_MODEL`) o el de OpenAI.
+- La caché por hash distingue proveedor, modelo y tamaño de imagen. Si una página no se pudo leer, no se cachea.
+- No hay métrica de "calidad OCR": la confianza sale de campos, reglas, cruces y citas verificadas.
 
-| | Tesseract (sin IA, por defecto) | Visión (IA) |
-|---|---|---|
-| Dónde corre | Local | Imágenes de páginas al proveedor del LLM |
-| Costo / velocidad | Gratis, rápido | Costo por página, más lento |
-| Calidad | Confianza real por palabra; falla en escaneos malos (O↔0, I↔1) | Mejor en escaneos difíciles; puede "completar" texto ilegible |
-| Calidad OCR reportada | Medida | Fija en 90% (no medida) |
-| Si falla | — | Cae a Tesseract por página |
-
-La caché por hash distingue el motor.
-
-Uso: `python -m expediente.cli agrupar archivos_prueba --ocr vision`
+### Rendimiento local (GPU de 4 GB)
+- `qwen2.5vl:3b` cabe completo en VRAM; un 7B no (≈60 % corre en CPU, ~8 tok/s).
+- Variables de Ollama recomendadas: `OLLAMA_FLASH_ATTENTION=1`, `OLLAMA_KV_CACHE_TYPE=q8_0`, `OLLAMA_MAX_LOADED_MODELS=1`.
+- En `.env`: `OLLAMA_NUM_CTX=12288` y `OLLAMA_KEEP_ALIVE=30m` (el modelo no se descarga entre documentos).

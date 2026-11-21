@@ -1,7 +1,7 @@
 """Esquemas Pydantic compartidos por todos los agentes.
 
 La evidencia es parte del esquema: cada campo y cada hallazgo apuntan a
-documento + página + fragmento literal, que el Dictamen verifica contra el OCR.
+documento + página + fragmento literal, que el Dictamen verifica contra el texto leído.
 """
 from __future__ import annotations
 
@@ -26,8 +26,7 @@ def peor(*estados: str) -> str:
 class Pagina(BaseModel):
     numero: int
     texto: str
-    fuente: Literal["nativo", "ocr"] = "nativo"
-    calidad: float = 1.0  # 0-1 (confianza media de Tesseract o 1.0 si es texto nativo)
+    fuente: Literal["nativo", "vision"] = "nativo"  # capa de texto del PDF | leída por el LLM con visión
 
 
 class Documento(BaseModel):
@@ -44,12 +43,6 @@ class Documento(BaseModel):
     huella: dict[str, Optional[str]] = {}  # direccion / propietario / clave_catastral (para agrupar)
     grupo: Optional[int] = None
 
-    @property
-    def calidad(self) -> float:
-        if not self.paginas:
-            return 0.0
-        return sum(p.calidad for p in self.paginas) / len(self.paginas)
-
     def texto_con_paginas(self, max_chars: int | None = None) -> str:
         partes = [f"=== PÁGINA {p.numero} ===\n{p.texto}" for p in self.paginas]
         txt = "\n\n".join(partes)
@@ -63,7 +56,7 @@ class Documento(BaseModel):
 class Evidencia(BaseModel):
     documento_id: str
     pagina: int
-    fragmento: str             # texto literal del OCR
+    fragmento: str             # texto literal leído del documento
     verificada: bool = False   # la llena el Dictamen
     score_verificacion: float = 0.0
 
@@ -97,7 +90,6 @@ class ResultadoDocumento(BaseModel):
     reglas_pasan: int = 0
     obligatorios_total: int = 0
     obligatorios_encontrados: int = 0
-    calidad_ocr: float = 1.0
     error: Optional[str] = None
 
     def campo(self, nombre: str) -> Optional[Campo]:
@@ -170,32 +162,34 @@ class EnvioEspecialista(TypedDict):
 
 
 # ---------------------------------------------------------------- salidas LLM
+# Todas las claves son obligatorias (sin default), aunque acepten null: los modelos locales chicos
+# omiten las claves opcionales y la salida estructurada de Ollama solo fuerza las obligatorias.
 class CampoLLM(BaseModel):
     nombre: str = Field(description="Nombre exacto del campo solicitado")
-    valor: Optional[str] = Field(None, description="Valor normalizado legible; null si no aparece en el documento")
-    pagina: Optional[int] = Field(None, description="Número de página donde aparece (según los marcadores === PÁGINA n ===)")
-    fragmento: Optional[str] = Field(None, description="Copia LITERAL y breve (10-200 caracteres) del texto del documento que sustenta el valor, sin corregir errores de OCR")
+    valor: Optional[str] = Field(description="Valor normalizado legible; null si no aparece en el documento")
+    pagina: Optional[int] = Field(description="Número de página donde aparece (según los marcadores === PÁGINA n ===)")
+    fragmento: Optional[str] = Field(description="Copia LITERAL y breve (10-200 caracteres) del texto del documento que sustenta el valor, sin corregir errores de lectura")
 
 
 class ExtraccionLLM(BaseModel):
     campos: list[CampoLLM]
-    observaciones: list[str] = Field(default_factory=list, description="Riesgos o anomalías notables vistas en el documento (tachaduras, ilegibilidad, sellos faltantes, documento de otro inmueble, etc.)")
+    observaciones: list[str] = Field(description="Riesgos o anomalías notables vistas en el documento (tachaduras, ilegibilidad, sellos faltantes, documento de otro inmueble, etc.)")
 
 
 class ClasificacionLLM(BaseModel):
     tipo: Literal["escrituras", "predial", "alineamiento", "uso_suelo", "otro"]
     es_documento_legal: bool = Field(description="False si es foto, identificación suelta (INE/CURP), basura o algo no relacionado")
     motivo: str
-    direccion: Optional[str] = Field(None, description="Dirección del inmueble si aparece")
-    propietario: Optional[str] = Field(None, description="Propietario/titular/contribuyente si aparece")
-    clave_catastral: Optional[str] = Field(None, description="Clave catastral o cuenta predial si aparece")
+    direccion: Optional[str] = Field(description="Dirección del inmueble si aparece")
+    propietario: Optional[str] = Field(description="Propietario/titular/contribuyente si aparece")
+    clave_catastral: Optional[str] = Field(description="Clave catastral o cuenta predial si aparece")
 
 
 class JuicioLLM(BaseModel):
     resultado: Estado = Field(description="cumple / requiere_revision / no_cumple")
     explicacion: str
-    pagina: Optional[int] = None
-    fragmento: Optional[str] = Field(None, description="Cita LITERAL breve del documento que sustenta el juicio")
+    pagina: Optional[int] = Field(description="Número de página de la cita; null si no aplica")
+    fragmento: Optional[str] = Field(description="Cita LITERAL breve del documento que sustenta el juicio")
 
 
 class MismoInmuebleLLM(BaseModel):

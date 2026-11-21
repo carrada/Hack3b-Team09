@@ -95,17 +95,15 @@ def main(argv=None):
     a.add_argument("rutas", nargs="+")
     a.add_argument("--uso", choices=["tienda", "cedis"], default="tienda")
     a.add_argument("--nombre")
-    a.add_argument("--ocr", choices=["tesseract", "vision"], help="tesseract (sin IA, local) | vision (IA, envía imágenes al LLM)")
     a.add_argument("--llm", choices=["openai", "ollama"], help="openai (nube) | ollama (modelo local)")
-    a.add_argument("--modelo", help="modelo del proveedor elegido (ej. mistral:latest, gpt-4.1-mini)")
+    a.add_argument("--modelo", help="modelo del proveedor elegido (ej. qwen2.5vl:3b, gpt-4.1-mini)")
     a.set_defaults(f=cmd_analizar)
     b = sub.add_parser("agrupar")
     b.add_argument("rutas", nargs="+")
     b.add_argument("--uso", choices=["tienda", "cedis"], default="tienda")
     b.add_argument("--analizar", action="store_true")
-    b.add_argument("--ocr", choices=["tesseract", "vision"], help="tesseract (sin IA, local) | vision (IA, envía imágenes al LLM)")
     b.add_argument("--llm", choices=["openai", "ollama"], help="openai (nube) | ollama (modelo local)")
-    b.add_argument("--modelo", help="modelo del proveedor elegido (ej. mistral:latest, gpt-4.1-mini)")
+    b.add_argument("--modelo", help="modelo del proveedor elegido (ej. qwen2.5vl:3b, gpt-4.1-mini)")
     b.set_defaults(f=cmd_agrupar)
     c = sub.add_parser("diagrama")
     c.set_defaults(f=cmd_diagrama)
@@ -114,10 +112,8 @@ def main(argv=None):
         os.environ["LLM_PROVIDER"] = args.llm
     if getattr(args, "modelo", None):
         os.environ["OLLAMA_MODEL" if os.getenv("LLM_PROVIDER") == "ollama" else "OPENAI_MODEL"] = args.modelo
-    if getattr(args, "ocr", None):
-        os.environ["OCR_MOTOR"] = args.ocr
-    if os.getenv("OCR_MOTOR", "tesseract") == "vision" and args.f is not cmd_diagrama:
-        print("⚠️ OCR con IA: las imágenes de las páginas se envían al proveedor del LLM; más lento y con costo.")
+    if os.getenv("LLM_PROVIDER", "openai") != "ollama" and args.f is not cmd_diagrama:
+        print("⚠️ Proveedor en la nube: los escaneos se envían como imagen a la API (costo por página).")
     args.f(args)
 
 

@@ -73,7 +73,7 @@ def evaluar(tipo_cfg: dict, campos: dict[str, Campo], doc: Documento, uso: str, 
                 elif corregido:
                     bitacora.append(f"🔧 corregir_ocr_id({val!r}) → {corregido}")
                     hallazgos.append(_h(regla, doc.id, "cumple",
-                                        f"{tipo_id} leído por OCR como {val}; corrigiendo confusiones de caracteres "
+                                        f"{tipo_id} leído como {val}; corrigiendo confusiones de caracteres "
                                         f"(O↔0, I↔1…) queda {corregido}, que es válido. Confirmar visualmente", _ev(c)))
                 else:
                     hallazgos.append(_h(regla, doc.id, falla, f"{tipo_id} {val}: {r['motivo']}. Verificar contra el original", _ev(c)))

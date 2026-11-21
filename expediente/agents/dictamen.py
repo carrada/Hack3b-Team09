@@ -1,6 +1,6 @@
 """[1'] Dictamen: la Recepción vuelve como validador final.
 
-1. Verifica que cada fragmento citado por los agentes exista en el texto OCR (anti-alucinación).
+1. Verifica que cada fragmento citado por los agentes exista en el texto leído del documento (anti-alucinación).
 2. Calcula la confianza con señales medibles (no autorreportada por el LLM).
 3. Aplica las reglas de dictamen: las críticas mandan; el umbral solo decide casos grises.
 4. Human in the loop (interrupt) cuando la recomendación no es "Cumple".
@@ -55,7 +55,7 @@ def construir_dictamen(state: ExpedienteState, bitacora: list[str]) -> tuple[Dic
             h.evidencias = [_verificar(e, docs, minimo) for e in h.evidencias]
     for d in discrepancias:
         d.evidencias = [_verificar(e, docs, minimo) for e in d.evidencias]
-    bitacora.append(f"🔐 Dictamen: {verif}/{total} citas verificadas literalmente en el OCR")
+    bitacora.append(f"🔐 Dictamen: {verif}/{total} citas verificadas literalmente en el texto")
 
     # ---------- 2. confianza calculada
     def prom(xs, defecto):
@@ -64,7 +64,6 @@ def construir_dictamen(state: ExpedienteState, bitacora: list[str]) -> tuple[Dic
 
     req = c["documentos_requeridos"]
     senales = {
-        "calidad_ocr": prom((d.calidad for d in docs.values()), 0.0),
         "campos_obligatorios": (sum(r.obligatorios_encontrados for r in resultados) /
                                 max(1, sum(r.obligatorios_total for r in resultados))),
         "reglas_pasan": sum(r.reglas_pasan for r in resultados) / max(1, sum(r.reglas_evaluadas for r in resultados)),
@@ -90,7 +89,7 @@ def construir_dictamen(state: ExpedienteState, bitacora: list[str]) -> tuple[Dic
             if h.resultado == "cumple":
                 cumplidos.append(etiqueta)
                 if h.severidad == "critica" and h.evidencias and not any(e.verificada for e in h.evidencias):
-                    revision.append(f"La evidencia de un requisito crítico no se encontró literal en el OCR: {etiqueta}")
+                    revision.append(f"La evidencia de un requisito crítico no se encontró literal en el texto del documento: {etiqueta}")
                     puntos.append(f"Confirmar en el original: {etiqueta}")
             else:
                 no_cumplidos.append(etiqueta)

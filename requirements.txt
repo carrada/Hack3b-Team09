@@ -6,7 +6,6 @@ langgraph==1.2.24
 pillow==13.0.0
 pydantic==2.14.4
 pymupdf==2.1
-pytesseract==0.3.13
 pytest==9.2.0
 python-dateutil==4.0.0
 python-dotenv==1.2.4

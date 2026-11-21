@@ -261,7 +261,7 @@ def validar_curp(curp: str) -> dict:
     if not _CURP_RE.match(c):
         return {"valida": False, "motivo": "formato inválido", "valor": c}
     if digito_curp(c[:17]) != c[17]:
-        return {"valida": False, "motivo": "dígito verificador no coincide (posible error de OCR)", "valor": c}
+        return {"valida": False, "motivo": "dígito verificador no coincide (posible error de lectura)", "valor": c}
     return {"valida": True, "motivo": "formato y dígito verificador correctos", "valor": c}
 
 
@@ -289,7 +289,7 @@ def validar_rfc(rfc: str) -> dict:
         return {"valida": False, "motivo": "formato inválido", "valor": r}
     tipo = "moral" if len(r) == 12 else "fisica"
     if digito_rfc(r[:-1]) != r[-1]:
-        return {"valida": False, "motivo": "dígito verificador no coincide (posible error de OCR)", "valor": r, "persona": tipo}
+        return {"valida": False, "motivo": "dígito verificador no coincide (posible error de lectura)", "valor": r, "persona": tipo}
     return {"valida": True, "motivo": "formato y dígito verificador correctos", "valor": r, "persona": tipo}
 
 
@@ -298,7 +298,7 @@ _A_LETRA = str.maketrans({"0": "O", "1": "I", "2": "Z", "5": "S", "8": "B", "6":
 
 
 def corregir_ocr_id(valor: str) -> Optional[str]:
-    """Corrige confusiones típicas del OCR (O↔0, I↔1, S↔5…) según la posición en RFC/CURP.
+    """Corrige confusiones típicas de lectura (O↔0, I↔1, S↔5…) según la posición en RFC/CURP.
     Devuelve el valor corregido solo si queda válido; None si no hay corrección posible."""
     v = re.sub(r"[\s\-]", "", (valor or "").upper())
     if len(v) == 18:  # CURP: 4 letras, 6 dígitos, 6 letras, 1 alfanum, 1 dígito
@@ -327,7 +327,7 @@ def identificadores_en(texto: str) -> list[tuple[str, str]]:
 
 @tool
 def verificar_cita(texto_pagina: str, fragmento: str) -> float:
-    """Score 0-100: qué tan literalmente aparece `fragmento` en el texto OCR de la página."""
+    """Score 0-100: qué tan literalmente aparece `fragmento` en el texto leído de la página."""
     a, b = norm(fragmento), norm(texto_pagina)
     if not a or not b:
         return 0.0

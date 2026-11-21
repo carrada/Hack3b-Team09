@@ -53,7 +53,7 @@ def proveedor() -> str:
 
 def modelo() -> str:
     if proveedor() == "ollama":
-        return os.getenv("OLLAMA_MODEL", "mistral:latest")
+        return os.getenv("OLLAMA_MODEL", "qwen2.5vl:3b")
     return os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
 
 
@@ -70,28 +70,55 @@ def modelos_ollama() -> list[str]:
         return []
 
 
+def modelo_vision() -> str:
+    """Modelo que lee los escaneos. Por defecto el mismo de los agentes (un solo modelo en GPU, sin recargas)."""
+    if proveedor() == "ollama":
+        return os.getenv("OLLAMA_VISION_MODEL") or modelo()
+    return os.getenv("OPENAI_VISION_MODEL") or modelo()
+
+
+def es_multimodal(nombre: str) -> bool:
+    return any(k in nombre.lower() for k in ("llava", "vl", "vision", "gemma3", "minicpm-v", "moondream", "granite3.2-vision"))
+
+
 def soporta_vision() -> bool:
-    """OpenAI sí; en Ollama solo modelos multimodales (llava, *-vl, llama3.2-vision, gemma3…)."""
-    if proveedor() != "ollama":
-        return True
-    return any(k in modelo().lower() for k in ("llava", "vl", "vision", "gemma3", "minicpm-v", "moondream"))
+    """OpenAI sí; en Ollama solo modelos multimodales (qwen2.5vl, llava, llama3.2-vision, gemma3…)."""
+    return proveedor() != "ollama" or es_multimodal(modelo_vision())
+
+
+def _crear(prov: str, nombre: str):
+    if prov == "ollama":
+        from langchain_ollama import ChatOllama
+
+        # OLLAMA_NUM_GPU=99 fuerza todas las capas a la GPU: Ollama reserva de más para los modelos con visión
+        # y deja la mitad en CPU (4x más lento en una GPU de 4 GB). Vacío = que Ollama decida.
+        num_gpu = os.getenv("OLLAMA_NUM_GPU")
+        return ChatOllama(
+            model=nombre, temperature=0, num_ctx=int(os.getenv("OLLAMA_NUM_CTX", "8192")),
+            num_gpu=int(num_gpu) if num_gpu else None,
+            keep_alive=os.getenv("OLLAMA_KEEP_ALIVE", "30m"),  # el modelo se queda en GPU entre documentos
+            base_url=os.getenv("OLLAMA_HOST", "http://localhost:11434"))
+    from langchain_openai import ChatOpenAI
+
+    return ChatOpenAI(model=nombre, temperature=0, max_retries=3, timeout=120)
+
+
+def _obtener(nombre: str):
+    clave = (proveedor(), nombre)
+    if clave not in _LLMS:
+        _LLMS[clave] = _crear(*clave)
+    return _LLMS[clave]
 
 
 def llm():
     """LLM de chat según LLM_PROVIDER (openai | ollama). Se cachea por proveedor+modelo, así que se puede cambiar en caliente."""
-    clave = (proveedor(), modelo())
-    if clave not in _LLMS:
-        if clave[0] == "ollama":
-            from langchain_ollama import ChatOllama
+    return _obtener(modelo())
 
-            _LLMS[clave] = ChatOllama(
-                model=clave[1], temperature=0, num_ctx=int(os.getenv("OLLAMA_NUM_CTX", "16384")),
-                base_url=os.getenv("OLLAMA_HOST", "http://localhost:11434"))
-        else:
-            from langchain_openai import ChatOpenAI
 
-            _LLMS[clave] = ChatOpenAI(model=clave[1], temperature=0, max_retries=3, timeout=120)
-    return _LLMS[clave]
+def llm_vision():
+    if not soporta_vision():
+        raise RuntimeError(f"el modelo «{modelo_vision()}» no es multimodal: elige uno con visión (p. ej. qwen2.5vl:3b)")
+    return _obtener(modelo_vision())
 
 
 def llm_estructurado(esquema):

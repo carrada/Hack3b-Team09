@@ -7,11 +7,10 @@ fecha_referencia: null
 umbral_confianza: 85          # solo decide casos grises; las reglas críticas mandan
 
 pesos_confianza:              # suman 1.0
-  calidad_ocr: 0.15
-  campos_obligatorios: 0.25
-  reglas_pasan: 0.20
+  campos_obligatorios: 0.30
+  reglas_pasan: 0.25
   cruces: 0.20
-  citas_verificadas: 0.20
+  citas_verificadas: 0.25
 
 # Uso requerido -> palabras que indican compatibilidad / incompatibilidad en el uso de suelo.
 # Se comparan sin acentos y en minúsculas.
@@ -42,11 +41,10 @@ validacion_cruzada:
   clave_igual: 90
 
 verificacion_citas:
-  score_minimo: 85                     # fuzzy partial ratio contra el texto OCR de la página
+  score_minimo: 85                     # fuzzy partial ratio contra el texto leído de la página
 
-ocr:
-  dpi: 300
-  idioma: spa
-  min_chars_texto_nativo: 60           # si la página trae menos texto nativo, se le hace OCR
+lectura:                               # texto de cada página: capa nativa del PDF o LLM con visión
+  min_chars_texto_nativo: 60           # si la página trae menos texto nativo, la lee el modelo de visión
+  lado_max_px: 1280                    # lado mayor de la imagen enviada al modelo (menos px = más rápido)
   max_chars_por_documento: 90000       # recorte del texto enviado al LLM
-  hilos: 4
+  hilos: 2                             # páginas en paralelo (con una sola GPU local, 1-2 basta)

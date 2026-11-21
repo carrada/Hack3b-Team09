@@ -23,7 +23,7 @@ def _llm_mismo_inmueble(a: str, b: str, bitacora: list[str]) -> MismoInmuebleLLM
         r = llm_estructurado(MismoInmuebleLLM).invoke(
             "Dos documentos de un expediente inmobiliario en México describen la ubicación así.\n"
             f"A: {a}\nB: {b}\n¿Se refieren al MISMO inmueble? Considera abreviaturas, variantes de escritura, "
-            "letras en el número (12 vs 12-A puede ser otro predio), errores de OCR y referencias de lote/manzana.")
+            "letras en el número (12 vs 12-A puede ser otro predio), errores de lectura y referencias de lote/manzana.")
         bitacora.append(f"🧠 Validador: dirección ambigua → LLM: {'mismo' if r.mismo else 'distinto'} inmueble")
         return r
     except Exception as e:  # noqa: BLE001
@@ -113,7 +113,7 @@ def validar(resultados: list[ResultadoDocumento], grupos: dict[str, int], bitaco
                 discrepancias.append(Discrepancia(
                     atributo="propietario", valores=vals, severidad="menor",
                     evidencias=_ev(esc[0], "propietario") + _ev(r, "propietario"),
-                    explicacion=("Nombre parcialmente distinto (¿variante u OCR?)" if res == "ambiguo" else
+                    explicacion=("Nombre parcialmente distinto (¿variante o error de lectura?)" if res == "ambiguo" else
                                  "El predial está a nombre de otra persona distinta al titular de la escritura "
                                  "(p. ej. propietario anterior): requiere revisión, no es rechazo")))
 
@@ -165,7 +165,7 @@ def validar(resultados: list[ResultadoDocumento], grupos: dict[str, int], bitaco
                 discrepancias.append(Discrepancia(
                     atributo="id_predio", valores=vals, severidad="menor",
                     evidencias=_ev(ancla, "clave_catastral") + _ev(r, "clave_catastral"),
-                    explicacion="La clave catastral/cuenta no coincide (puede ser otra nomenclatura o un error de OCR)"))
+                    explicacion="La clave catastral/cuenta no coincide (puede ser otra nomenclatura o un error de lectura)"))
                 senales_otro[r.documento_id].append("clave catastral distinta")
 
     # ---- ¿documentos de otro inmueble? (≥2 señales independientes y sin coincidencias fuertes)

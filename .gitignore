@@ -10,6 +10,7 @@ kb/*.bak
 
 # Documentos reales y resultados derivados: NUNCA subir
 archivos_prueba/
+Expedientes/
 datos/
 ejemplos/
 salida/

@@ -44,7 +44,7 @@ def markdown(estado: dict) -> str:
     L += ["", "## Datos extraídos y validaciones por documento"]
     for r in resultados:
         L += ["", f"### {ICONO[r.estado]} {NOMBRES_TIPO[r.tipo]} — {r.nombre_archivo}",
-              f"_Agente: {r.agente} · OCR {r.calidad_ocr:.0%} · obligatorios {r.obligatorios_encontrados}/{r.obligatorios_total}_",
+              f"_Agente: {r.agente} · obligatorios {r.obligatorios_encontrados}/{r.obligatorios_total}_",
               "", "| Campo | Valor | Evidencia |", "|---|---|---|"]
         for c in r.campos:
             if c.valor:

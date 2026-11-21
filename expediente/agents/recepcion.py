@@ -1,7 +1,7 @@
 """[1] Agente de Recepción.
 
 - Descarta lo que no es documento (formatos no soportados, sin texto, fotos/INE/CURP sueltas).
-- OCR / extracción de texto (paso de pipeline local con caché).
+- Lectura del texto (capa nativa del PDF o LLM con visión, con caché).
 - Clasifica el tipo POR CONTENIDO: puntaje por palabras clave (YAML) + LLM; si difieren, gana el LLM con menor confianza.
 - Extrae una "huella" (dirección, propietario, clave) para agrupar por inmueble.
 - Detecta faltantes.
@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from ..config import NOMBRES_TIPO, TIPOS, cfg, llm_estructurado, reglas
-from ..ocr import EXT_IMG, EXT_PDF, extraer_texto
+from ..lectura import EXT_IMG, EXT_PDF, extraer_texto
 from ..schemas import ClasificacionLLM, Documento, ExpedienteState
 from ..tools import clave_normalizada, comparar_direcciones, comparar_nombres, norm
 
@@ -67,7 +67,7 @@ def clasificar(doc: Documento, bitacora: list[str]) -> Documento:
         bitacora.append(f"🗑️ Recepción: {doc.nombre_archivo} descartado — {doc.motivo_descarte}")
     else:
         bitacora.append(f"📄 Recepción: {doc.nombre_archivo} → {NOMBRES_TIPO[doc.tipo]} "
-                        f"({doc.tipo_metodo}, conf {doc.tipo_confianza:.2f}, {len(doc.paginas)} pág., OCR {doc.calidad:.2f})")
+                        f"({doc.tipo_metodo}, conf {doc.tipo_confianza:.2f}, {len(doc.paginas)} pág., {sum(p.fuente == 'vision' for p in doc.paginas)} leídas con visión)")
     return doc
 
 
@@ -107,7 +107,7 @@ def agrupar(docs: list[Documento]) -> list[Documento]:
 
 
 def preparar_documentos(archivos: list[str], bitacora: list[str]) -> tuple[list[Documento], list[Documento]]:
-    """OCR + clasificación + agrupación. Reutilizado por el grafo y por el modo lote (cli)."""
+    """Lectura + clasificación + agrupación. Reutilizado por el grafo y por el modo lote (cli)."""
     aceptados, descartados, vistos = [], [], {}
     usados: set[str] = set()
 
@@ -142,7 +142,7 @@ def preparar_documentos(archivos: list[str], bitacora: list[str]) -> tuple[list[
 
 
 def nodo_recepcion(state: ExpedienteState) -> dict:
-    bitacora: list[str] = ["━━ [1] Recepción: OCR, clasificación por contenido y agrupación"]
+    bitacora: list[str] = ["━━ [1] Recepción: lectura, clasificación por contenido y agrupación"]
     aceptados, descartados = preparar_documentos(state["archivos"], bitacora)
     tipos_presentes = {d.tipo for d in aceptados}
     faltan = [NOMBRES_TIPO[t] for t in cfg()["documentos_requeridos"] if t not in tipos_presentes]
