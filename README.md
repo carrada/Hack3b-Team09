@@ -124,10 +124,6 @@ frontend recibe el resultado en su mismo contrato (`tiendas-3b/modulo.js`).
 - Usa la misma fila que Streamlit: un análisis local a la vez en la GPU. Los PDFs y resultados viven en `.cache/api/`
   (ignorado por git).
 
-## Frontend Next.js (`frontend/`)
-
-Frontend de expedientes (Next.js). El código está en la carpeta `frontend/`.
-
 ## Instalación y ejecución
 
 Desde `frontend/`:
