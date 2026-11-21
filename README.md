@@ -32,6 +32,12 @@ La interfaz queda en http://localhost:3000. El análisis pide el uso `tienda` o 
 
 Requisitos externos: Tesseract con idioma `spa` (ruta en `TESSERACT_CMD`).
 
+```bash
+# Linux (Debian/Ubuntu)
+sudo apt-get install -y tesseract-ocr tesseract-ocr-spa
+# macOS: brew install tesseract tesseract-lang
+```
+
 ## Prototipo Streamlit y CLI
 
 Siguen disponibles. No sustituyen al grafo.
