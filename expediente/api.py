@@ -14,7 +14,7 @@ from pathlib import Path
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
-from .config import proveedor
+from .config import modelo, modelo_ollama_instalado, ollama_api_key, ollama_host, proveedor
 from .reporte import ejecutar
 
 USOS = {"tienda", "cedis"}
@@ -31,21 +31,45 @@ app.add_middleware(
 
 def llm_disponible() -> tuple[bool, str]:
     """True solo si el proveedor configurado puede atender. No llama al grafo."""
-    if proveedor() == "ollama":
-        host = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
+    prov = proveedor()
+
+    if prov == "ollama":
+        host = ollama_host()
         try:
             with urllib.request.urlopen(f"{host}/api/tags", timeout=3) as resp:
                 if resp.status >= 400:
                     return False, f"Ollama respondió {resp.status} en {host}."
         except Exception as exc:  # noqa: BLE001 - el fallo de red es la respuesta
             return False, f"Ollama no responde en {host}: {exc}"
+        nombre = modelo()
+        if not modelo_ollama_instalado(nombre):
+            return False, (
+                f"El modelo local «{nombre}» no está instalado. "
+                f"Ejecuta: ollama pull {nombre}"
+            )
+        return True, ""
+
+    if prov == "ollama_cloud":
+        if not ollama_api_key():
+            return False, (
+                "OLLAMA_API_KEY no está configurada para ollama_cloud. "
+                "Crea una clave en https://ollama.com/settings/keys y colócala en .env "
+                "(qwen2.5 no está en la nube; usa LLM_PROVIDER=ollama para local)."
+            )
         return True, ""
 
     clave = os.getenv("OPENAI_API_KEY", "").strip()
     if not clave:
         return False, (
             "OPENAI_API_KEY no está configurada. Copia .env.example a .env y coloca la clave, "
-            "o arranca con LLM_PROVIDER=ollama."
+            "o arranca con LLM_PROVIDER=ollama (qwen2.5:7b) / ollama_cloud."
+        )
+    # La clave de Ollama (uuid.secreto) no sirve contra api.openai.com.
+    if "." in clave and not clave.startswith("sk-"):
+        return False, (
+            "OPENAI_API_KEY parece una clave de Ollama, no de OpenAI. "
+            "Usa LLM_PROVIDER=ollama_cloud con OLLAMA_API_KEY, "
+            "o LLM_PROVIDER=ollama con un modelo local (p. ej. qwen2.5:7b)."
         )
     return True, ""
 

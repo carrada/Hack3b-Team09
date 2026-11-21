@@ -48,13 +48,25 @@ _LLMS: dict = {}
 
 
 def proveedor() -> str:
-    return os.getenv("LLM_PROVIDER", "openai").lower()
+    """openai | ollama | ollama_cloud."""
+    return os.getenv("LLM_PROVIDER", "openai").lower().strip()
 
 
 def modelo() -> str:
-    if proveedor() == "ollama":
-        return os.getenv("OLLAMA_MODEL", "mistral:latest")
+    prov = proveedor()
+    if prov == "ollama":
+        return os.getenv("OLLAMA_MODEL", "qwen2.5:7b")
+    if prov == "ollama_cloud":
+        return os.getenv("OLLAMA_CLOUD_MODEL", os.getenv("OLLAMA_MODEL", "gemma4:31b"))
     return os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
+
+
+def ollama_host() -> str:
+    return os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
+
+
+def ollama_api_key() -> str:
+    return os.getenv("OLLAMA_API_KEY", "").strip()
 
 
 def modelos_ollama() -> list[str]:
@@ -62,31 +74,57 @@ def modelos_ollama() -> list[str]:
     import json
     import urllib.request
 
-    host = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
     try:
-        with urllib.request.urlopen(f"{host}/api/tags", timeout=3) as r:
+        with urllib.request.urlopen(f"{ollama_host()}/api/tags", timeout=3) as r:
             return [m["name"] for m in json.load(r).get("models", [])]
     except Exception:  # noqa: BLE001
         return []
 
 
+def modelo_ollama_instalado(nombre: str | None = None) -> bool:
+    """True si el tag local coincide con el modelo pedido (acepta sufijo :latest)."""
+    pedido = (nombre or modelo()).strip()
+    if not pedido:
+        return False
+    instalados = modelos_ollama()
+    if pedido in instalados:
+        return True
+    base = pedido.split(":")[0]
+    return any(m == pedido or m.startswith(f"{base}:") for m in instalados)
+
+
 def soporta_vision() -> bool:
-    """OpenAI sí; en Ollama solo modelos multimodales (llava, *-vl, llama3.2-vision, gemma3…)."""
+    """OpenAI y ollama_cloud sí; en Ollama local solo modelos multimodales."""
     if proveedor() != "ollama":
         return True
     return any(k in modelo().lower() for k in ("llava", "vl", "vision", "gemma3", "minicpm-v", "moondream"))
 
 
 def llm():
-    """LLM de chat según LLM_PROVIDER (openai | ollama). Se cachea por proveedor+modelo, así que se puede cambiar en caliente."""
+    """LLM según LLM_PROVIDER (openai | ollama | ollama_cloud). Cache por proveedor+modelo."""
     clave = (proveedor(), modelo())
     if clave not in _LLMS:
         if clave[0] == "ollama":
             from langchain_ollama import ChatOllama
 
             _LLMS[clave] = ChatOllama(
-                model=clave[1], temperature=0, num_ctx=int(os.getenv("OLLAMA_NUM_CTX", "16384")),
-                base_url=os.getenv("OLLAMA_HOST", "http://localhost:11434"))
+                model=clave[1],
+                temperature=0,
+                num_ctx=int(os.getenv("OLLAMA_NUM_CTX", "8192")),
+                base_url=ollama_host(),
+            )
+        elif clave[0] == "ollama_cloud":
+            from langchain_openai import ChatOpenAI
+
+            # Compat OpenAI hacia https://ollama.com/v1 (docs.ollama.com/api/openai-compatibility).
+            _LLMS[clave] = ChatOpenAI(
+                model=clave[1],
+                temperature=0,
+                max_retries=3,
+                timeout=120,
+                api_key=ollama_api_key() or "missing-ollama-api-key",
+                base_url="https://ollama.com/v1",
+            )
         else:
             from langchain_openai import ChatOpenAI
 

@@ -12,7 +12,10 @@ La interfaz está en `frontend/` (Next.js). El grafo vive en `expediente/` y no 
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env            # OPENAI_API_KEY, o LLM_PROVIDER=ollama
+cp .env.example .env
+# Por defecto del ejemplo: LLM_PROVIDER=ollama + OLLAMA_MODEL=qwen2.5:7b
+# (ollama pull qwen2.5:7b). Para nube Ollama: LLM_PROVIDER=ollama_cloud + OLLAMA_API_KEY.
+# No pongas una clave de Ollama en OPENAI_API_KEY: la API la rechaza a propósito.
 uvicorn expediente.api:app --host 127.0.0.1 --port 8000
 ```
 

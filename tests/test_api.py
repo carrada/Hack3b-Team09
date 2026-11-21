@@ -16,6 +16,26 @@ def test_health_sin_openai(monkeypatch):
     assert "OPENAI_API_KEY" in cuerpo["detalle"]
 
 
+def test_health_clave_ollama_en_openai(monkeypatch):
+    monkeypatch.setenv("LLM_PROVIDER", "openai")
+    monkeypatch.setenv("OPENAI_API_KEY", "e51b82666e5b4e3ea96eea198bd75ec5.ejemplo")
+    respuesta = client.get("/api/v1/health")
+    assert respuesta.status_code == 200
+    cuerpo = respuesta.json()
+    assert cuerpo["status"] == "degraded"
+    assert "Ollama" in cuerpo["detalle"]
+
+
+def test_health_ollama_cloud_sin_clave(monkeypatch):
+    monkeypatch.setenv("LLM_PROVIDER", "ollama_cloud")
+    monkeypatch.delenv("OLLAMA_API_KEY", raising=False)
+    respuesta = client.get("/api/v1/health")
+    assert respuesta.status_code == 200
+    cuerpo = respuesta.json()
+    assert cuerpo["status"] == "degraded"
+    assert "OLLAMA_API_KEY" in cuerpo["detalle"]
+
+
 def test_analisis_sin_llm_no_inventa_dictamen(monkeypatch):
     monkeypatch.setenv("LLM_PROVIDER", "openai")
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
