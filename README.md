@@ -1,148 +1,63 @@
-# Expedientes 3B · Revisión multiagente (Reto 1 · Hackatón Tiendas 3B)
+# Tiendas 3B · Mapa de expedientes
 
-Sistema multiagente (LangChain + LangGraph) que revisa el expediente legal de un inmueble, detecta faltantes e
-inconsistencias, cruza la información entre documentos y emite **✅ Cumple / ⚠️ Requiere revisión / ❌ No cumple**,
-con evidencia trazable (documento + página + fragmento verificado) en cada hallazgo.
+Prototipo para revisar expedientes inmobiliarios (escritura, predial, alineamiento y número oficial, uso de suelo) sobre un mapa. Es HTML y JavaScript estático, sin paso de compilación.
 
-## Arranque rápido
+**Video de demostración:** [`demo/demo.mp4`](demo/demo.mp4) (3 min 16 s).
 
-```powershell
-.venv\Scripts\activate
-copy .env.example .env            # LLM_PROVIDER=ollama (local) u openai + OPENAI_API_KEY
-python -m tests.generar_ejemplos  # expedientes sintéticos de prueba
-streamlit run app.py              # prototipo (sube PDFs o usa un ejemplo)
-```
+## Qué hace
 
-CLI:
+- **Mapa 3D de Mapbox** con las 62 tiendas, 3 centros de distribución propuestos (con líneas a las tiendas que abastecen) y 21 zonas en estudio. La primera vez que se abre, arranca en la vista del mundo con el logo de 3B y a los 2 segundos vuela a la vista cercana; las siguientes veces abre directo en la vista cercana (`?intro=1` la repite).
+- **Panel con tres listas:** Zonas, Tiendas y Centros. Al abrir una zona, tienda o centro, la cámara hace zoom y el panel muestra qué hacer primero, los datos clave (titular, dirección, superficie, número oficial, clave catastral) y los documentos.
+- **Investigación en lote:** se eligen varias zonas (con casilla o tocando el mapa), se analizan juntas aunque falten documentos y solo las que tienen detalles pasan a verificación humana.
+- **Analizador:** muestra el documento con el texto que sustenta cada hallazgo, qué dice cada documento, el fundamento (regla) y el siguiente paso sugerido.
+- **Validación cruzada:** compara los mismos datos entre los cuatro documentos y marca cuáles coinciden, cuáles difieren y cuáles no se pueden contrastar.
+- **Revisión por agentes:** reproduce paso a paso qué zona del documento lee cada agente.
 
-```powershell
-python -m expediente.cli analizar ejemplos\problemas --uso tienda    # → salida\problemas.md / .json
-python -m expediente.cli agrupar datos\ --analizar                    # datos del reto vienen por TIPO: los reagrupa por inmueble
-python -m expediente.cli diagrama                                     # → salida\grafo.mmd / grafo.png
-python -m pytest -q tests
-```
+## Cómo correrlo
 
-Requisitos externos (modo local): [Ollama](https://ollama.com) con un modelo con visión: `ollama pull qwen2.5vl:3b`.
+1. Pon tu token público de Mapbox en `index.html`, en la línea `mapboxgl.accessToken = 'PON_AQUI_TU_TOKEN_DE_MAPBOX';`. Sin token el mapa no carga.
+2. Desde esta carpeta:
 
-## Arquitectura
+   ```bash
+   python3 -m http.server 8000
+   ```
 
-```mermaid
-graph TD
-  A[Usuario: archivos + uso tienda/CEDIS] --> R[1 · Recepción<br/>lectura con visión · clasificación por contenido · agrupación · faltantes]
-  R -- Send --> E[2 · Escrituras]
-  R -- Send --> P[3 · Predial]
-  R -- Send --> L[4 · Alineamiento y N° oficial]
-  R -- Send --> U[5 · Uso de suelo]
-  R -. sin documentos .-> V
-  E & P & L & U --> V[6 · Validador cruzado<br/>corre SIEMPRE]
-  V --> D[1' · Dictamen<br/>verifica citas · confianza calculada]
-  D -- Cumple --> F((Fin))
-  D -- Revisión / No cumple --> H[👤 Revisión humana<br/>interrupt LangGraph] --> F
-  T{{Herramientas deterministas @tool<br/>CURP/RFC · direcciones · nombres · superficies<br/>vigencias · verificar_cita · KB}} -.-> E & P & L & U & V & D
-```
+3. Abre <http://localhost:8000>.
 
-| Agente | Archivo | Qué hace |
-|---|---|---|
-| Recepción | [expediente/agents/recepcion.py](expediente/agents/recepcion.py) | Descarta no-documentos y duplicados, lee el texto (capa nativa o LLM con visión), clasifica por contenido (palabras clave del YAML + LLM), extrae huella y agrupa por inmueble |
-| Especialistas ×4 | [expediente/agents/especialistas.py](expediente/agents/especialistas.py) | Extracción estructurada `{valor, página, fragmento}`, reglas del YAML, consulta de KB, estado de 3 valores + motivos |
-| Validador cruzado | [expediente/agents/validador.py](expediente/agents/validador.py) | Dirección, número oficial, propietario (escritura↔predial), superficie, clave catastral, documentos de otro inmueble |
-| Dictamen | [expediente/agents/dictamen.py](expediente/agents/dictamen.py) | Verifica cada cita contra el texto leído, calcula confianza, aplica reglas de dictamen, human in the loop |
-
-### Decisiones clave
-- **Reglas en configuración, no en prompts**: [config/reglas/*.yaml](config/reglas/) (campos, reglas críticas/menores, vigencias) y [config/dictamen.yaml](config/dictamen.yaml) (umbral, pesos, usos compatibles, tolerancias). Cambiar a las reglas oficiales no toca código.
-- **Nada se corta antes de tiempo**: si falta un documento o un especialista falla, el resultado es *Requiere revisión* y el validador cruzado corre igual.
-- **No cumple solo con evidencia clara y verificada**: uso de suelo incompatible por palabras clave, o documento de otro inmueble con ≥2 señales independientes. Un juicio del LLM nunca rechaza por sí solo; un incumplimiento cuya cita no se verifica baja a *Requiere revisión*.
-- **Anti-alucinación**: cada fragmento citado se busca en el texto leído (fuzzy ≥ 85, todas las páginas si la página citada no cuadra).
-- **Confianza calculada**: % campos obligatorios, % reglas que pasan, score de cruces y % de citas verificadas (pesos en YAML). Con faltantes nunca supera el umbral.
-- **CURP/RFC**: formato + dígito verificador; corrige confusiones típicas de lectura (O↔0, I↔1…) y lo deja anotado.
-- **Predial a nombre de otra persona** = discrepancia menor (*Requiere revisión*), no rechazo.
-- **KB por especialista** ([kb/](kb/)): contexto, no prueba de autenticidad. Altas automáticas quedan como *Pendientes* y se guardan sin datos personales.
-
-## Lectura de documentos (sin OCR clásico)
-- **PDF digital** (trae capa de texto): se usa esa capa tal cual, exacta e instantánea.
-- **Escaneo o imagen**: la página se reduce a `lado_max_px` (1280 px) y la transcribe el **LLM con visión**: el mismo
-  modelo que corre los agentes (`OLLAMA_MODEL`; opcionalmente otro en `OLLAMA_VISION_MODEL`) o el de OpenAI.
-- La caché por hash distingue proveedor, modelo y tamaño de imagen. Si una página no se pudo leer, no se cachea.
-- No hay métrica de "calidad OCR": la confianza sale de campos, reglas, cruces y citas verificadas.
-
-### Rendimiento local (GPU de 4 GB)
-- `qwen2.5vl:3b` cabe completo en VRAM; un 7B no (≈60 % corre en CPU, ~8 tok/s).
-- Variables de Ollama recomendadas: `OLLAMA_FLASH_ATTENTION=1`, `OLLAMA_KV_CACHE_TYPE=q8_0`, `OLLAMA_MAX_LOADED_MODELS=1`.
-- En `.env`: `OLLAMA_NUM_CTX=12288` y `OLLAMA_KEEP_ALIVE=30m` (el modelo no se descarga entre documentos).
-
-## Varios usuarios al mismo tiempo
-Medido con `qwen2.5vl:3b` en una RTX 3050 Ti (4 GB): **1 análisis solo = 98 s; 2 intercalados = 326 s cada uno**.
-Ollama atiende una petición a la vez y, al alternar entre usuarios, pierde el contexto ya procesado del otro, así
-que mezclar es peor que esperar turno.
-
-Qué hace la app ([expediente/fila.py](expediente/fila.py)):
-- **Fila FIFO compartida** por todas las sesiones, con capacidad por proveedor (`FILA_OLLAMA=1`, `FILA_OPENAI=4`).
-  Con 2 usuarios en local: el 1º termina a los ~93 s y el 2º a los ~170 s (antes, ambos a los 326 s).
-- El usuario en espera ve su **posición y la espera estimada** (promedio de los últimos análisis) y puede
-  **mandar su análisis a OpenAI** con un botón si hay `OPENAI_API_KEY`.
-- Si mueve algo de la página mientras espera, **conserva su lugar**. Si cierra la pestaña, su turno **caduca** en
-  ~20 s y no bloquea a nadie. Si un análisis se interrumpe, el lugar se libera.
-- **Ajustes por sesión**: proveedor y modelo viven en un `ContextVar` por sesión (antes en `os.environ`, global:
-  un usuario le cambiaba el modelo a otro a media corrida).
-- **Caché de lectura segura**: escritura atómica y un candado por archivo; si dos usuarios suben el mismo PDF,
-  la GPU lo lee una sola vez.
-
-Límites conocidos (aceptables para el hackatón):
-- La fila vive en memoria de **un** proceso de Streamlit: la CLI u otra instancia de la app no la ven.
-- Los resultados (`InMemorySaver`) se pierden al reiniciar y crecen con cada análisis.
-
-### Cómo escalaría a muchos usuarios
-| Pieza | Hackatón (hoy) | Producción |
-|---|---|---|
-| Interfaz | Streamlit ejecuta el análisis en el hilo de la sesión | Frontend + API (FastAPI) que solo encola y consulta estado |
-| Cola | `Fila` en memoria | Redis + workers (RQ/Celery/Arq); reintentos, prioridades, tiempos límite |
-| Modelo | Ollama, 1 GPU de 4 GB, 1 petición a la vez | vLLM/TGI en GPU(s) de 24 GB+ con *continuous batching* (decenas de peticiones a la vez) o API en la nube; desborde automático a la nube cuando la cola crece |
-| Estado | `InMemorySaver` | Checkpointer de LangGraph en Postgres (sobrevive reinicios, permite HITL días después) |
-| Archivos | `.cache/` local | Almacenamiento de objetos (S3/Blob) con caché de lectura por hash compartida |
-
-## Frontend tiendas-3b conectado al backend (API)
-
-```powershell
-python -m api                      # → http://localhost:8000  (sirve tiendas-3b/ y la API)
-```
-
-El módulo `tiendas-3b/` (mapa, analizador, cruce de datos y revisión por agentes) ya no usa análisis precalculados:
-cada PDF que se sube se manda al backend, los agentes lo clasifican por contenido, extraen, validan y cruzan, y el
-frontend recibe el resultado en su mismo contrato (`tiendas-3b/modulo.js`).
-
-| Ruta | Qué devuelve |
-|---|---|
-| `POST /api/expedientes/<exp>/documentos` | Sube PDFs (`files`, opcional `tipo`, `uso`); se analizan en segundo plano |
-| `GET /api/expedientes/<exp>` | `en_fila` · `procesando` · `listo` · `error`, documentos y dictamen del backend |
-| `GET /analisis/indice.json` · `/analisis/expedientes.json` · `/analisis/<id>.json` | Contrato del frontend, con datos reales |
-| `GET /paginas/<id>/p<n>.jpg` | Imagen de la página |
-
-- [api/contrato.py](api/contrato.py) traduce el resultado del grafo: datos extraídos (cita verificada → `ok`), reglas que
-  no cumplen y discrepancias del Validador cruzado se vuelven `pasos` con agente, página y recuadro (`rect`).
-- `rect`: exacto en PDFs con texto; en escaneos (leídos por el modelo de visión) se ubica el renglón de tinta que
-  corresponde a la línea transcrita (aproximado).
-- Usa la misma fila que Streamlit: un análisis local a la vez en la GPU. Los PDFs y resultados viven en `.cache/api/`
-  (ignorado por git).
-
-## Instalación y ejecución
-
-Desde `frontend/`:
+## Pruebas
 
 ```bash
-cd frontend
-npm install
-npm run build
-npm run start
+python3 pruebas/datos.py     # datos y modelo, no necesita servidor
+python3 pruebas/e2e.py       # navegador sin ventana (WebKit): necesita el servidor en marcha y macOS con Swift
+python3 pruebas/e2e.py --solo "mapa ·"
 ```
 
-La aplicación queda en http://localhost:3000.
+Las pruebas del mapa 3D que miden cuadros por segundo fallan a veces en el navegador sin ventana; suelen pasar al repetirlas.
 
-Si hace falta apuntar a un backend, copia `frontend/.env.example` a `frontend/.env.local` antes de instalar y correr.
+## Estructura
 
-### Cargar expedientes reales (zonas en estudio)
-```powershell
-python -m api                                         # en una terminal
-python -m api.importar Expedientes --proveedor openai # en otra: cada subcarpeta = un expediente / zona del mapa
-```
-Sube los PDFs de cada subcarpeta (los demás archivos se ignoran); los chicos primero. `--proveedor` aplica solo a esa
-carga (el resto sigue con `LLM_PROVIDER` de `.env`). `Expedientes/` está en `.gitignore`: los datos nunca van al repo.
+| Ruta | Contenido |
+| --- | --- |
+| `index.html` | Mapa, panel de listas, investigación en lote y panel de zona |
+| `analizador.html`, `validacion.html`, `revision.html` | Pantallas de análisis |
+| `modulo.js` | Estado compartido, reglas del expediente y cruce de datos |
+| `tiendas.js` | Datos de las 62 tiendas |
+| `paginas.css`, `tema.css` | Estilos compartidos; `tema.css` define el tema sobrio de todas las vistas |
+| `analisis/` | Un JSON por documento analizado, `expedientes.json` (21 expedientes) e `indice.json` |
+| `modelos/` | Modelos 3D (`tienda.glb`, `cedis.glb`) |
+| `herramientas/` | OCR (macOS Vision), extractor automático y conversor FBX a GLB |
+| `pruebas/` | Pruebas de datos y de extremo a extremo |
+| `demo/` | Video de demostración |
+
+## Datos y límites
+
+- Los documentos son reales: 62 archivos agrupados en 21 expedientes, con documentos faltantes cuando no hay los cuatro. Cuatro conjuntos están marcados «HACKATHON 3B» y son sintéticos, por eso aparecen «sin ubicación».
+- **Solo Tepeji del Río 5 se verificó a mano** contra las imágenes. En los demás, los datos salen del extractor automático (`herramientas/analizar_todos.py`) y los que tienen baja confianza quedan marcados para revisión humana.
+- Los análisis ya están calculados. **No hay un backend que analice PDFs nuevos**, y la interfaz no muestra un nivel de confianza numérico: muestra la recomendación y sus motivos.
+- Las imágenes de las páginas (`paginas/`) y los PDF originales no están en el repositorio por su tamaño; sin ellas el analizador no puede mostrar los documentos.
+- Los 3 centros de distribución son ubicaciones propuestas por agrupación de tiendas, no direcciones reales.
+- Las ubicaciones de las zonas se obtienen con el geocodificador de Mapbox y quedan guardadas en el navegador; varias son aproximadas.
+
+## Diseño
+
+Tema sobrio basado en el criterio del [GOV.UK Design System](https://design-system.service.gov.uk/) (`alphagov/govuk-frontend`, licencia MIT): estados dichos con palabras, listas de resumen, avisos sin cajas de color, enlaces subrayados y una sola tipografía (IBM Plex Sans). El rojo de la marca se usa en la barra lateral, el logo y la acción principal.
