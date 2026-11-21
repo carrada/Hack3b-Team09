@@ -1,0 +1,142 @@
+{
+ "id": "mirador-predial",
+ "tipo": "predial",
+ "grupo": "mirador",
+ "archivo": "02 Predial!!.pdf",
+ "titulo": "Predial · mirador",
+ "parcial": true,
+ "paginas": [
+  {
+   "n": 1,
+   "img": "paginas/mirador-predial/p1.jpg",
+   "w": 1000,
+   "h": 1229
+  }
+ ],
+ "total_paginas": 1,
+ "pasos": [
+  {
+   "campo": "Tipo documental",
+   "valor": "Predial",
+   "pagina": 1,
+   "rect": [
+    0.06,
+    0.02,
+    0.88,
+    0.12
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 1,
+   "t": "00:00.7",
+   "nota": ""
+  },
+  {
+   "campo": "Autoridad emisora",
+   "valor": "TESORERÍA MUNICIPAL • CATASTRO E IMPUESTO PREDIAL RECIBO OFICIAL DE P",
+   "pagina": 1,
+   "rect": [
+    0.3297,
+    0.1041,
+    0.4085,
+    0.0533
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 2,
+   "t": "00:01.4",
+   "nota": ""
+  },
+  {
+   "campo": "Clave catastral",
+   "valor": "077 04 310 12 00 0000",
+   "pagina": 1,
+   "rect": [
+    0.3726,
+    0.2121,
+    0.1763,
+    0.0227
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 3,
+   "t": "00:02.1",
+   "nota": ""
+  },
+  {
+   "campo": "Titular actual",
+   "valor": "PEÑALOZA RUIZ SILVIA ADRIANA UBICACIÓN AV",
+   "pagina": 1,
+   "rect": [
+    0.1406,
+    0.2296,
+    0.6154,
+    0.0456
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 4,
+   "t": "00:02.8",
+   "nota": ""
+  },
+  {
+   "campo": "Dirección del inmueble",
+   "valor": "AV DE LAS TORRES SN LT 12 MZ 3, COL. EL MIRADOR",
+   "pagina": 1,
+   "rect": [
+    0.3707,
+    0.2456,
+    0.3853,
+    0.0297
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 5,
+   "t": "00:03.5",
+   "nota": ""
+  },
+  {
+   "campo": "Superficie del predio",
+   "valor": "300.00 m²",
+   "pagina": 1,
+   "rect": [
+    0.371,
+    0.2649,
+    0.0616,
+    0.0211
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 6,
+   "t": "00:04.2",
+   "nota": ""
+  },
+  {
+   "campo": "Valor catastral",
+   "valor": "$ 828,900.00",
+   "pagina": 1,
+   "rect": [
+    0.3709,
+    0.2981,
+    0.1063,
+    0.023
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 7,
+   "t": "00:04.9",
+   "nota": ""
+  }
+ ],
+ "resumen": {
+  "validados": 7,
+  "revisar": 0
+ }
+}

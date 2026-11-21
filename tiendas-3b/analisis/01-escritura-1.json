@@ -1,0 +1,219 @@
+{
+ "id": "01-escritura-1",
+ "archivo": "01 Escritura_1.pdf",
+ "titulo": "Compraventa · Zumpango · Notaría 18",
+ "paginas": [
+  {
+   "n": 1,
+   "img": "paginas/01-escritura-1/p1.jpg",
+   "w": 1000,
+   "h": 1647
+  },
+  {
+   "n": 2,
+   "img": "paginas/01-escritura-1/p2.jpg",
+   "w": 1000,
+   "h": 1647
+  }
+ ],
+ "total_paginas": 2,
+ "pasos": [
+  {
+   "pagina": 1,
+   "rect": [
+    0.2869,
+    0.1731,
+    0.306,
+    0.0224
+   ],
+   "agente": "Clasificador",
+   "campo": "Tipo documental",
+   "valor": "Escritura pública · Contrato de compraventa",
+   "ok": true,
+   "nota": "Coincide con el tipo esperado en el expediente.",
+   "confianza": 1,
+   "n": 1,
+   "t": "00:00.7"
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.369,
+    0.0502,
+    0.224,
+    0.0208
+   ],
+   "agente": "Extractor",
+   "campo": "Autoridad emisora",
+   "valor": "Notario Público No. 18",
+   "ok": true,
+   "nota": "",
+   "confianza": 1,
+   "n": 2,
+   "t": "00:01.5"
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.3373,
+    0.1098,
+    0.3026,
+    0.0213
+   ],
+   "agente": "Extractor",
+   "campo": "Instrumento y volumen",
+   "valor": "Instrumento número 21,487 · Volumen 612",
+   "ok": true,
+   "nota": "",
+   "confianza": 1,
+   "n": 3,
+   "t": "00:02.5"
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.4048,
+    0.1346,
+    0.2464,
+    0.0221
+   ],
+   "agente": "Extractor",
+   "campo": "Fecha de otorgamiento",
+   "valor": "12 de marzo de 2019",
+   "ok": true,
+   "nota": "",
+   "confianza": 1,
+   "n": 4,
+   "t": "00:03.2"
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.1441,
+    0.1891,
+    0.7643,
+    0.0443
+   ],
+   "agente": "Extractor",
+   "campo": "Adquirente (comprador)",
+   "valor": "Rosa Maria Quintanar Ledesma",
+   "ok": true,
+   "nota": "",
+   "confianza": 1,
+   "n": 5,
+   "t": "00:04.0"
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.1442,
+    0.1906,
+    0.4503,
+    0.0235
+   ],
+   "agente": "Extractor",
+   "campo": "Transmitente (vendedor)",
+   "valor": "Francisco Javier Morales Piña",
+   "ok": true,
+   "nota": "Debe coincidir con el titular que consta en el expediente.",
+   "confianza": 1,
+   "n": 6,
+   "t": "00:05.0"
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.1465,
+    0.2756,
+    0.7668,
+    0.0658
+   ],
+   "agente": "Validación cruzada",
+   "campo": "Dirección del inmueble",
+   "valor": "Calle Fresno No. 28, Lote 14, Manzana 6, Col. La Loma, Municipio de San Jerónimo Atlaco, Estado de México",
+   "ok": false,
+   "nota": "Falta contrastarla con la dirección del predial y del alineamiento (no están en el expediente).",
+   "confianza": 1,
+   "n": 7,
+   "t": "00:05.7"
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.1465,
+    0.3122,
+    0.7668,
+    0.0461
+   ],
+   "agente": "Extractor",
+   "campo": "Clave catastral",
+   "valor": "112 03 145 18 00 0000",
+   "ok": true,
+   "nota": "",
+   "confianza": 1,
+   "n": 8,
+   "t": "00:06.6"
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.3484,
+    0.3142,
+    0.3624,
+    0.025
+   ],
+   "agente": "Validación cruzada",
+   "campo": "Superficie del predio",
+   "valor": "245.00 m²",
+   "ok": true,
+   "nota": "Coincide con las medidas y colindancias (10.00 × 24.50 m = 245.00 m²).",
+   "confianza": 1,
+   "n": 9,
+   "t": "00:07.6"
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.5014,
+    0.5176,
+    0.4143,
+    0.0239
+   ],
+   "agente": "Reglas de escrituras",
+   "campo": "Libertad de gravamen",
+   "valor": "Declarado libre de gravámenes",
+   "ok": false,
+   "nota": "Es una declaración de la parte vendedora. Confirmar con el certificado de libertad de gravamen.",
+   "confianza": 1,
+   "n": 10,
+   "t": "00:08.3"
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.5457,
+    0.6669,
+    0.2479,
+    0.0219
+   ],
+   "agente": "Extractor",
+   "campo": "Precio de la operación",
+   "valor": "$1,150,000.00",
+   "ok": true,
+   "nota": "",
+   "confianza": 1,
+   "n": 11,
+   "t": "00:09.1"
+  }
+ ],
+ "resumen": {
+  "pasos": 11,
+  "validados": 9,
+  "revisar": 2
+ },
+ "nota": "Resultado de ejemplo generado localmente (OCR + reglas). El backend real producirá este mismo formato.",
+ "bytes": 636766,
+ "originales": [
+  "01 Escritura.pdf"
+ ]
+}

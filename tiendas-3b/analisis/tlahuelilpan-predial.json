@@ -1,0 +1,160 @@
+{
+ "id": "tlahuelilpan-predial",
+ "tipo": "predial",
+ "grupo": "tlahuelilpan",
+ "archivo": "PAGO PREDIAL 20205.pdf",
+ "titulo": "Predial · tlahuelilpan",
+ "parcial": true,
+ "paginas": [
+  {
+   "n": 1,
+   "img": "paginas/tlahuelilpan-predial/p1.jpg",
+   "w": 1000,
+   "h": 773
+  },
+  {
+   "n": 2,
+   "img": "paginas/tlahuelilpan-predial/p2.jpg",
+   "w": 1000,
+   "h": 773
+  },
+  {
+   "n": 3,
+   "img": "paginas/tlahuelilpan-predial/p3.jpg",
+   "w": 1000,
+   "h": 773
+  },
+  {
+   "n": 4,
+   "img": "paginas/tlahuelilpan-predial/p4.jpg",
+   "w": 1000,
+   "h": 773
+  }
+ ],
+ "total_paginas": 4,
+ "pasos": [
+  {
+   "campo": "Tipo documental",
+   "valor": "Predial",
+   "pagina": 1,
+   "rect": [
+    0.06,
+    0.02,
+    0.88,
+    0.12
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 1,
+   "t": "00:00.7",
+   "nota": ""
+  },
+  {
+   "campo": "Fecha de expedición",
+   "valor": "16 DE ENERO DE 1869",
+   "pagina": 1,
+   "rect": [
+    0.0296,
+    0.2162,
+    0.6193,
+    0.0284
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 2,
+   "t": "00:01.4",
+   "nota": ""
+  },
+  {
+   "campo": "Cuenta predial",
+   "valor": "U-03988",
+   "pagina": 1,
+   "rect": [
+    0.0562,
+    0.2663,
+    0.1565,
+    0.0211
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 3,
+   "t": "00:02.1",
+   "nota": ""
+  },
+  {
+   "campo": "Valor catastral",
+   "valor": "$ 297,747.07",
+   "pagina": 1,
+   "rect": [
+    0.278,
+    0.2677,
+    0.2693,
+    0.0242
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 4,
+   "t": "00:02.8",
+   "nota": ""
+  },
+  {
+   "campo": "Autoridad emisora",
+   "valor": "DIRECCIÓN DEL PREDIO: COMUNIDAD: TLAHUELILPAN, COLONIA: CUAUHTEMOC, C",
+   "pagina": 1,
+   "rect": [
+    0.0278,
+    0.2875,
+    0.8919,
+    0.0335
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 5,
+   "t": "00:03.5",
+   "nota": ""
+  },
+  {
+   "campo": "Dirección del inmueble",
+   "valor": "COMUNIDAD: TLAHUELILPAN, COLONIA: CUAUHTEMOC, CALLE: 16 DE ENERO DE 1869, NÚM. EXT.: S/N",
+   "pagina": 1,
+   "rect": [
+    0.0278,
+    0.2875,
+    0.8919,
+    0.042
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 6,
+   "t": "00:04.2",
+   "nota": ""
+  },
+  {
+   "campo": "Titular actual",
+   "valor": "ERNESTO VIVEROS OLGUIN. HABIÉNDOSE REVISADO",
+   "pagina": 3,
+   "rect": [
+    0.1238,
+    0.4798,
+    0.7242,
+    0.0578
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 7,
+   "t": "00:04.9",
+   "nota": ""
+  }
+ ],
+ "resumen": {
+  "validados": 7,
+  "revisar": 0
+ }
+}

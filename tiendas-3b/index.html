@@ -1,0 +1,1249 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tiendas 3B</title>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.35.0/mapbox-gl.css" rel="stylesheet">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.35.0/mapbox-gl.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root { --rojo: #C8102E; --rojo-osc: #9E0C24; --tinta: #1B1B1A; --gris: #6A6A65; --borde: #DEDCD5; --linea: #E6E4DE; --fondo: #F2F1ED; --panel: #FAFAF8;
+      --ok: #2F7A4A; --aviso: #B26E00; --mal: #B3261E; --azul: #1F5FA8; --lado: 400px; --exp: 440px; --rail: 64px; }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html, body { margin: 0; height: 100%; font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif; color: var(--tinta); }
+    body { display: flex; background: var(--fondo); overflow: hidden; }
+    button, input, select, textarea { font-family: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--tinta); outline-offset: 2px; }
+    .mono { font-family: 'IBM Plex Sans', system-ui, sans-serif; }
+    svg.i { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+    /* barra lateral: la misma que en el analizador */
+    #side { width: var(--rail); background: var(--rojo); display: flex; flex-direction: column; align-items: center; padding: 16px 0; gap: 6px; flex: none; z-index: 5; }
+    #side .logo { width: 36px; height: 36px; border-radius: 6px; background: #fff; color: var(--rojo); font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 18px; }
+    #side .ic { width: 44px; height: 44px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.82); cursor: pointer; border: 0; background: none; text-decoration: none; }
+    #side .ic:hover { color: #fff; background: rgba(255,255,255,.14); }
+    #side .ic.on { background: var(--rojo-osc); color: #fff; }
+
+    /* los paneles flotan sobre el mapa y se deslizan: el mapa no cambia de tamaño, así no parpadea.
+       --izq es el ancho que ocupa el panel visible; lo usan el mapa (relleno) y los controles. */
+    body { position: relative; --izq: var(--lado); }
+    body.oculta { --izq: 0px; }
+    body.exp { --izq: var(--exp); }
+    #panel { position: absolute; left: var(--rail); top: 0; bottom: 0; width: var(--lado); z-index: 3; background: var(--panel); border-right: 1px solid var(--borde);
+      transition: transform .25s ease, visibility 0s; }
+    body.oculta #panel, body.exp #panel { transform: translateX(-100%); visibility: hidden; transition: transform .25s ease, visibility 0s .25s; }
+    .panel-in { width: 100%; height: 100%; display: flex; flex-direction: column; }
+    .mapboxgl-ctrl-bottom-left { left: var(--izq); transition: left .25s ease; }
+    .mapboxgl-ctrl-group { border-radius: 4px !important; box-shadow: 0 0 0 1px var(--borde) !important; }
+    #panel header { padding: 18px 18px 14px; border-bottom: 1px solid var(--borde); }
+    .titulo { display: flex; align-items: center; gap: 10px; }
+    .titulo h1 { font-size: 17px; font-weight: 600; margin: 0; }
+    .titulo .n { color: var(--gris); font-size: 11px; margin-left: auto; font-family: 'IBM Plex Sans', system-ui, sans-serif; }
+    .ocultar { border: 1px solid #D3D1CA; background: #fff; width: 30px; height: 30px; border-radius: 4px; color: var(--tinta); display: flex; align-items: center; justify-content: center; }
+    .ocultar:hover { background: #F6F5F1; }
+    .ocultar .i { width: 16px; height: 16px; }
+    .buscar { display: flex; align-items: center; gap: 8px; margin-top: 14px; padding: 0 10px; border: 1px solid #D3D1CA; border-radius: 4px; background: #fff; color: var(--gris); }
+    .buscar .i { width: 16px; height: 16px; }
+    .buscar input { flex: 1; border: 0; background: none; outline: none; padding: 9px 0; font-size: 13px; color: var(--tinta); }
+    .buscar:focus-within { border-color: var(--tinta); }
+    #chips { display: flex; flex-wrap: wrap; gap: 1px; margin-top: 12px; border: 1px solid #D3D1CA; border-radius: 4px; overflow: hidden; background: #D3D1CA; }
+    .chip { flex: 1 1 auto; border: 0; background: #fff; padding: 0 8px; height: 30px; font-size: 12px; font-weight: 500; color: #3A3A37; white-space: nowrap; }
+    .chip:hover { background: #F6F5F1; }
+    .chip.on { background: var(--tinta); color: #fff; }
+    #lista { overflow-y: auto; flex: 1; }
+    .card { background: transparent; border: 0; border-bottom: 1px solid var(--linea); border-left: 3px solid transparent; padding: 12px 18px 12px 15px; cursor: pointer; }
+    .card:hover { background: #F4F3EE; }
+    .card.on { background: #ECEAE4; border-left-color: var(--tinta); }
+    .card .fila { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .card b { font-size: 13px; font-weight: 600; }
+    .card .dir { margin: 3px 0 5px; font-size: 14px; line-height: 1.35; }
+    .card .meta { font-size: 11px; color: var(--gris); display: flex; align-items: center; gap: 6px; font-family: 'IBM Plex Sans', system-ui, sans-serif; }
+    /* logo de Tiendas 3B sobre México: se ve a escala global y se desvanece al acercar */
+    .logo-mx { width: 78px; height: 78px; border-radius: 50%; background: #fff url(recursos/logo3b.jpg) center / cover; border: 3px solid #fff; box-shadow: 0 0 0 1px rgba(27,27,26,.25), 0 6px 16px rgba(0,0,0,.28); cursor: pointer; transition: opacity .25s; }
+    /* investigación: zonas elegidas para analizar en lote */
+    .invbox { padding: 14px 18px; border-bottom: 1px solid var(--borde); background: #fff; display: flex; flex-direction: column; gap: 10px; }
+    .invbox .cuentas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--borde); border: 1px solid var(--borde); }
+    .invbox .cuentas div { background: var(--panel); padding: 8px 10px; display: flex; flex-direction: column; gap: 1px; }
+    .invbox .cuentas b { font-size: 20px; font-weight: 500; line-height: 1.1; } .invbox .cuentas span { font-size: 11px; color: var(--gris); }
+    .invbox .acc { display: flex; gap: 6px; flex-wrap: wrap; }
+    .bt { height: 32px; padding: 0 12px; border-radius: 4px; border: 1px solid #D3D1CA; background: #fff; color: var(--tinta); font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+    .bt:hover { background: #F6F5F1; } .bt.neg { background: var(--tinta); border-color: var(--tinta); color: #fff; } .bt.neg:hover { background: #333; } .bt.rojo { background: var(--rojo); border-color: var(--rojo); color: #fff; } .bt:disabled { opacity: .4; cursor: default; }
+    .estado { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; }
+    .estado i { width: 9px; height: 9px; display: inline-block; flex: none; }
+    .card .chk-inv { width: 16px; height: 16px; accent-color: var(--tinta); margin: 0 8px 0 0; flex: none; cursor: pointer; }
+    .card .acciones { display: flex; gap: 6px; margin-top: 8px; }
+    .btn-inv { border: 1px solid #D3D1CA; background: #fff; border-radius: 4px; padding: 4px 8px; font-size: 12px; font-weight: 500; color: var(--tinta); }
+    .btn-inv:hover { background: #F6F5F1; } .btn-inv.on { background: var(--tinta); color: #fff; border-color: var(--tinta); }
+    .dot { width: 8px; height: 8px; background: #B9B6AD; display: inline-block; flex: none; }
+    .dot.verde { background: var(--ok); } .dot.rojo { background: var(--mal); }
+    .badge { background: #E6E4DE; color: #3A3A37; border-radius: 2px; padding: 2px 6px; font-size: 11px; font-weight: 500; font-family: 'IBM Plex Sans', system-ui, sans-serif; }
+    .badge.ambar { background: #FFF1C2; color: #7A4B00; }
+    .badge.verde { background: #DDEBE1; color: #1F5A37; }
+    .vacio { color: var(--gris); font-size: 13px; padding: 18px; }
+
+    /* expediente: ocupa el lugar del panel de tiendas, a la izquierda */
+    #drawer { position: absolute; left: var(--rail); top: 0; bottom: 0; width: var(--exp); z-index: 4; background: var(--panel); border-right: 1px solid var(--borde);
+      display: flex; flex-direction: column; overflow: hidden;
+      transform: translateX(-100%); visibility: hidden; transition: transform .25s ease, visibility 0s .25s; }
+    body.exp #drawer { transform: none; visibility: visible; transition: transform .25s ease, visibility 0s; }
+    .dh { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px 10px; gap: 10px; border-bottom: 1px solid var(--linea); }
+    .dchips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .pill { border-radius: 2px; padding: 4px 8px; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 7px; background: #E6E4DE; color: #3A3A37; }
+    .pill.verde { background: #DDEBE1; color: #1F5A37; } .pill.rojo { background: #F6DAD7; color: #8C1C15; }
+    .x { border: 1px solid #D3D1CA; background: #fff; width: 30px; height: 30px; border-radius: 4px; font-size: 13px; flex: none; color: var(--tinta); }
+    .x:hover { background: #F6F5F1; }
+    .dbody { overflow-y: auto; flex: 1; padding: 4px 18px 16px; }
+    .dbody label { display: block; font-size: 12px; font-weight: 500; color: var(--gris); margin: 14px 0 5px; }
+    .dbody input.campo { width: 100%; height: 36px; padding: 0 10px; border: 1px solid #D3D1CA; border-radius: 4px; font-size: 14px; outline: none; background: #fff; color: var(--tinta); }
+    .dbody input.campo:focus { border-color: var(--tinta); }
+    .reco { background: #fff; border: 1px solid var(--borde); padding: 12px 14px 14px; margin-top: 16px; }
+    .reco .rt { display: flex; justify-content: space-between; font-size: 12px; color: var(--gris); }
+    .reco .rt b:first-child { font-weight: 500; }
+    .reco .rt b { color: var(--tinta); font-weight: 600; }
+    .reco .rb { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
+    .reco .rb button { border: 1px solid #D3D1CA; background: #fff; border-radius: 4px; padding: 8px 4px; font-size: 13px; font-weight: 500; color: var(--tinta); }
+    .reco .rb button:hover { background: #F6F5F1; }
+    .rb .c.on { background: #DDEBE1; border-color: var(--ok); color: #1F5A37; } .rb .r.on { background: #FFF1C2; border-color: var(--aviso); color: #7A4B00; } .rb .n.on { background: #F6DAD7; border-color: var(--mal); color: #8C1C15; }
+    .bar { height: 4px; background: #E6E4DE; margin-top: 12px; overflow: hidden; }
+    .bar i { display: block; height: 100%; background: var(--tinta); }
+    .tabs2 { display: flex; gap: 2px; border-bottom: 1px solid var(--borde); margin: 16px -18px 0; padding: 0 18px; }
+    .tabs2 button { flex: 1 1 auto; border: 0; background: none; padding: 10px 4px; font-size: 12px; font-weight: 500; color: var(--gris); border-bottom: 2px solid transparent; margin-bottom: -1px; text-align: center; line-height: 1.2; }
+    .tabs2 button:hover { color: var(--tinta); }
+    .tabs2 button.on { color: var(--tinta); border-bottom-color: var(--tinta); }
+    .tc h3 { display: flex; justify-content: space-between; align-items: baseline; font-size: 14px; font-weight: 600; margin: 16px 0 10px; }
+    .tc h3 span { font-size: 12px; font-weight: 400; color: var(--gris); }
+    .doc { display: flex; align-items: center; gap: 10px; border: 1px solid var(--borde); background: #fff; padding: 10px 12px; margin-bottom: 6px; }
+    .doc .ico { width: 26px; height: 32px; border: 1px solid #CFCCC4; background: #fff; display: flex; align-items: center; justify-content: center; color: var(--gris); flex: none; }
+    .doc .ico .i { width: 14px; height: 14px; }
+    .doc .tx { flex: 1; min-width: 0; } .doc .tx b { font-size: 13px; font-weight: 500; } .doc .tx small { display: block; color: var(--gris); font-size: 11px; line-height: 1.3; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; }
+    .est { border-radius: 2px; padding: 2px 6px; font-size: 11px; font-weight: 600; background: #FFF1C2; color: #7A4B00; white-space: nowrap; }
+    .est.ok { background: #DDEBE1; color: #1F5A37; }
+    .doc .sub { border: 1px solid #D3D1CA; background: #fff; border-radius: 4px; padding: 6px 10px; font-size: 12px; font-weight: 500; text-align: center; line-height: 1.15; color: var(--tinta); }
+    .doc .sub:hover { background: #F6F5F1; }
+    .vacio2 { color: var(--gris); font-size: 13px; padding: 14px 2px; line-height: 1.5; }
+    .df { display: flex; gap: 8px; padding: 12px 18px; border-top: 1px solid var(--borde); background: var(--panel); }
+    .df button { border-radius: 4px; height: 36px; padding: 0 14px; font-size: 13px; font-weight: 500; }
+    .df .bor { border: 1px solid #D3D1CA; background: #fff; color: var(--tinta); flex: 0 0 auto; }
+    .df .bor:hover { background: #F6F5F1; }
+    .df .ana { flex: 1; border: 1px solid var(--tinta); background: var(--tinta); color: #fff; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .df .ana:hover { background: #333; }
+
+    /* mapa: controles planos, con un filo en lugar de sombra */
+    #mapwrap { flex: 1; position: relative; min-width: 0; }
+    #map { position: absolute; inset: 0; }
+    .superior { position: absolute; top: 14px; left: calc(14px + var(--izq)); transition: left .25s ease; z-index: 2; display: flex; gap: 8px; align-items: stretch; flex-wrap: wrap; right: 330px; }
+    .btn-mapa { display: flex; align-items: center; gap: 8px; border: 1px solid #D3D1CA; background: #fff; border-radius: 4px; padding: 0 12px; height: 34px; font-size: 13px; font-weight: 500; color: var(--tinta); }
+    .btn-mapa .i { width: 16px; height: 16px; }
+    .btn-mapa:hover { background: #F6F5F1; }
+    .btn-mapa.on { background: var(--tinta); border-color: var(--tinta); color: #fff; }
+    .toggle { display: flex; border: 1px solid #D3D1CA; border-radius: 4px; overflow: hidden; background: #fff; }
+    .toggle div { display: flex; }
+    .toggle button { border: 0; background: #fff; padding: 0 12px; height: 32px; font-size: 13px; font-weight: 500; color: #3A3A37; }
+    .toggle button + button { border-left: 1px solid #D3D1CA; }
+    .toggle button.on { background: var(--tinta); color: #fff; }
+    .resumen { position: absolute; top: 14px; right: 14px; z-index: 2; background: #fff; border: 1px solid #D3D1CA; border-radius: 4px; padding: 0 14px; height: 34px; display: flex; align-items: center; gap: 14px; font-size: 12px; color: var(--gris); }
+    .resumen b { color: var(--tinta); font-size: 13px; font-weight: 600; font-family: 'IBM Plex Sans', system-ui, sans-serif; }
+    .resumen span { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+
+    /* menú desplegable para agregar una zona */
+    .zmenu { position: relative; }
+    #zpop { position: absolute; top: 42px; left: 0; width: 360px; background: var(--panel); border: 1px solid #BFBDB5; border-radius: 4px; box-shadow: 0 6px 18px rgba(27,27,26,.16); padding: 14px; display: flex; flex-direction: column; gap: 12px; z-index: 4; }
+    #zpop h4 { margin: 0; font-size: 12px; color: var(--gris); font-weight: 500; }
+    .dirbox { display: flex; align-items: center; gap: 8px; padding: 0 10px; border: 1px solid #D3D1CA; border-radius: 4px; background: #fff; color: var(--gris); min-width: 0; }
+    .dirbox .i { width: 16px; height: 16px; }
+    .dirbox input { flex: 1; border: 0; background: none; outline: none; padding: 9px 0; font-size: 13px; min-width: 0; color: var(--tinta); }
+    .dirbox:focus-within { border-color: var(--tinta); }
+    .fila-m { display: flex; gap: 8px; }
+    .seg { display: flex; border: 1px solid #D3D1CA; border-radius: 4px; overflow: hidden; flex: 1; background: #fff; }
+    .seg button { flex: 1; border: 0; background: #fff; padding: 0 10px; height: 32px; font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 7px; color: #3A3A37; }
+    .seg button + button { border-left: 1px solid #D3D1CA; }
+    .seg button.on { background: var(--tinta); color: #fff; }
+    .btn-negro { border: 1px solid var(--tinta); background: var(--tinta); color: #fff; border-radius: 4px; padding: 0 16px; font-size: 13px; font-weight: 500; }
+    .btn-negro:hover { background: #333; }
+    .sep { border: 0; border-top: 1px solid var(--borde); margin: 0; }
+    .zona { border: 1px solid; border-radius: 4px; height: 34px; padding: 0 12px; font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; }
+    .zona .i { width: 16px; height: 16px; }
+    .zona.rojo { background: #FBEDEB; border-color: #E7B3AE; color: #8C1C15; }
+    .zona.verde { background: #EAF3EC; border-color: #B5D3BF; color: #1F5A37; }
+    #barraDibujo { position: absolute; left: calc(50% + var(--izq) / 2); transition: left .25s ease; bottom: 30px; transform: translateX(-50%); z-index: 3; background: #fff; border: 1px solid #BFBDB5; border-radius: 4px; padding: 8px 8px 8px 14px; display: flex; align-items: center; gap: 12px; font-size: 13px; color: #3A3A37; }
+    #barraDibujo button { border-radius: 4px; height: 30px; padding: 0 12px; font-size: 13px; font-weight: 500; border: 1px solid #D3D1CA; background: #fff; color: var(--tinta); }
+    #barraDibujo .ok { border-color: var(--tinta); background: var(--tinta); color: #fff; }
+
+    .sec { margin-bottom: 20px; } .sec h3 { margin: 0 0 8px; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+    .badge-s { font-size: 11px; font-weight: 500; border-radius: 2px; padding: 2px 6px; background: #E6E4DE; color: #3A3A37; margin-left: auto; } .badge-s.ok { background: #DDEBE1; color: #1F5A37; }
+    .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .fd { display: flex; flex-direction: column; gap: 4px; min-width: 0; } .fd.w { grid-column: span 2; }
+    .fd label { font-size: 12px; font-weight: 500; color: var(--gris); margin: 0 !important; }
+    .fd input { height: 34px; border: 1px solid #D3D1CA; border-radius: 4px; padding: 0 10px; font-size: 13px; background: #fff; width: 100%; color: var(--tinta); }
+    .fd input:disabled { background: #F2F1ED; } .fd small { font-size: 11px; color: var(--gris); } .fd small a { color: var(--tinta); } .fd .rev { color: #7A4B00; font-weight: 600; }
+    .intro { margin: 0 0 12px; font-size: 13px; color: #3A3A37; line-height: 1.5; }
+    .chk { border: 1px solid var(--borde); background: #fff; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 6px; }
+    .chk .top { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
+    .chk .cols { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+    .chk .cols div { background: #F2F1ED; padding: 5px 8px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .chk .cols b { font-size: 11px; font-weight: 500; color: var(--gris); } .chk .cols span { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cnt2 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 14px 0 16px; } .cnt2 div { border: 1px solid var(--borde); background: #fff; padding: 10px 12px; }
+    .cnt2 b { font-size: 24px; font-weight: 500; display: block; line-height: 1.1; font-family: 'IBM Plex Sans', system-ui, sans-serif; } .cnt2 span { font-size: 12px; color: var(--gris); }
+    .hall { border: 1px solid var(--borde); background: #fff; padding: 10px 12px; margin-bottom: 6px; display: flex; flex-direction: column; gap: 6px; }
+    .hall .t { display: flex; gap: 8px; align-items: center; font-size: 13px; font-weight: 600; } .hall q { font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 14px; background: #FFF1C2; padding: 3px 6px; quotes: none; } .hall a { color: var(--tinta); }
+    .opt { width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid #D3D1CA; background: #fff; margin-bottom: 6px; text-align: left; border-radius: 4px; }
+    .opt:hover { background: #F6F5F1; }
+    .opt.on { border-width: 1.5px; } .opt .pt { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid #8E8E89; flex: none; } .opt b { font-size: 13px; font-weight: 600; display: block; } .opt small { font-size: 12px; color: var(--gris); }
+    textarea.razones { width: 100%; border-radius: 4px; border: 1px solid #D3D1CA; padding: 8px 10px; font-size: 13px; font-family: inherit; resize: vertical; background: #fff; }
+    .dropz { border: 1.5px dashed #B9B6AD; padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; background: #EFEDE7; cursor: pointer; margin-top: 8px; }
+    .dropz.sobre { border-color: var(--tinta); background: #E6E4DE; }
+    select.ejemplo { width: 100%; margin-top: 8px; height: 34px; border: 1px solid #D3D1CA; border-radius: 4px; padding: 0 8px; font-size: 13px; background: #fff; color: var(--gris); }
+    /* ===== rediseño UX: panel con pestañas, selección en lote, panel de zona con «qué hacer ahora» ===== */
+    #side { gap: 4px; }
+    #side .ic { width: 56px; height: 54px; flex-direction: column; gap: 4px; }
+    #side .ic .lb { font-size: 10px; font-weight: 500; line-height: 1; }
+    #panel header { padding: 16px 18px 0; }
+    .titulo h1 { font-size: 18px; }
+    .vistas { display: flex; margin: 14px -18px 0; padding: 0 18px; border-bottom: 1px solid var(--borde); }
+    .vistas button { flex: 1; border: 0; background: none; padding: 9px 4px 11px; font-size: 13px; font-weight: 500; color: var(--gris); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+    .vistas button:hover { color: var(--tinta); }
+    .vistas button b { font-weight: 500; font-size: 11px; background: #E6E4DE; color: #3A3A37; border-radius: 2px; padding: 1px 6px; margin-left: 4px; }
+    .vistas button.on { color: var(--tinta); border-bottom-color: var(--rojo); font-weight: 600; }
+    .vistas button.on b { background: var(--tinta); color: #fff; }
+    .buscar { margin-top: 12px; }
+    #chips { margin: 12px 0 14px; }
+    #chips[hidden] { display: none; }
+    #lista { padding-bottom: 8px; }
+    .ayuda { margin: 12px 16px 4px; padding: 9px 12px; border: 1px solid var(--borde); border-left: 3px solid var(--azul); background: #fff; font-size: 12px; line-height: 1.5; display: flex; flex-direction: column; gap: 2px; }
+    .ayuda b { font-size: 13px; }
+    .tools { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--linea); background: var(--panel); position: sticky; top: 0; z-index: 1; }
+    .sel-todas { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; cursor: pointer; }
+    .sel-todas input, .chk-inv { width: 16px; height: 16px; accent-color: var(--tinta); margin: 0; flex: none; cursor: pointer; }
+    .card.fz { display: flex; gap: 12px; align-items: flex-start; padding: 15px 16px 15px 14px; }
+    .card.fz .chk-inv { margin-top: 2px; }
+    .cz { flex: 1; min-width: 0; }
+    .card .fila b { font-size: 14px; }
+    .card .dir { font-size: 13px; color: #3A3A37; margin: 4px 0 8px; line-height: 1.4; }
+    .card .meta { font-size: 12px; font-family: inherit; flex-wrap: wrap; row-gap: 4px; }
+    .docs { display: inline-flex; gap: 2px; margin-right: 4px; }
+    .docs i.d { width: 10px; height: 10px; border: 1.5px solid #B9B6AD; background: #fff; display: inline-block; }
+    .docs i.d.si { background: var(--tinta); border-color: var(--tinta); }
+    .estado { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+    .estado i { width: 9px; height: 9px; display: inline-block; flex: none; }
+    #barraSel { border-top: 1px solid var(--borde); background: #fff; padding: 13px 16px 14px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 -8px 16px rgba(27,27,26,.07); }
+    #barraSel[hidden] { display: none; }
+    .b1 { display: flex; flex-direction: column; gap: 2px; } .b1 b { font-size: 14px; } .b1 span { font-size: 12px; color: var(--gris); }
+    .b2 { display: flex; gap: 6px; flex-wrap: wrap; } .b2 .bt.rojo { flex: 1 1 100%; justify-content: center; }
+    .bt { height: 34px; padding: 0 14px; border-radius: 4px; border: 1px solid #D3D1CA; background: #fff; color: var(--tinta); font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; white-space: nowrap; }
+    .bt:hover { background: #F6F5F1; } .bt.neg { background: var(--tinta); border-color: var(--tinta); color: #fff; } .bt.neg:hover { background: #333; }
+    .bt.rojo { background: var(--rojo); border-color: var(--rojo); color: #fff; } .bt.rojo:hover { background: var(--rojo-osc); } .bt:disabled { opacity: .45; cursor: default; }
+    #bannerSel { position: absolute; left: calc(50% + var(--izq) / 2); transition: left .25s ease; bottom: 34px; transform: translateX(-50%); z-index: 3; background: var(--tinta); color: #fff; border-radius: 4px; padding: 10px 10px 10px 16px; display: flex; align-items: center; gap: 14px; font-size: 13px; max-width: 70%; }
+    #bannerSel[hidden] { display: none; }
+    #bannerSel button { height: 30px; padding: 0 14px; border-radius: 4px; border: 0; background: #fff; color: var(--tinta); font-weight: 600; font-size: 13px; }
+    /* barra superior: solo lo esencial */
+    .superior { right: 70px; gap: 8px; }
+    .cmenu { position: relative; }
+    #cpop { position: absolute; top: 42px; left: 0; width: 310px; background: var(--panel); border: 1px solid #BFBDB5; border-radius: 4px; box-shadow: 0 6px 18px rgba(27,27,26,.16); padding: 14px; z-index: 4; display: flex; flex-direction: column; gap: 4px; }
+    #cpop[hidden] { display: none; }
+    #cpop h4 { margin: 0 0 6px; font-size: 12px; color: var(--gris); font-weight: 500; }
+    .capa-fila { display: flex; align-items: center; gap: 10px; padding: 7px 2px; font-size: 13px; cursor: pointer; }
+    .capa-fila input { width: 16px; height: 16px; accent-color: var(--tinta); margin: 0; }
+    .capa-fila i { width: 10px; height: 10px; display: inline-block; flex: none; }
+    .capa-fila small { margin-left: auto; color: var(--gris); font-size: 12px; }
+    .leyenda { border-top: 1px solid var(--borde); margin-top: 8px; padding-top: 10px; font-size: 12px; color: #3A3A37; display: flex; flex-direction: column; gap: 6px; }
+    .leyenda span { display: flex; align-items: center; gap: 8px; } .leyenda i { width: 10px; height: 10px; display: inline-block; flex: none; }
+    /* panel de zona */
+    .dh2 { display: flex; align-items: flex-start; gap: 12px; padding: 16px 18px 15px; border-bottom: 1px solid var(--borde); background: #fff; }
+    .dh2 .x { margin-top: 1px; display: flex; align-items: center; justify-content: center; }
+    .dh2 .tit { flex: 1; min-width: 0; }
+    .kicker { font-size: 11px; color: var(--gris); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+    .dh2 h2 { font-size: 19px; line-height: 1.25; margin: 4px 0 3px; font-weight: 600; }
+    .dh2 .sub { font-size: 13px; color: #3A3A37; line-height: 1.4; display: block; }
+    .est-b { font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 2px; background: #E6E4DE; color: #3A3A37; white-space: nowrap; margin-top: 2px; }
+    .est-b.detalle { background: #FFF1C2; color: #7A4B00; } .est-b.listo { background: #DDEBE1; color: #1F5A37; } .est-b.dictamen { background: var(--tinta); color: #fff; } .est-b.cola, .est-b.analizando { background: #E6E4DE; }
+    .dbody { padding: 18px 18px 24px; display: flex; flex-direction: column; gap: 20px; }
+    .paso { display: flex; gap: 16px; align-items: center; justify-content: space-between; padding: 15px 16px; border: 1px solid; border-left-width: 4px; }
+    .paso > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .paso b { font-size: 14px; line-height: 1.35; } .paso span { font-size: 12.5px; color: #3A3A37; line-height: 1.5; }
+    .paso .bt { flex: none; }
+    .tono-rojo { background: #FBEDEB; border-color: #E7B3AE; border-left-color: var(--mal); }
+    .tono-ambar { background: #FFF8E1; border-color: #E8D08A; border-left-color: #E0A100; }
+    .tono-azul { background: #EEF3FA; border-color: #BFD0E8; border-left-color: var(--azul); }
+    .tono-verde { background: #EEF6F0; border-color: #BFD9C7; border-left-color: var(--ok); }
+    .tono-gris { background: #fff; border-color: var(--borde); border-left-color: #8E8E89; }
+    .clave { background: #fff; border: 1px solid var(--borde); }
+    .clave h3 { display: flex; align-items: baseline; gap: 10px; margin: 0; padding: 12px 16px; border-bottom: 1px solid var(--linea); font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--gris); font-weight: 600; }
+    .clave h3 a { margin-left: auto; font-size: 12px; text-transform: none; letter-spacing: 0; color: var(--tinta); font-weight: 500; }
+    .clave h3 .alerta { font-style: normal; font-size: 11px; text-transform: none; letter-spacing: 0; background: #F6DAD7; color: #8C1C15; padding: 2px 7px; border-radius: 2px; }
+    .kv { display: flex; gap: 14px; padding: 13px 16px; border-bottom: 1px solid var(--linea); text-decoration: none; color: inherit; }
+    .kv:last-child { border-bottom: 0; } .kv:hover { background: #F8F7F3; }
+    .ik { width: 22px; height: 22px; flex: none; color: #fff; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+    .kv.ok .ik { background: var(--ok); } .kv.dif .ik { background: var(--mal); } .kv.pen .ik { background: #8E8E89; } .kv.na .ik { background: #D3D1CA; color: #6A6A65; }
+    .kvb { min-width: 0; flex: 1; }
+    .kvb small { display: block; font-size: 11px; color: var(--gris); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+    .kvb b { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-size: 15px; font-weight: 600; line-height: 1.4; margin: 3px 0 4px; overflow-wrap: anywhere; }
+    .kvb em { display: block; font-style: normal; font-size: 12px; color: var(--gris); line-height: 1.4; }
+    .kv.dif .kvb em { color: var(--mal); font-weight: 500; }
+    .tabs2 { margin: 0 -18px; padding: 0 18px; }
+    .tabs2 button { font-size: 13px; padding: 11px 6px; }
+    .tc { padding-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+    .tc .intro { margin: 0 0 4px; }
+    .doc { align-items: center; gap: 14px; padding: 13px 14px; margin: 0; }
+    .doc .tx { flex: 1; min-width: 0; } .doc .l1 { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; } .doc .l1 b { font-size: 14px; }
+    .doc .tx small { margin-top: 4px; font-size: 12px; white-space: normal; overflow-wrap: anywhere; }
+    .doc.falta { border-style: dashed; background: #FBFAF7; }
+    .doc .ac { display: flex; gap: 6px; flex: none; }
+    .est.rev { background: #FFF1C2; color: #7A4B00; } .est.falta { background: #E6E4DE; color: #3A3A37; } .est.cola { background: #EEF3FA; color: #1F5FA8; }
+    details.mas { border: 1px solid var(--borde); background: #fff; padding: 0 14px; }
+    details.mas summary { padding: 12px 0; font-size: 13px; font-weight: 500; cursor: pointer; }
+    details.mas[open] { padding-bottom: 14px; } details.mas .dropz { margin-top: 4px; } details.mas label { display: block; font-size: 12px; font-weight: 500; color: var(--gris); margin: 12px 0 5px; }
+    .cr-wrap { overflow-x: auto; border: 1px solid var(--borde); background: #fff; }
+    table.cr { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 380px; }
+    table.cr th, table.cr td { padding: 9px 8px; text-align: left; border-bottom: 1px solid var(--linea); vertical-align: top; }
+    table.cr thead th { font-size: 11px; font-weight: 600; color: var(--gris); text-transform: uppercase; letter-spacing: .04em; background: var(--panel); }
+    table.cr tbody th a { color: var(--tinta); font-weight: 600; text-decoration: none; font-size: 13px; } table.cr tbody th a:hover { text-decoration: underline; }
+    table.cr tr:last-child th, table.cr tr:last-child td { border-bottom: 0; }
+    table.cr .nr { color: #A6A49D; font-style: italic; } table.cr td.r { text-align: right; white-space: nowrap; }
+    .rs { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 2px; background: #E6E4DE; color: #3A3A37; } .rs.ok { background: #DDEBE1; color: #1F5A37; } .rs.dif { background: var(--mal); color: #fff; }
+    table.cr tr.dif th a { color: var(--mal); }
+    .sug { margin: 0 0 4px; font-size: 13px; color: #3A3A37; line-height: 1.5; }
+    .lbl { display: block; font-size: 12px; font-weight: 600; color: var(--gris); margin: 8px 0 2px; }
+    .h3 { margin: 12px 0 2px; font-size: 14px; }
+    .vacio-b { background: #fff; border: 1px solid var(--borde); padding: 14px; }
+    .opt { margin: 0; }
+    .df { padding: 13px 18px; gap: 8px; }
+    #aviso { position: absolute; left: calc(50% + var(--izq) / 2); transition: left .25s ease; top: 16px; transform: translateX(-50%); z-index: 5; background: var(--tinta); color: #fff; padding: 9px 16px; border-radius: 4px; font-size: 13px; font-weight: 500; max-width: 60%; }
+  </style>
+</head>
+<body>
+  <nav id="side" aria-label="Navegación principal">
+    <div class="logo">3B</div>
+    <button class="ic on" id="icTiendas" title="Mostrar u ocultar tiendas" aria-label="Tiendas"><svg class="i" viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9M3 9h18M3 9v2a3 3 0 006 0 3 3 0 006 0 3 3 0 006 0V9M5 13v7h14v-7M10 20v-4h4v4"/></svg></button>
+    <a class="ic" href="analizador.html" title="Expedientes" aria-label="Expedientes"><svg class="i" viewBox="0 0 24 24"><path d="M9 4h6v3H9zM7 5H5v16h14V5h-2M8 12h8M8 16h5"/></svg></a>
+    <a class="ic" href="validacion.html" title="Validación cruzada" aria-label="Validación cruzada"><svg class="i" viewBox="0 0 24 24"><path d="M4 5h6v14H4zM14 5h6v14h-6M10 9h4M10 15h4"/></svg></a>
+  </nav>
+
+  <section id="panel"><div class="panel-in">
+    <header>
+      <div class="titulo"><h1 id="tituloPanel">Zonas en estudio</h1><span class="n" id="nUbic"></span>
+        <button class="ocultar" id="btnOcultar" title="Ocultar el panel"><svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button></div>
+      <div class="vistas" id="vistas" role="tablist" aria-label="Qué lista ver"></div>
+      <label class="buscar"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="busca" placeholder="Buscar zona o municipio"></label>
+      <div id="chips"></div>
+    </header>
+    <div id="lista"></div>
+    <div id="barraSel" hidden></div>
+  </div></section>
+
+  <aside id="drawer"></aside>
+
+  <main id="mapwrap">
+    <div class="superior">
+      <button class="btn-mapa on" id="btnLista" title="Mostrar u ocultar el panel de zonas, tiendas y centros"><svg class="i" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Panel</button>
+      <div class="toggle"><div><button id="btnMapa" class="on">Mapa</button><button id="btnSat">Satélite</button></div></div>
+      <div class="cmenu"><button class="btn-mapa" id="btnCapas" aria-haspopup="true"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5"/></svg>Capas<svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div id="cpop" hidden>
+          <h4>Qué se ve en el mapa</h4>
+          <label class="capa-fila"><input type="checkbox" id="chkCentros" checked><i style="background:#1B1B1A"></i>Centros de distribución y sus rutas<small id="nCapaC"></small></label>
+          <div class="leyenda">
+            <span><i style="background:#C8102E"></i>Tienda 3B</span>
+            <span><i style="background:#1B1B1A"></i>Centro de distribución</span>
+            <span><i style="background:#2F6FB0"></i>Zona en estudio (anillo = en investigación)</span>
+          </div>
+        </div>
+      </div>
+      <div class="zmenu">
+        <button class="btn-mapa" id="btnZonaMenu"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Zona<svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div id="zpop" hidden>
+          <h4>Marcar por dirección</h4>
+          <form id="buscador" style="display:flex;flex-direction:column;gap:12px">
+            <label class="dirbox"><svg class="i" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><input id="dir" placeholder="Ej. Calle 106 200, CDMX"></label>
+            <div class="fila-m">
+              <div class="seg"><button type="button" data-c="verde" class="on"><span class="dot verde"></span>Verde</button><button type="button" data-c="rojo"><span class="dot rojo"></span>Rojo</button></div>
+              <button class="btn-negro">Marcar</button>
+            </div>
+          </form>
+          <hr class="sep">
+          <h4>O dibujar el contorno en el mapa</h4>
+          <button id="btnZona" class="zona verde" type="button"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l8 6-3 11H7L4 9z"/></svg><span id="txtZona">Dibujar zona verde</span></button>
+        </div>
+      </div>
+    </div>
+    <div class="resumen" id="resumen"></div>
+    <div id="map"></div>
+
+    <div id="barraDibujo" hidden>
+      <span>Haz clic en cada esquina (mínimo 3).</span>
+      <button id="terminar" class="ok" type="button">Terminar</button>
+      <button id="cancelar" type="button">Cancelar</button>
+    </div>
+    <div id="bannerSel" hidden><span>Toca las marcas del mapa para sumarlas o quitarlas.</span><button id="btnBannerListo" type="button">Listo</button></div>
+    <div id="aviso" hidden></div>
+  </main>
+
+  <script src="tiendas.js?v=3"></script>
+  <script src="modulo.js"></script>
+  <script>
+    mapboxgl.accessToken = 'PON_AQUI_TU_TOKEN_DE_MAPBOX';
+
+    const $ = id => document.getElementById(id);
+    const escapar = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const vacio = { type: 'FeatureCollection', features: [] };
+    const COLORES = { verde: '#2F7A4A', rojo: '#B3261E' };
+    const ESTILOS = { mapa: 'mapbox://styles/mapbox/streets-v12', sat: 'mapbox://styles/mapbox/satellite-streets-v12' };
+    const MODELO = 'modelos/tienda.glb?v=10';
+    const MODELO_CEDIS = 'modelos/cedis.glb?v=1';
+    // TIENDAS viene de tiendas.js (coordenadas verificadas)
+    const lug = {};   // id de tienda -> { coords, full }
+    let filtro = 'Todas', busca = '';
+    let colorSel = 'verde', estado = null, puntos = [], datosListos = false;
+    let zonaAbierta = null, pestana = 'docs';
+    let listaAbierta = true;     // preferencia del usuario: el menú de tiendas visible u oculto
+
+    /* ---------- centros de distribución ----------
+       Salen de las tiendas: se agrupan por cercanía (k-means) y cada centro queda en el centroide de las tiendas que abastece.
+       Son ubicaciones PROPUESTAS, no direcciones reales: para fijar un centro real, cambia sus coords en CENTROS_FIJOS
+       (clave = id del centro, ej. c1) y las tiendas se reasignan solas al más cercano. */
+    const CEDIS_N = 3;
+    const CENTROS_FIJOS = {};          // { c1: [lng, lat] }
+    const distM = (a, b) => Math.hypot((a[0] - b[0]) * 105000, (a[1] - b[1]) * 110540);
+    function calcularCentros() {
+      const P = TIENDAS.map(t => t.coords);
+      let C = [P[0]];
+      while (C.length < CEDIS_N) C.push(P.reduce((m, p) => Math.min(...C.map(c => distM(p, c))) > Math.min(...C.map(c => distM(m, c))) ? p : m, P[0]));
+      let grupos = [];
+      for (let it = 0; it < 50; it++) {
+        grupos = C.map(() => []);
+        TIENDAS.forEach(t => { grupos[C.reduce((b, c, i) => distM(t.coords, c) < distM(t.coords, C[b]) ? i : b, 0)].push(t); });
+        C = grupos.map((g, i) => g.length ? [g.reduce((s, t) => s + t.coords[0], 0) / g.length, g.reduce((s, t) => s + t.coords[1], 0) / g.length] : C[i]);
+      }
+      const gx = P.reduce((s, p) => s + p[0], 0) / P.length, gy = P.reduce((s, p) => s + p[1], 0) / P.length, usados = {};
+      const centros = C.map((c, i) => {
+        const id = 'c' + (i + 1), coords = CENTROS_FIJOS[id] || c, dx = (c[0] - gx) * 105000, dy = (c[1] - gy) * 110540;
+        const base = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'Oriente' : 'Poniente') : (dy > 0 ? 'Norte' : 'Sur');
+        usados[base] = (usados[base] || 0) + 1;
+        return { id, nombre: 'CEDIS ' + base + (usados[base] > 1 ? ' ' + usados[base] : ''), coords, rot: 0, esc: 1, propuesto: !CENTROS_FIJOS[id], tiendas: [] };
+      });
+      TIENDAS.forEach(t => {
+        const c = centros.reduce((b, x) => distM(t.coords, x.coords) < distM(t.coords, b.coords) ? x : b, centros[0]);
+        c.tiendas.push(t.id); t.centro = c.id; t.centroKm = distM(t.coords, c.coords) / 1000;
+      });
+      centros.forEach(c => { c.km = c.tiendas.reduce((s, id) => s + TIENDAS.find(t => t.id === id).centroKm, 0) / (c.tiendas.length || 1); });
+      return centros;
+    }
+    const CENTROS = calcularCentros();
+    const centro = id => CENTROS.find(c => c.id === id);
+    const centroDe = t => centro(t.centro);
+    let verCentros = true, centroSel = null;
+
+    /* ---------- expedientes reales (analisis/expedientes.json) ----------
+       Un expediente por predio, con los documentos que ya tenemos. Cada uno se ubica con el geocodificador a partir de la
+       dirección de sus documentos (el resultado se guarda en este navegador) y recibe su marca en el mapa.
+       Los documentos que faltan no impiden analizarlo. */
+    let EXPS = [], estadoExp = {};
+    let coordsExp = {}; try { coordsExp = JSON.parse(localStorage.getItem('coordsExp')) || {}; } catch (e) {}
+    const expediente = id => EXPS.find(e => e.id === id);
+    let inv = {}; try { inv = JSON.parse(localStorage.getItem('investigacion')) || {}; } catch (e) {}
+    Object.keys(inv).forEach(id => { if (inv[id].estado === 'analizando') inv[id].estado = 'cola'; });
+    const guardarInv = () => { try { localStorage.setItem('investigacion', JSON.stringify(inv)); } catch (e) {} };
+    let resExp = {}, modoInv = false, analizando = false;
+    const GRIS = '#8E8E89', AZUL = '#1F5FA8';
+    const AJUSTAR = !new URLSearchParams(location.search).has('fijo');      // ?fijo=1 desactiva el ajuste automático de la cámara (pruebas)
+    // Al cargar la página: vista del mundo con el logo de 3B sobre México y, a los 2 s, vuelo a la vista más cercana.
+    // ?fijo=1 (pruebas) o ?sinintro=1 la desactivan y abren directo en la vista cercana.
+    const INTRO = !new URLSearchParams(location.search).has('fijo') && !new URLSearchParams(location.search).has('sinintro');
+    const VISTA_CERCA = { center: [-99.13, 19.40], zoom: 10.8, pitch: 60, bearing: -15 };
+    const VISTA_MUNDO = { center: [-100, 21.5], zoom: 3.1, pitch: 35, bearing: 0 };
+    const INTRO_ESPERA_MS = 2000, INTRO_VUELO_MS = 7000;
+    let usuarioMovio = false;
+    // estado de una zona en investigación: cola, analizando, con detalles (va a verificación humana), incompleta o cumple
+    function estadoInv(id) {
+      const i = inv[id]; if (!i) return null;
+      if (i.estado === 'analizando') return { k: 'analizando', t: 'Analizando…', c: '#1B1B1A' };
+      const r = resExp[id];
+      if (i.estado !== 'listo' || !r) return { k: 'cola', t: 'En cola', c: GRIS };
+      const faltan = TIPOS_CORTO.filter(([k]) => !Estado.get(id).docs[k]).length, partes = [];
+      if (r.no) partes.push(r.no + ' no cumple');
+      if (r.pendientes) partes.push(r.pendientes + ' por revisar');
+      if (faltan) partes.push('faltan ' + faltan + (faltan === 1 ? ' documento' : ' documentos'));
+      if (!partes.length) return { k: 'listo', t: 'Cumple', c: '#2F7A4A', humano: false };
+      return { k: 'detalle', t: partes.join(' · '), c: r.no ? '#B3261E' : '#E0A100', humano: true };
+    }
+    function alternarInv(id, forzar) {
+      const on = forzar === undefined ? !inv[id] : forzar;
+      if (on && !inv[id]) inv[id] = { estado: 'cola' }; else if (!on) delete inv[id];
+      guardarInv(); refrescar(); pintarChips(); pintarLista(); pintarStats();
+    }
+    const TIPOS_CORTO = [['escrituras', 'Escritura'], ['predial', 'Predial'], ['alineamiento', 'Alineam.'], ['uso', 'Uso suelo']];
+
+    /* ---------- zonas marcadas (se guardan en este navegador) ---------- */
+    let lugares = [];
+    try { lugares = JSON.parse(localStorage.getItem('lugares')) || []; } catch (e) {}
+    lugares.forEach(f => {                      // compatibilidad con zonas guardadas antes de este diseño
+      const p = f.properties = f.properties || {};
+      p.id = p.id || 'z' + Math.random().toString(36).slice(2, 9);
+      p.direccion = p.direccion || (p.info === 'Marcado por dirección' ? p.nombre : '') || '';
+      if (p.info === 'Marcado por dirección' || p.nombre === 'Sin nombre') p.nombre = '';
+      p.dictamen = p.dictamen || 'Sin dictamen'; p.recomendacion = p.recomendacion || ''; p.analizado = !!p.analizado;
+      p.docs = p.docs || {};
+    });
+    const zona = id => lugares.find(f => f.properties.id === id);
+    const nZonas = c => lugares.filter(f => f.properties.estado === c).length;
+
+    // expediente de cada tienda 3B (también se guarda en este navegador)
+    let expTiendas = {};
+    try { expTiendas = JSON.parse(localStorage.getItem('expTiendas')) || {}; } catch (e) {}
+    // ficha de una zona marcada o de una tienda: { p: datos del expediente, centro: [lng, lat] }
+    function ficha(id) {
+      const z = zona(id);
+      if (z) return { p: z.properties, centro: centroide(z) };
+      const x = expediente(id);
+      if (x) {
+        const p = expTiendas[id] = expTiendas[id] || { id, nombre: x.nombre, direccion: x.municipio, estado: 'expediente', dictamen: 'Sin dictamen', recomendacion: '', analizado: false, docs: {} };
+        return { p, centro: x.coords || [map.getCenter().lng, map.getCenter().lat] };
+      }
+      const t = TIENDAS.find(x => x.id === id);
+      if (!t) return null;
+      const p = expTiendas[id] = expTiendas[id] || { id, nombre: '', direccion: `${t.dir}, CP ${t.cp}`, estado: 'tienda',
+        dictamen: 'Sin dictamen', recomendacion: '', analizado: false, docs: {} };
+      return { p, centro: t.coords };
+    }
+
+    const map = new mapboxgl.Map(Object.assign({ container: 'map', style: ESTILOS.mapa, maxPitch: 80, antialias: true }, INTRO ? VISTA_MUNDO : VISTA_CERCA));
+    map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'bottom-right');
+
+    /* ---------- tamaño y giro del modelo ----------
+       Cada tienda trae su escala (esc, para que quepa en su edificio) y su giro (rot, con el frente hacia la calle).
+       Mapbox no admite escalas que dependan del zoom con fuentes GeoJSON, así que cada tienda tiene su propia capa
+       y al acercar o alejar el mapa se vuelve a calcular su escala. */
+    const ROT_SIGNO = 1;      // si las tiendas salen giradas al revés, cambia a -1
+    /* Regla de tamaño: una tienda mide su tamaño REAL (el de su edificio) pero nunca se ve más chica que PX_MIN píxeles.
+       - De cerca manda el tamaño real: acercar x2 la hace x2 más grande, como cualquier edificio del mapa.
+       - De lejos manda el mínimo: todas se ven del mismo tamaño y legibles, sin crecer sin control.
+       Los metros que cubre un píxel dependen del zoom y de la latitud (Web Mercator): 40 075 016.686 · cos(lat) / (512 · 2^zoom). */
+    const MODELO_LARGO = 7.68;         // lado largo del modelo sin escalar, en metros
+    const PX_MIN = 36;                 // tamaño mínimo en pantalla (px CSS) del lado largo del modelo
+    /* Escalas del mapa: global = logo de 3B sobre México · media = puntos ligeros (sin modelos, para que no se amontone) · cerca = modelos 3D */
+    const MODELOS_DESDE = 9.8, PUNTOS_DESDE = 5.5, LOGO_HASTA = 7.5, CENTRO_MX = [-99.13, 19.40];
+    const ESC_MIN = 0.8, ESC_MAX = 1.6; // acota qué tan chica o grande puede ser una tienda según su edificio
+    const metrosPorPx = (z, lat) => 40075016.686 * Math.cos(lat * Math.PI / 180) / (512 * Math.pow(2, z));
+    const escalaReal = t => Math.max(ESC_MIN, Math.min(ESC_MAX, t.esc || 1));
+
+    /* Perspectiva: con la cámara inclinada, lo lejano se ve más chico que lo cercano. Para que todas las tiendas se vean del mismo
+       tamaño, el mínimo en pantalla se multiplica por (distancia de la tienda a la cámara) / (distancia del centro a la cámara).
+       La distancia se calcula en coordenadas Mercator, con la cámara libre de Mapbox. */
+    let camara = null;
+    function medirCamara() {
+      const cam = map.getFreeCameraOptions(), c = map.getCenter();
+      let elev = 0; try { elev = map.queryTerrainElevation(c) || 0; } catch (e) {}
+      const mc = mapboxgl.MercatorCoordinate.fromLngLat(c, elev);
+      camara = { p: cam.position, dc: Math.hypot(cam.position.x - mc.x, cam.position.y - mc.y, cam.position.z - mc.z), elev };
+    }
+    const factorPerspectiva = t => {
+      if (!camara || !camara.dc) return 1;
+      const m = mapboxgl.MercatorCoordinate.fromLngLat(t.coords, camara.elev);
+      const d = Math.hypot(camara.p.x - m.x, camara.p.y - m.y, camara.p.z - m.z);
+      return Math.max(0.5, Math.min(3, d / camara.dc));
+    };
+    const escalaNum = (t, z) => {
+      const real = escalaReal(t), minimo = PX_MIN * metrosPorPx(z, t.coords[1]) / MODELO_LARGO * factorPerspectiva(t);
+      return Math.pow(Math.pow(real, 4) + Math.pow(minimo, 4), 0.25);          // máximo suave de los dos: sin saltos
+    };
+    const escalaTienda = t => { const s = escalaNum(t, map.getZoom()); return [s, s, s]; };
+    const CEDIS_LARGO = 60, PX_MIN_CEDIS = 72;        // el modelo mide 60 m en su lado largo
+    const escalaCentro = c => {
+      const minimo = PX_MIN_CEDIS * metrosPorPx(map.getZoom(), c.coords[1]) / CEDIS_LARGO * factorPerspectiva(c);
+      const s = Math.pow(Math.pow(c.esc || 1, 4) + Math.pow(minimo, 4), 0.25); return [s, s, s];
+    };
+
+    /* Iluminación 3D de Mapbox: luz ambiental + sol. Da volumen a los modelos y casi no cambia los colores del mapa
+       (desviación medida de ~1/255). Las SOMBRAS son muy costosas: con las 62 tiendas y los edificios 3D a la vista el mapa se
+       congelaba varios segundos al mover la cámara. Por eso solo se activan de cerca (SOMBRAS_DESDE_ZOOM), donde casi no hay
+       nada que sombrear. */
+    const SOMBRAS_DESDE_ZOOM = 17.2;
+    let sombras = null;
+    function ponerLuces(forzar) {
+      const con = map.getZoom() >= SOMBRAS_DESDE_ZOOM;
+      if (!forzar && con === sombras) return;
+      sombras = con;
+      map.setLights([
+        { id: 'ambiente', type: 'ambient', properties: { color: '#ffffff', intensity: 0.55 } },
+        { id: 'sol', type: 'directional', properties: { color: '#ffffff', intensity: 0.65, direction: [200, 45], 'cast-shadows': con, 'shadow-intensity': 0.45 } }
+      ]);
+    }
+    map.on('zoomend', () => ponerLuces(false));
+
+    let escalaPendiente = false;
+    const reescalar = () => { medirCamara(); TIENDAS.forEach(t => { if (map.getLayer('tm-' + t.id)) map.setPaintProperty('tm-' + t.id, 'model-scale', escalaTienda(t)); });
+      CENTROS.forEach(c => { if (map.getLayer('cm-' + c.id)) map.setPaintProperty('cm-' + c.id, 'model-scale', escalaCentro(c)); }); };
+    map.on('move', () => {
+      if (escalaPendiente) return;
+      escalaPendiente = true;
+      requestAnimationFrame(() => { escalaPendiente = false; reescalar(); });
+    });
+
+    /* ---------- capas (se vuelven a añadir cada vez que cambia el estilo) ---------- */
+    function anadirCapas() {
+      // relieve del terreno y cielo, para que el mapa no se vea plano
+      map.addSource('mapbox-dem', { type: 'raster-dem', url: 'mapbox://mapbox.mapbox-terrain-dem-v1', tileSize: 512, maxzoom: 14 });
+      map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.2 });
+      map.addLayer({ id: 'cielo', type: 'sky', paint: { 'sky-type': 'atmosphere', 'sky-atmosphere-sun': [0, 0], 'sky-atmosphere-sun-intensity': 10 } });
+
+      // edificios en 3D (solo en el estilo de calles); desaparecen al acercarse para no tapar el modelo de la tienda
+      const capas = map.getStyle().layers;
+      if (capas.some(l => l['source-layer'] === 'building')) {
+        const etiquetas = capas.find(l => l.type === 'symbol' && l.layout && l.layout['text-field']);
+        map.addLayer({ id: 'edificios-3d', type: 'fill-extrusion', source: 'composite', 'source-layer': 'building',
+          filter: ['==', 'extrude', 'true'], minzoom: 13,
+          paint: { 'fill-extrusion-color': '#d6d3d1', 'fill-extrusion-height': ['get', 'height'], 'fill-extrusion-base': ['get', 'min_height'],
+                   'fill-extrusion-opacity': ['interpolate', ['linear'], ['zoom'], 13, 0.85, 16, 0.85, 16.8, 0] } },
+          etiquetas && etiquetas.id);
+      }
+
+      ponerLuces(true);      // iluminación 3D (ver más abajo)
+      const suave = (a, b) => ['interpolate', ['linear'], ['zoom'], PUNTOS_DESDE, a, PUNTOS_DESDE + 1.2, b];
+      map.addModel('tienda3b', MODELO);
+      map.addModel('cedis3b', MODELO_CEDIS);
+      ['tiendas3b', 'lugares', 'borrador', 'cedis3b', 'rutas'].forEach(id => map.addSource(id, { type: 'geojson', data: vacio }));
+      // líneas de cada centro a las tiendas que abastece (debajo de los modelos)
+      map.addLayer({ id: 'rutas', type: 'line', source: 'rutas', minzoom: 8, paint: { 'line-color': '#1B1B1A', 'line-opacity': 0.28, 'line-width': 1, 'line-dasharray': [3, 2] } });
+      map.addLayer({ id: 'rutas-sel', type: 'line', source: 'rutas', minzoom: 8, filter: ['==', ['get', 'cid'], centroSel || ''], paint: { 'line-color': '#C8102E', 'line-opacity': 0.9, 'line-width': 2 } });
+
+      map.addLayer({ id: 'lugares-fill', type: 'fill', source: 'lugares', paint: { 'fill-color': ['get', 'color'], 'fill-opacity': 0.4 } });
+      map.addLayer({ id: 'lugares-line', type: 'line', source: 'lugares', paint: { 'line-color': ['get', 'color'], 'line-width': 3 } });
+      map.addLayer({ id: 'borrador-fill', type: 'fill', source: 'borrador', filter: ['==', '$type', 'Polygon'],
+        paint: { 'fill-color': ['get', 'color'], 'fill-opacity': 0.25 } });
+      map.addLayer({ id: 'borrador-line', type: 'line', source: 'borrador',
+        paint: { 'line-color': ['get', 'color'], 'line-width': 2, 'line-dasharray': [2, 1] } });
+      map.addLayer({ id: 'borrador-pts', type: 'circle', source: 'borrador', filter: ['==', '$type', 'Point'],
+        paint: { 'circle-radius': 5, 'circle-color': '#fff', 'circle-stroke-color': ['get', 'color'], 'circle-stroke-width': 2 } });
+      medirCamara();
+      TIENDAS.forEach(t => map.addLayer({ id: 'tm-' + t.id, type: 'model', source: 'tiendas3b', minzoom: MODELOS_DESDE,
+        filter: ['==', ['get', 'id'], t.id], layout: { 'model-id': 'tienda3b', 'model-allow-density-reduction': false },
+        paint: { 'model-scale': escalaTienda(t), 'model-rotation': [0, 0, ROT_SIGNO * (t.rot || 0)],
+                 'model-color': '#fbbf24', 'model-color-mix-intensity': t.revisar ? 0.55 : 0 } }));
+      map.addLayer({ id: 'tiendas-pt', type: 'circle', source: 'tiendas3b', maxzoom: MODELOS_DESDE,
+        paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 3, 9.8, 6], 'circle-color': '#C8102E', 'circle-stroke-color': '#fff', 'circle-stroke-width': 1.2, 'circle-opacity': suave(0, 1), 'circle-stroke-opacity': suave(0, 1) } });
+      map.addLayer({ id: 'cedis-pt', type: 'circle', source: 'cedis3b', maxzoom: MODELOS_DESDE,
+        paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 6, 9.8, 10], 'circle-color': '#1B1B1A', 'circle-stroke-color': '#fff', 'circle-stroke-width': 2, 'circle-opacity': suave(0, 1), 'circle-stroke-opacity': suave(0, 1) } });
+      map.addLayer({ id: 'cedis-txt', type: 'symbol', source: 'cedis3b', minzoom: 7.5, maxzoom: MODELOS_DESDE,
+        layout: { 'text-field': ['get', 'nombre'], 'text-size': 12, 'text-offset': [0, 1.4], 'text-anchor': 'top' }, paint: { 'text-color': '#1B1B1A', 'text-halo-color': '#fff', 'text-halo-width': 1.6 } });
+      CENTROS.forEach(c => map.addLayer({ id: 'cm-' + c.id, type: 'model', source: 'cedis3b', minzoom: MODELOS_DESDE,
+        filter: ['==', ['get', 'id'], c.id], layout: { 'model-id': 'cedis3b', 'model-allow-density-reduction': false },
+        paint: { 'model-scale': escalaCentro(c), 'model-rotation': [0, 0, c.rot || 0], 'model-color': '#fbbf24', 'model-color-mix-intensity': c.propuesto ? 0.0 : 0 } }));
+      map.addLayer({ id: 'cedis3b-area', type: 'circle', source: 'cedis3b',
+        paint: { 'circle-radius': 26, 'circle-color': '#000', 'circle-opacity': 0 } });
+      map.addSource('expedientes', { type: 'geojson', data: vacio });
+      map.addLayer({ id: 'expedientes-inv', type: 'circle', source: 'expedientes', filter: ['==', ['get', 'inv'], 1],
+        paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 14, 14, 21], 'circle-color': 'rgba(255,255,255,0.35)', 'circle-stroke-color': '#1B1B1A', 'circle-stroke-width': 2.5, 'circle-stroke-opacity': suave(0, 1), 'circle-opacity': suave(0, 1) } });
+      map.addLayer({ id: 'expedientes-pt', type: 'circle', source: 'expedientes',
+        paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 8, 14, 12], 'circle-color': ['get', 'color'], 'circle-stroke-color': '#fff', 'circle-stroke-width': 2.5, 'circle-opacity': suave(0, 1), 'circle-stroke-opacity': suave(0, 1) } });
+      map.addLayer({ id: 'expedientes-txt', type: 'symbol', source: 'expedientes', minzoom: 9.5,
+        layout: { 'text-field': ['get', 'nombre'], 'text-size': 12, 'text-offset': [0, 1.3], 'text-anchor': 'top', 'text-max-width': 12, 'text-optional': true },
+        paint: { 'text-color': '#1B1B1A', 'text-halo-color': '#fff', 'text-halo-width': 1.6 } });
+      map.addLayer({ id: 'tiendas3b-area', type: 'circle', source: 'tiendas3b',
+        paint: { 'circle-radius': 18, 'circle-color': '#000', 'circle-opacity': 0 } });
+      refrescar();
+    }
+
+    function refrescar() {
+      if (!map.getSource('tiendas3b')) return;
+      map.getSource('tiendas3b').setData({ type: 'FeatureCollection',
+        features: TIENDAS.filter(t => lug[t.id]).map(t => ({ type: 'Feature',
+          properties: { id: t.id, nombre: t.nombre, direccion: lug[t.id].full, revisar: t.revisar ? 1 : 0 },
+          geometry: { type: 'Point', coordinates: lug[t.id].coords } })) });
+      map.getSource('lugares').setData({ type: 'FeatureCollection', features: lugares });
+      map.getSource('cedis3b').setData({ type: 'FeatureCollection', features: CENTROS.map(c => ({ type: 'Feature',
+        properties: { id: c.id, nombre: c.nombre }, geometry: { type: 'Point', coordinates: c.coords } })) });
+      map.getSource('rutas').setData({ type: 'FeatureCollection', features: TIENDAS.filter(t => t.centro).map(t => ({ type: 'Feature',
+        properties: { cid: t.centro }, geometry: { type: 'LineString', coordinates: [centroDe(t).coords, t.coords] } })) });
+      aplicarCentros();
+      if (map.getSource('expedientes')) map.getSource('expedientes').setData({ type: 'FeatureCollection', features: EXPS.filter(e => e.coords).map(e => ({ type: 'Feature',
+        properties: { id: e.id, nombre: e.nombre.split(' · ')[0], inv: inv[e.id] ? 1 : 0, color: inv[e.id] ? estadoInv(e.id).c : AZUL },
+        geometry: { type: 'Point', coordinates: e.coords } })) });
+    }
+    // mostrar u ocultar los centros de distribución y sus rutas
+    function aplicarCentros() {
+      const v = verCentros ? 'visible' : 'none';
+      ['rutas', 'rutas-sel', 'cedis3b-area', 'cedis-pt', 'cedis-txt'].concat(CENTROS.map(c => 'cm-' + c.id)).forEach(l => { if (map.getLayer(l)) map.setLayoutProperty(l, 'visibility', v); });
+      if (map.getLayer('rutas-sel')) map.setFilter('rutas-sel', ['==', ['get', 'cid'], centroSel || '']);
+      const b = document.getElementById('chkCentros'); if (b) b.checked = verCentros;
+    }
+
+    map.on('style.load', () => {
+      anadirCapas();
+      if (!datosListos) cargarTiendas();
+    });
+
+    function cargarTiendas() {
+      datosListos = true;
+      TIENDAS.forEach(t => { lug[t.id] = { coords: t.coords, full: `${t.dir}, CP ${t.cp}` }; });
+      refrescar();
+    }
+
+    /* ---------- utilidades ---------- */
+    let avisoT;
+    function aviso(msg) {
+      const a = $('aviso'); a.textContent = msg; a.hidden = false;
+      clearTimeout(avisoT); avisoT = setTimeout(() => { a.hidden = true; }, 2800);
+    }
+    const centroide = f => {
+      const r = f.geometry.type === 'Polygon' ? f.geometry.coordinates[0] : f.geometry.coordinates[0][0];
+      const n = r.length > 1 ? r.length - 1 : r.length;
+      return [r.slice(0, n).reduce((s, c) => s + c[0], 0) / n, r.slice(0, n).reduce((s, c) => s + c[1], 0) / n];
+    };
+    const metros = (a, b) => Math.hypot((a[0] - b[0]) * 105000, (a[1] - b[1]) * 110540);
+
+    async function geocodificar(dir) {
+      const q = /m[eé]xico|cdmx/i.test(dir) ? dir : dir + ', Ciudad de México';
+      const r = await fetch('https://api.mapbox.com/search/geocode/v6/forward?limit=1&language=es&bbox=-99.37,19.04,-98.94,19.60'
+        + `&q=${encodeURIComponent(q)}&access_token=${mapboxgl.accessToken}`);
+      const f = (await r.json()).features[0];
+      return f ? { coords: f.geometry.coordinates, full: f.properties.full_address || dir } : null;
+    }
+
+    /* ---------- panel izquierdo: Zonas · Tiendas · Centros ----------
+       Si hay un panel de zona abierto, ocupa el lugar de la lista (a la izquierda) y la lista se oculta sola. */
+    // ancho (px) que tapa el panel visible; el mapa lo usa como relleno para centrar en la parte que se ve
+    const izqActual = () => document.body.classList.contains('exp') ? 440 : document.body.classList.contains('oculta') ? 0 : 400;
+    const rellenoIzq = () => ({ left: izqActual(), top: 0, right: 0, bottom: 0 });
+    let primerRelleno = true, ultimoRelleno = -1, vista = 'zonas', modoMapaSel = false;
+    function aplicarLista() {
+      document.body.classList.toggle('oculta', !listaAbierta);
+      $('btnLista').classList.toggle('on', listaAbierta || !!zonaAbierta);
+      const pad = rellenoIzq();
+      if (primerRelleno) { primerRelleno = false; ultimoRelleno = pad.left; map.setPadding(pad); }
+      else if (pad.left !== ultimoRelleno) { ultimoRelleno = pad.left; map.easeTo({ padding: pad, duration: 250 }); }   // solo si cambió: otro movimiento cancelaría un vuelo en curso
+    }
+    function alternarLista() {
+      if (zonaAbierta) { cerrarPanel(); listaAbierta = true; }       // si hay un panel de zona abierto, vuelve a la lista
+      else listaAbierta = !listaAbierta;
+      aplicarLista();
+    }
+    $('btnCapas').onclick = e => { e.stopPropagation(); $('cpop').hidden = !$('cpop').hidden; };
+    $('cpop').onclick = e => e.stopPropagation();
+    document.addEventListener('click', () => { $('cpop').hidden = true; });
+    $('chkCentros').onchange = e => { verCentros = e.target.checked; aplicarCentros(); };
+    $('btnLista').onclick = alternarLista;
+    $('icTiendas').onclick = () => { if (zonaAbierta) cerrarPanel(); listaAbierta = true; aplicarLista(); };
+    $('btnOcultar').onclick = () => { listaAbierta = false; aplicarLista(); };
+
+    const nInv = () => Object.keys(inv).filter(expediente).length;
+    const nDetalle = () => Object.keys(inv).filter(id => expediente(id) && (estadoInv(id) || {}).humano).length;
+    function pintarVistas() {
+      const t = { zonas: ['Zonas', EXPS.length + lugares.length], tiendas: ['Tiendas', TIENDAS.length], centros: ['Centros', CENTROS.length] };
+      $('vistas').innerHTML = Object.keys(t).map(k => `<button role="tab" data-v="${k}" aria-selected="${k === vista}" class="${k === vista ? 'on' : ''}">${t[k][0]} <b>${t[k][1]}</b></button>`).join('');
+      $('tituloPanel').textContent = { zonas: 'Zonas en estudio', tiendas: 'Tiendas 3B', centros: 'Centros de distribución' }[vista];
+      $('busca').placeholder = { zonas: 'Buscar zona o municipio', tiendas: 'Buscar por dirección o CP', centros: 'Buscar centro' }[vista];
+    }
+    function pintarChips() {
+      let f = [];
+      if (vista === 'zonas') { f = [['Todas', 'Todas'], ['En investigación', 'En investigación · ' + nInv()], ['Con detalles', 'Con detalles · ' + nDetalle()]]; if (lugares.length) f.push(['Marcadas', 'Marcadas por mí · ' + lugares.length]); }
+      else if (vista === 'tiendas') f = [['Todas', 'Todas'], ['Por confirmar', 'Por confirmar']];
+      $('chips').hidden = !f.length;
+      $('chips').innerHTML = f.map(([k, t]) => `<button class="chip ${k === filtro ? 'on' : ''}" data-k="${k}">${escapar(t)}</button>`).join('');
+    }
+    function pintarStats() { pintarVistas(); pintarChips(); }
+
+    /* ----- zonas ----- */
+    const estadoZona = id => estadoInv(id) || { k: 'sin', t: 'Sin analizar', c: GRIS };
+    const DOCS_LARGO = { escrituras: 'Escritura', predial: 'Predial', alineamiento: 'Alineamiento', uso: 'Uso de suelo' };
+    function zonasVisibles() {
+      const q = busca.trim().toLowerCase();
+      return EXPS.filter(e => (!q || (e.nombre + ' ' + e.municipio).toLowerCase().includes(q))
+        && (filtro === 'Todas' || (filtro === 'En investigación' && inv[e.id]) || (filtro === 'Con detalles' && inv[e.id] && (estadoInv(e.id) || {}).humano)));
+    }
+    function filaZona(e) {
+      const x = estadoZona(e.id), docs = Estado.get(e.id).docs, n = TIPOS_CORTO.filter(([k]) => docs[k]).length;
+      const partes = e.nombre.split(' · '), titulo = partes[0], resto = partes.slice(1).join(' · ') || e.municipio;
+      return `<div class="card fz ${e.id === zonaAbierta ? 'on' : ''}" data-e="${e.id}">
+        <input type="checkbox" class="chk-inv" data-inv="${e.id}" ${inv[e.id] ? 'checked' : ''} aria-label="Investigar ${escapar(titulo)}" title="Añadir a la investigación">
+        <div class="cz"><div class="fila"><b>${escapar(titulo)}</b><span class="estado" style="color:${x.c}"><i style="background:${x.c}"></i>${x.k === 'detalle' ? 'Con detalles' : x.t}</span></div>
+          <div class="dir">${escapar(resto)}</div>
+          <div class="meta"><span class="docs">${TIPOS_CORTO.map(([k]) => `<i class="d ${docs[k] ? 'si' : ''}" title="${DOCS_LARGO[k]}: ${docs[k] ? 'recibido' : 'falta'}"></i>`).join('')}</span>${n}/4 documentos${x.k === 'detalle' ? ' · ' + escapar(x.t) : ''}${e.sintetico ? ' · sintético' : ''}${e.coords ? '' : ' · sin ubicación'}</div></div></div>`;
+    }
+    function listaZonas() {
+      if (filtro === 'Marcadas') {
+        const q = busca.trim().toLowerCase();
+        const zs = lugares.filter(f => !q || (f.properties.nombre + ' ' + f.properties.direccion).toLowerCase().includes(q));
+        return zs.map(f => { const p = f.properties, c = p.estado; return `<div class="card" data-z="${p.id}">
+          <div class="fila"><b>${escapar(p.nombre || 'Zona sin nombre')}</b><span class="badge ${c === 'verde' ? 'verde' : ''}">Zona ${c}</span></div>
+          <div class="dir">${escapar(p.direccion || 'Sin dirección')}</div>
+          <div class="meta"><span class="dot ${c}"></span>${escapar(p.dictamen)}</div></div>`; }).join('') || '<div class="vacio">Aún no marcas zonas. Usa «Marcar zona» arriba en el mapa.</div>';
+      }
+      if (!EXPS.length) return '<div class="vacio">Cargando zonas…</div>';
+      const lista = zonasVisibles(), sel = lista.filter(e => inv[e.id]).length;
+      const ayuda = !nInv() && filtro === 'Todas' ? `<div class="ayuda"><b>Cómo se investiga</b><span>1. Marca con la casilla las zonas que estás estudiando.<br>2. Pulsa «Analizar» una sola vez para todas.<br>3. Revisa solo las que salgan con detalles.</span></div>` : '';
+      const herr = `<div class="tools"><label class="sel-todas"><input type="checkbox" id="chkTodas" ${lista.length && sel === lista.length ? 'checked' : ''}> Todas (${lista.length})</label><span style="flex:1"></span>
+        <button class="bt ${modoMapaSel ? 'neg' : ''}" id="btnMapaSel" title="Toca las marcas del mapa para añadirlas a la investigación">${modoMapaSel ? 'Eligiendo en el mapa…' : 'Elegir en el mapa'}</button>
+        <button class="bt" id="btnVerExps" title="Ajusta el mapa para ver todas las zonas">Ver todas</button></div>`;
+      return ayuda + herr + (lista.map(filaZona).join('') || `<div class="vacio">${filtro === 'Con detalles' ? 'Aún no hay zonas con detalles: analiza las que investigas.' : filtro === 'En investigación' ? 'Ninguna zona elegida todavía. Marca las casillas en «Todas».' : 'Sin resultados.'}</div>`);
+    }
+    /* ----- tiendas y centros ----- */
+    function listaTiendas() {
+      const q = busca.trim().toLowerCase();
+      const ts = TIENDAS.filter(t => (filtro === 'Todas' || t.revisar) && (!q || (t.dir + ' ' + t.cp).toLowerCase().includes(q)));
+      return ts.map(t => `<div class="card ${t.id === zonaAbierta ? 'on' : ''}" data-t="${t.id}">
+        <div class="fila"><b>${escapar(t.dir)}</b>${t.revisar ? '<span class="badge ambar">Por confirmar</span>' : ''}</div>
+        <div class="dir">CP ${escapar(t.cp)}${t.centro ? ' · ' + escapar(centroDe(t).nombre) + ' a ' + t.centroKm.toFixed(1) + ' km' : ''}</div>
+        <div class="meta"><span class="dot"></span>${escapar((expTiendas[t.id] || {}).dictamen || 'Sin dictamen')}</div></div>`).join('') || '<div class="vacio">Sin resultados.</div>';
+    }
+    function listaCentros() {
+      const q = busca.trim().toLowerCase();
+      return CENTROS.filter(c => !q || c.nombre.toLowerCase().includes(q)).map(c => `<div class="card ${c.id === centroSel ? 'on' : ''}" data-c="${c.id}">
+        <div class="fila"><b>${escapar(c.nombre)}</b>${c.propuesto ? '<span class="badge ambar">Ubicación propuesta</span>' : ''}</div>
+        <div class="dir">Abastece ${c.tiendas.length} tiendas 3B</div>
+        <div class="meta">Distancia media ${c.km.toFixed(1)} km</div></div>`).join('') || '<div class="vacio">Sin resultados.</div>';
+    }
+    function pintarLista() {
+      pintarVistas(); pintarBarraSel();
+      $('lista').innerHTML = vista === 'zonas' ? listaZonas() : vista === 'tiendas' ? listaTiendas() : listaCentros();
+    }
+    // barra fija abajo: lo que está en investigación y qué sigue (analizar, verificar)
+    function pintarBarraSel() {
+      const b = $('barraSel'), ids = Object.keys(inv).filter(expediente);
+      b.hidden = vista !== 'zonas' || !ids.length;
+      if (b.hidden) return;
+      const est = ids.map(id => estadoInv(id)), cola = est.filter(x => x.k === 'cola').length, det = est.filter(x => x.humano).length, ok = est.filter(x => x.k === 'listo').length;
+      const primeroDet = ids.find(id => estadoInv(id).humano);
+      const txt = analizando ? `Analizando ${est.filter(x => x.k !== 'cola').length} de ${ids.length}…` : [cola ? `${cola} sin analizar` : '', det ? `${det} con detalles` : '', ok ? `${ok} cumplen` : ''].filter(Boolean).join(' · ');
+      b.innerHTML = `<div class="b1"><b>${ids.length} ${ids.length === 1 ? 'zona' : 'zonas'} en investigación</b><span>${txt}</span></div>
+        <div class="b2"><button class="bt" id="btnQuitarInv" ${analizando ? 'disabled' : ''}>Quitar</button>
+          <button class="bt neg" id="btnAnalizarInv" ${analizando ? 'disabled' : ''}>${analizando ? 'Analizando…' : cola ? `Analizar ${cola} ${cola === 1 ? 'zona' : 'zonas'}` : 'Analizar de nuevo'}</button>
+          ${det ? `<a class="bt rojo" id="lnkVerificar" href="analizador.html?exp=${encodeURIComponent(primeroDet)}">Verificar ${det} con detalles →</a>` : ''}</div>`;
+    }
+
+    /* ----- ir a una tienda, zona o centro: primero se abre el panel y DESPUÉS vuela la cámara (si no, el cambio de relleno cancela el vuelo) ----- */
+    async function irATienda(id) {
+      const l = lug[id], t = TIENDAS.find(x => x.id === id); usuarioMovio = true;
+      await abrirPanel(id);
+      // la cámara mira de frente al letrero: el frente de la tienda apunta hacia la calle (ver rot)
+      if (l) map.flyTo({ center: l.coords, zoom: Math.max(map.getZoom(), 18), pitch: 55, bearing: ROT_SIGNO * (t.rot || 0), padding: rellenoIzq(), duration: 1400, essential: true });
+    }
+    async function irAExp(id) {
+      const e = expediente(id); if (!e) return; usuarioMovio = true;
+      await abrirPanel(id);
+      if (e.coords) map.flyTo({ center: e.coords, zoom: 15.5, pitch: 50, bearing: 0, padding: rellenoIzq(), duration: 1400, essential: true });
+      else aviso('Esta zona aún no tiene ubicación: puedes marcarla con «Marcar zona» → «Marcar por dirección».');
+    }
+    async function irAZonaMarcada(id) {
+      const z = zona(id); if (!z) return; usuarioMovio = true;
+      await abrirPanel(id);
+      map.flyTo({ center: centroide(z), zoom: 17.5, padding: rellenoIzq(), duration: 1200, essential: true });
+    }
+    function irACentro(id) {
+      const c = centro(id); if (!c) return; usuarioMovio = true;
+      centroSel = id; if (zonaAbierta) cerrarPanel(); aplicarCentros(); pintarLista();
+      map.flyTo({ center: c.coords, zoom: 12.2, pitch: 55, bearing: 0, padding: rellenoIzq(), duration: 1400, essential: true });
+    }
+
+    // analiza en lote todas las zonas elegidas: nadie las abre una por una; solo las que tienen detalles pasan a verificación humana
+    async function analizarInv() {
+      const todas = Object.keys(inv).filter(expediente), enCola = todas.filter(id => estadoInv(id).k === 'cola'), ids = enCola.length ? enCola : todas;
+      if (analizando) return; if (!ids.length) return aviso('Primero marca las zonas que investigas.');
+      analizando = true; pintarLista();
+      for (const id of ids) {
+        inv[id] = { estado: 'analizando' }; refrescar(); pintarLista();
+        await new Promise(r => setTimeout(r, 600));
+        if (!Object.keys(Estado.get(id).docs).length) await Modulo.asignarDocumentos(id, expediente(id));
+        try { resExp[id] = await resumen(id); estadoExp[id] = resExp[id].recomendacion; } catch (x) {}
+        inv[id] = { estado: 'listo', t: Date.now() }; guardarInv(); refrescar(); pintarLista();
+      }
+      analizando = false; pintarLista(); pintarChips();
+      const n = ids.filter(id => estadoInv(id).humano).length;
+      aviso(n ? `Análisis terminado: ${n} ${n === 1 ? 'zona con detalles' : 'zonas con detalles'} para verificación humana.` : 'Análisis terminado: sin detalles.');
+    }
+    // las zonas están lejos de las tiendas: la cámara se ajusta para que se vean todas
+    function fitExpedientes() {
+      const pts = EXPS.filter(e => e.coords).map(e => e.coords);
+      if (!pts.length) return aviso('Aún no hay zonas ubicadas en el mapa.');
+      const b = new mapboxgl.LngLatBounds(); pts.forEach(p => b.extend(p)); TIENDAS.forEach(t => b.extend(t.coords));
+      map.fitBounds(b, { padding: { top: 90, bottom: 60, left: izqActual() + 40, right: 60 }, maxZoom: MODELOS_DESDE - 0.6, pitch: 35, bearing: 0, duration: 1600 });
+    }
+    const hayZonasEnVista = () => { const b = map.getBounds(); return EXPS.some(e => e.coords && b.contains(e.coords)); };
+    ['dragstart', 'wheel', 'touchstart'].forEach(ev => map.on(ev, () => { usuarioMovio = true; }));
+    // logo de Tiendas 3B sobre México: aparece a escala global; al tocarlo la cámara baja a ver todas las zonas
+    // Mapbox controla la opacidad del elemento del marcador, así que el desvanecido se aplica a un contenedor interior
+    const marcaLogo = document.createElement('div'); marcaLogo.style.pointerEvents = 'none';
+    const elLogo = document.createElement('div'); elLogo.className = 'logo-mx'; elLogo.title = 'Tiendas 3B · ver el mapa'; elLogo.setAttribute('role', 'button'); elLogo.setAttribute('aria-label', 'Tiendas 3B: acercar a México');
+    marcaLogo.appendChild(elLogo);
+    new mapboxgl.Marker({ element: marcaLogo, anchor: 'center' }).setLngLat(CENTRO_MX).addTo(map);
+    function ajustarLogo() {
+      const op = Math.max(0, Math.min(1, (LOGO_HASTA - map.getZoom()) / 1.5));
+      elLogo.style.opacity = op; elLogo.style.pointerEvents = op > 0.2 ? 'auto' : 'none';
+    }
+    map.on('zoom', ajustarLogo); map.on('render', ajustarLogo); ajustarLogo();
+    if (INTRO) map.once('load', () => setTimeout(() => {
+      if (usuarioMovio) return;                                           // si ya movieron el mapa, no se les quita el control
+      map.flyTo(Object.assign({ duration: INTRO_VUELO_MS, essential: true, curve: 1.6 }, VISTA_CERCA));
+    }, INTRO_ESPERA_MS));
+    elLogo.onclick = () => { if (EXPS.some(e => e.coords)) fitExpedientes(); else map.flyTo({ center: CENTRO_MX, zoom: 8.5, pitch: 35, duration: 2000 }); };
+    // elegir zonas tocando el mapa
+    function activarSelMapa(on) {
+      modoMapaSel = on; $('bannerSel').hidden = !on;
+      if (on) { vista = 'zonas'; filtro = 'Todas'; listaAbierta = true; aplicarLista(); pintarStats(); }
+      pintarLista();
+    }
+    $('btnBannerListo').onclick = () => activarSelMapa(false);
+
+    $('vistas').onclick = e => {
+      const b = e.target.closest('[data-v]'); if (!b) return;
+      vista = b.dataset.v; filtro = 'Todas'; busca = ''; $('busca').value = '';
+      if (vista !== 'zonas' && modoMapaSel) activarSelMapa(false);
+      pintarStats(); pintarLista(); $('lista').scrollTop = 0;
+    };
+    $('lista').onclick = e => {
+      const ci = e.target.closest('[data-inv]'); if (ci) return alternarInv(ci.dataset.inv, ci.checked);
+      if (e.target.id === 'chkTodas') { zonasVisibles().forEach(x => { if (e.target.checked) inv[x.id] = inv[x.id] || { estado: 'cola' }; else delete inv[x.id]; }); guardarInv(); refrescar(); return pintarStats(), pintarLista(); }
+      if (e.target.closest('#btnMapaSel')) return activarSelMapa(!modoMapaSel);
+      if (e.target.closest('#btnVerExps')) return fitExpedientes();
+      const c = e.target.closest('.card'); if (!c) return;
+      if (c.dataset.e) irAExp(c.dataset.e);
+      else if (c.dataset.c) irACentro(c.dataset.c);
+      else if (c.dataset.t) irATienda(c.dataset.t);
+      else if (c.dataset.z) irAZonaMarcada(c.dataset.z);
+    };
+    $('barraSel').onclick = e => {
+      if (e.target.closest('#btnAnalizarInv')) return analizarInv();
+      if (e.target.closest('#btnQuitarInv')) { Object.keys(inv).forEach(id => delete inv[id]); guardarInv(); refrescar(); pintarStats(); return pintarLista(); }
+    };
+    $('chips').onclick = e => { const b = e.target.closest('.chip'); if (b) { filtro = b.dataset.k; pintarChips(); pintarLista(); $('lista').scrollTop = 0; } };
+    $('busca').oninput = e => { busca = e.target.value; pintarLista(); };
+
+    function guardar() {
+      refrescar(); pintarStats(); pintarLista();
+      try { localStorage.setItem('lugares', JSON.stringify(lugares)); localStorage.setItem('expTiendas', JSON.stringify(expTiendas)); } catch (e) {}
+    }
+    /* ---------- panel de zona / tienda (ocupa el lugar de la lista, a la izquierda) ---------- */
+    const { Datos, Estado, TIPOS, resumen } = Modulo;
+    const REC = [
+      { v: 'ok',  t: 'Cumple',            c: 'c', d: 'El expediente puede continuar', color: '#1F5A37', fondo: '#DDEBE1', borde: '#2F7A4A' },
+      { v: 'rev', t: 'Requiere revisión', c: 'r', d: 'Hay hallazgos que debe validar el equipo legal', color: '#7A4B00', fondo: '#FFF1C2', borde: '#B26E00' },
+      { v: 'no',  t: 'No cumple',         c: 'n', d: 'Falla un requisito indispensable', color: '#8C1C15', fondo: '#F6DAD7', borde: '#B3261E' }
+    ];
+    const nombreRec = v => (REC.find(r => r.v === v) || {}).t || 'Sin dictamen';
+    let res = null;            // resumen del expediente abierto (documentos, pendientes, hallazgos)
+    const VACIO = { docs: 0, total: 0, cumple: 0, no: 0, pendientes: 0, hallazgos: [], recomendacion: 'rev', analisis: null, porDoc: {} };
+    const enc = encodeURIComponent;
+
+    function mostrarExpediente(on) {
+      $('drawer').hidden = false;
+      document.body.classList.toggle('exp', on);       // al abrir un panel de zona, la lista se oculta
+      aplicarLista();
+    }
+    async function abrirPanel(id, tab) {
+      zonaAbierta = id; pestana = tab || 'docs';
+      await pintarPanel(); pintarLista();
+    }
+    function cerrarPanel() { zonaAbierta = null; mostrarExpediente(false); pintarLista(); }   // vuelve la lista
+
+    // primer documento con hallazgos por verificar (para saltar directo a él)
+    const docConDetalle = () => TIPOS.find(t => res && res.porDoc[t.k] && res.porDoc[t.k].pendientes > 0);
+    const urlAnalizador = (id, tipo, sel) => `analizador.html?exp=${enc(id)}${tipo ? '&tipo=' + tipo : ''}${sel ? '&sel=' + sel : ''}`;
+
+    async function pintarPanel() {
+      const id = zonaAbierta, f = ficha(id);
+      if (!f) { mostrarExpediente(false); return; }
+      let cr = { campos: [], ans: {}, docs: {} };
+      try { res = await resumen(id); cr = await Modulo.cruce(id); } catch (e) { res = VACIO; }
+      if (zonaAbierta !== id) return;                  // el usuario cambió de zona mientras cargaba
+      const p = f.p, e = Estado.get(id), x = expediente(id), t = TIENDAS.find(y => y.id === id);
+      mostrarExpediente(true);
+
+      const kicker = x ? 'Zona en estudio · ' + x.municipio : t ? 'Tienda 3B · CP ' + t.cp : 'Zona marcada · ' + (p.estado === 'verde' ? 'verde' : 'roja');
+      const titulo = x ? x.nombre.split(' · ')[0] : t ? t.dir : (p.nombre || p.direccion || 'Zona sin nombre');
+      const sub = x ? x.nombre.split(' · ').slice(1).join(' · ') : t ? (t.centro ? centroDe(t).nombre + ' · a ' + t.centroKm.toFixed(1) + ' km' : '') : (p.nombre ? p.direccion : '');
+      const ei = estadoInv(id);
+      const badge = e.rec ? [nombreRec(e.rec), 'dictamen'] : ei ? [ei.k === 'detalle' ? 'Con detalles' : ei.t, ei.k] : res.pendientes ? [res.pendientes + ' por revisar', 'detalle'] : ['Sin analizar', 'sin'];
+
+      // qué hacer ahora
+      const faltan = TIPOS.filter(tp => !e.docs[tp.k]), cd = docConDetalle(), pend = res.pendientes;
+      const plural = (n, s, pl) => `${n} ${n === 1 ? s : pl}`;
+      let paso;
+      if (!res.docs) paso = { tono: 'gris', t: 'Aún no hay documentos', s: 'Sube la escritura, el predial, el alineamiento y el uso de suelo. Se puede analizar aunque falten.', b: 'Subir documentos', a: 'data-sub="multi"' };
+      else if (res.no) paso = { tono: 'rojo', t: plural(res.no, 'requisito marcado como no cumple', 'requisitos marcados como no cumple'), s: 'Revisa el dictamen antes de continuar.', b: 'Ir al dictamen', a: 'data-p="dict"' };
+      else if (pend) paso = { tono: 'ambar', t: plural(pend, 'hallazgo espera tu verificación', 'hallazgos esperan tu verificación'), s: (faltan.length ? 'Además faltan: ' + faltan.map(tp => tp.corto).join(', ') + '. ' : '') + 'Contrasta cada dato con el documento original.', b: 'Verificar hallazgos', href: urlAnalizador(id, cd && cd.k) };
+      else if (faltan.length) paso = { tono: 'azul', t: plural(faltan.length, 'documento por recibir', 'documentos por recibir'), s: 'Faltan: ' + faltan.map(tp => tp.t).join(', ') + '. El análisis puede continuar con lo que hay.', b: 'Subir ' + faltan[0].corto.toLowerCase(), a: `data-d="${faltan[0].k}"` };
+      else paso = { tono: 'verde', t: 'Todo verificado', s: 'Sin hallazgos pendientes: emite el dictamen.', b: 'Ir al dictamen', a: 'data-p="dict"' };
+
+      // datos clave: lo que más pesa en la decisión, con su estado de cruce entre documentos
+      const claveFila = c => {
+        const g = c.grupos; let main, subt, ic, cls;
+        if (!g.length) { main = '—'; subt = c.items.some(i => i.est === 'ilegible') ? 'No se pudo leer el dato' : 'Ningún documento lo trae'; ic = '·'; cls = 'na'; }
+        else if (c.res === 'dif') { main = g.map(y => y.v).join('  ≠  '); subt = 'Difiere: ' + g.map(y => y.docs.join(', ')).join('  ≠  '); ic = '≠'; cls = 'dif'; }
+        else if (c.res === 'ok') { main = g[0].v; subt = 'Coincide en ' + g[0].docs.join(' · '); ic = '✓'; cls = 'ok'; }
+        else { main = g[0].v; subt = 'Solo en ' + g[0].docs[0] + ' · falta otro documento para contrastar'; ic = '?'; cls = 'pen'; }
+        return `<a class="kv ${cls}" href="validacion.html?exp=${enc(id)}&campo=${c.id}" title="Ver el cruce de este dato"><span class="ik">${ic}</span><span class="kvb"><small>${c.label}</small><b>${escapar(main)}</b><em>${escapar(subt)}</em></span></a>`;
+      };
+      const clave = ['titular', 'direccion', 'superficie', 'numero', 'cuenta'].map(k => cr.campos.find(c => c.id === k)).filter(Boolean);
+      const nDif = cr.campos.filter(c => c.res === 'dif').length;
+
+      $('drawer').innerHTML = `
+        <div class="dh2"><button class="x" id="dCerrar" aria-label="Volver a la lista" title="Volver a la lista"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M15 6l-6 6 6 6"/></svg></button>
+          <div class="tit"><span class="kicker">${escapar(kicker)}</span><h2>${escapar(titulo)}</h2>${sub ? `<span class="sub">${escapar(sub)}</span>` : ''}</div>
+          <span class="est-b ${badge[1]}">${escapar(badge[0])}</span></div>
+        <div class="dbody">
+          <section class="paso tono-${paso.tono}"><div><b>${escapar(paso.t)}</b><span>${escapar(paso.s)}</span></div>
+            ${paso.href ? `<a class="bt neg" id="lnkPaso" href="${paso.href}">${paso.b} →</a>` : `<button class="bt neg" ${paso.a}>${paso.b}</button>`}</section>
+          ${clave.length ? `<section class="clave"><h3><span>Datos clave</span>${nDif ? `<em class="alerta">${nDif} ${nDif === 1 ? 'dato difiere' : 'datos difieren'}</em>` : ''}<a href="validacion.html?exp=${enc(id)}">Ver cruce completo →</a></h3>${clave.map(claveFila).join('')}</section>` : ''}
+          <div>
+            <div class="tabs2" role="tablist">
+              <button data-p="docs" class="${pestana === 'docs' ? 'on' : ''}">Documentos ${res.docs}/4</button>
+              <button data-p="cruce" class="${pestana === 'cruce' ? 'on' : ''}">Cruce de datos</button>
+              <button data-p="dict" class="${pestana === 'dict' ? 'on' : ''}">Dictamen</button>
+            </div>
+            <div class="tc" id="tc"></div>
+          </div>
+        </div>
+        <div class="df"><button class="bt" id="dBorrador">Guardar borrador</button>
+          <a class="bt neg" id="dAnalizar" href="${urlAnalizador(id, cd && cd.k)}" style="flex:1;justify-content:center">Abrir expediente completo →</a></div>`;
+      pintarPestana(cr);
+    }
+
+    const enlaceDoc = (n, tipo) => `analizador.html?exp=${enc(zonaAbierta)}&tipo=${tipo || 'escrituras'}&sel=${n}`;
+    const corto = (s, n) => s.length > n ? s.slice(0, n - 1) + '…' : s;
+
+    function pintarPestana(cr) {
+      const id = zonaAbierta, f = ficha(id); if (!f || !res) return;
+      const e = Estado.get(id), tc = $('tc'), x = expediente(id);
+
+      if (pestana === 'docs') {
+        tc.innerHTML = TIPOS.map(tp => {
+          const d = e.docs[tp.k], pd = res.porDoc[tp.k];
+          const est = !d ? ['Faltante', 'falta'] : !d.analisis ? ['En cola de análisis', 'cola'] : pd && pd.pendientes ? [`${pd.pendientes} por revisar`, 'rev'] : ['Sin hallazgos', 'ok'];
+          return `<div class="doc ${d ? '' : 'falta'}"><div class="tx"><div class="l1"><b>${tp.t}</b><span class="est ${est[1]}">${est[0]}</span></div>
+              <small>${d ? escapar(d.archivo || '') : escapar(tp.d)}</small></div>
+            <div class="ac">${d ? `<a class="bt" href="analizador.html?exp=${enc(id)}&tipo=${tp.k}">Abrir</a><button class="bt" data-d="${tp.k}" aria-label="Cambiar el PDF de ${tp.t}">Cambiar</button>` : `<button class="bt neg" data-d="${tp.k}" aria-label="Subir PDF de ${tp.t}">Subir PDF</button>`}</div></div>`;
+        }).join('')
+        + `<details class="mas"><summary>Más formas de añadir documentos</summary>
+            <label class="dropz" id="dropz"><svg class="i" viewBox="0 0 24 24" style="width:22px;height:22px"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>
+              <b>Arrastra aquí el expediente completo</b><span>Cada PDF se clasifica solo por tipo de documento</span>
+              <input type="file" id="fMulti" accept="application/pdf,.pdf" multiple hidden></label>
+            <select id="selEjemplo" class="ejemplo" aria-label="Escritura de ejemplo"><option value="">¿Sin PDF a la mano? Usar una escritura de ejemplo…</option></select>
+            <input type="file" id="fArchivo" accept="application/pdf,.pdf" hidden></details>`
+        + (!x ? `<details class="mas"><summary>Editar nombre y dirección del predio</summary>
+            <label for="fNombre">Nombre del predio</label><input class="campo" id="fNombre" placeholder="Ej. Local Ejidos San Pedro Mártir" value="${escapar(f.p.nombre)}">
+            <label for="fDir">Dirección del inmueble</label><input class="campo" id="fDir" placeholder="Calle, número, colonia, alcaldía, CP" value="${escapar(f.p.direccion)}"></details>` : '');
+        Datos.indice().then(idx => { const s = $('selEjemplo'); if (s) s.innerHTML += idx.filter(d => (d.tipo || 'escrituras') === 'escrituras' && !d.grupo).map(d => `<option value="${escapar(d.id)}">${escapar(d.titulo)}</option>`).join(''); });
+
+      } else if (pestana === 'cruce') {
+        const rs = { ok: ['Coincide', 'ok'], dif: ['Difiere', 'dif'], pen: ['Sin contraste', 'pen'] };
+        tc.innerHTML = `<p class="intro">Los mismos datos, comparados entre los documentos que ya hay. Toca un dato para ver el fragmento exacto en cada documento.</p>
+          <div class="cr-wrap"><table class="cr"><thead><tr><th>Dato</th>${TIPOS.map(tp => `<th>${tp.corto}</th>`).join('')}<th></th></tr></thead><tbody>
+          ${cr.campos.map(c => `<tr class="${c.res}"><th scope="row"><a href="validacion.html?exp=${enc(id)}&campo=${c.id}">${c.label}</a></th>${c.items.map(i => `<td title="${escapar(i.v || '')}" class="${i.est}">${i.v ? escapar(corto(i.v, 20)) : i.est === 'falta' ? '<span class="nr">no recibido</span>' : '—'}</td>`).join('')}<td class="r"><span class="rs ${rs[c.res][1]}">${rs[c.res][0]}</span></td></tr>`).join('')}
+          </tbody></table></div>
+          <a class="bt" href="validacion.html?exp=${enc(id)}" style="margin-top:12px">Abrir el cruce completo →</a>`;
+
+      } else {
+        const dec = e.rec;
+        tc.innerHTML = `<p class="sug">Sugerencia del sistema: <b>${nombreRec(res.recomendacion)}</b>. La decisión final es tuya.</p>
+          ${REC.map(r => `<button class="opt ${dec === r.v ? 'on' : ''}" data-r="${r.v}" style="${dec === r.v ? `background:${r.fondo};border-color:${r.borde}` : ''}">
+              <span class="pt" style="${dec === r.v ? `background:${r.borde};border-color:${r.borde};box-shadow:inset 0 0 0 3px ${r.fondo}` : ''}"></span><span><b>${r.t}</b><small>${r.d}</small></span></button>`).join('')}
+          <label class="lbl" for="razones">Razones para el equipo legal</label>
+          <textarea class="razones" id="razones" rows="4" placeholder="Explica por qué el expediente cumple, requiere revisión o no cumple">${escapar(e.razones)}</textarea>
+          <div class="cnt2"><div><b style="color:#2F7A4A">${res.cumple}</b><span>Requisitos cumplidos</span></div>
+            <div><b style="color:#B3261E">${res.no}</b><span>No cumplidos</span></div><div><b style="color:#B26E00">${res.pendientes}</b><span>Pendientes de revisión</span></div></div>
+          <h3 class="h3">Hallazgos y evidencia</h3>`
+          + (res.hallazgos.length ? res.hallazgos.map(h => { const s = h.paso, d = h.decision;
+              const et = d === 'no' ? ['No cumple', '#B3261E'] : d === 'fix' ? ['Corregido', '#1F5FA8'] : d === 'ok' ? ['Confirmado', '#2F7A4A'] : ['Pendiente', '#B26E00'];
+              const an = (res.porDoc[h.tipo] || {}).analisis, corr = an ? (Estado.get(id).corr[an.id] || {})[s.n] : '';
+              return `<div class="hall"><div class="t">${escapar(s.campo)}<span style="margin-left:auto;font-size:12px;color:${et[1]}">${et[0]}</span></div>
+                <q>${escapar(corr || s.valor)}</q><span style="font-size:12px;color:#3A3A37">${escapar(s.nota || '')}</span>
+                <span style="font-size:12px;color:var(--gris)">${DOCS_LARGO[h.tipo]} · pág. ${s.pagina} · <a href="${enlaceDoc(s.n, h.tipo)}">verificar en el documento</a></span></div>`; }).join('')
+            : `<div class="intro vacio-b">${res.docs ? 'Sin hallazgos: todos los datos extraídos quedaron validados.' : 'Aún no hay hallazgos. Sube los documentos: cada hallazgo citará el documento, la página y el fragmento que lo sustenta.'}</div>`);
+      }
+    }
+
+    /* ---------- recibir PDFs: se clasifican por tipo documental ---------- */
+    async function recibir(files, tipo) {
+      const id = zonaAbierta; if (!id) return;
+      const docs = Object.assign({}, Estado.get(id).docs), msgs = [];
+      for (const file of files) {
+        if (!/\.pdf$/i.test(file.name) && file.type !== 'application/pdf') { msgs.push(file.name + ': no es un PDF'); continue; }
+        const m = await Datos.buscarPorArchivo(file);
+        if (m) { const k = m.tipo || 'escrituras'; docs[k] = { analisis: m.id, archivo: file.name }; msgs.push(file.name + ' → clasificado como ' + DOCS_LARGO[k]); }
+        else if (tipo) { docs[tipo] = { archivo: file.name }; msgs.push(file.name + ' recibido; el backend lo analizará'); }
+        else msgs.push(file.name + ': aún no hay análisis disponible');
+      }
+      Estado.set(id, { docs }); guardar(); aviso(msgs.join(' · ')); pintarPanel();
+    }
+
+    // un solo manejador para todo el panel de zona
+    $('drawer').addEventListener('click', e => {
+      const f = ficha(zonaAbierta); if (!f) return; const p = f.p;
+      if (e.target.closest('#dCerrar')) return cerrarPanel();
+      const r = e.target.closest('[data-r]');
+      if (r) { const act = Estado.get(zonaAbierta).rec, nuevo = act === r.dataset.r ? '' : r.dataset.r; Estado.set(zonaAbierta, { rec: nuevo }); p.dictamen = nombreRec(nuevo); guardar(); return pintarPanel(); }
+      const t = e.target.closest('[data-p]');
+      if (t) { pestana = t.dataset.p; return pintarPanel(); }
+      const d = e.target.closest('[data-d]');
+      if (d) { const inp = $('fArchivo') || (() => { pestana = 'docs'; return null; })(); if (!inp) { pintarPanel().then(() => { const i2 = $('fArchivo'); i2.dataset.k = d.dataset.d; i2.value = ''; i2.click(); }); return; } inp.dataset.k = d.dataset.d; inp.value = ''; return inp.click(); }
+      if (e.target.closest('[data-sub=multi]')) { pestana = 'docs'; return pintarPanel().then(() => $('fMulti').click()); }
+      if (e.target.closest('#dBorrador')) { guardar(); return aviso('Borrador guardado en este navegador.'); }
+    });
+    $('drawer').addEventListener('input', e => {
+      const f = ficha(zonaAbierta); if (!f) return;
+      if (e.target.id === 'razones') return Estado.set(zonaAbierta, { razones: e.target.value });
+      if (e.target.id === 'fNombre') f.p.nombre = e.target.value;
+      if (e.target.id === 'fDir') f.p.direccion = e.target.value;
+      guardar();
+    });
+    $('drawer').addEventListener('change', async e => {
+      if (e.target.id === 'fArchivo' && e.target.files.length) return recibir([...e.target.files], e.target.dataset.k);
+      if (e.target.id === 'fMulti' && e.target.files.length) return recibir([...e.target.files]);
+      if (e.target.id === 'selEjemplo' && e.target.value) {
+        const d = (await Datos.indice()).find(x => x.id === e.target.value);
+        Estado.set(zonaAbierta, { docs: Object.assign({}, Estado.get(zonaAbierta).docs, { escrituras: { analisis: d.id, archivo: d.archivo } }) });
+        aviso('Escritura de ejemplo asignada: ' + d.titulo); guardar(); pintarPanel();
+      }
+    });
+    ['dragover', 'dragleave', 'drop'].forEach(ev => $('drawer').addEventListener(ev, e => {
+      const z = e.target.closest('#dropz'); if (!z) return;
+      e.preventDefault(); z.classList.toggle('sobre', ev === 'dragover');
+      if (ev === 'drop') recibir([...e.dataTransfer.files]);
+    }));
+
+    /* ---------- Mapa / Satélite ---------- */
+    function estilo(tipo) {
+      $('btnMapa').classList.toggle('on', tipo === 'mapa');
+      $('btnSat').classList.toggle('on', tipo === 'sat');
+      map.setStyle(ESTILOS[tipo]);
+    }
+    $('btnMapa').onclick = () => estilo('mapa');
+    $('btnSat').onclick = () => estilo('sat');
+
+    /* ---------- clics en el mapa ---------- */
+    map.on('click', 'tiendas3b-area', e => { if (!estado && !modoMapaSel) irATienda(e.features[0].properties.id); });
+    map.on('click', 'cedis3b-area', e => { if (!estado && !modoMapaSel) irACentro(e.features[0].properties.id); });
+    map.on('click', 'expedientes-pt', e => {
+      if (estado) return; const id = e.features[0].properties.id;
+      if (modoMapaSel) { alternarInv(id); return aviso(inv[id] ? 'En investigación: ' + expediente(id).nombre.split(' · ')[0] : 'Quitada de la investigación.'); }
+      irAExp(id);
+    });
+    map.on('click', 'lugares-fill', e => { if (!estado && !modoMapaSel) irAZonaMarcada(e.features[0].properties.id); });
+    ['tiendas3b-area', 'lugares-fill', 'cedis3b-area', 'expedientes-pt'].forEach(l => {
+      map.on('mouseenter', l, () => { if (!estado) map.getCanvas().style.cursor = 'pointer'; });
+      map.on('mouseleave', l, () => { if (!estado) map.getCanvas().style.cursor = ''; });
+    });
+
+    /* ---------- menú desplegable «Zona»: marcar por dirección o dibujar ---------- */
+    function abrirMenuZona(on) { $('zpop').hidden = !on; }
+    $('btnZonaMenu').onclick = e => { e.stopPropagation(); abrirMenuZona($('zpop').hidden); };
+    document.addEventListener('click', e => { if (!e.target.closest('.zmenu')) abrirMenuZona(false); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') abrirMenuZona(false); });
+
+    function pintarColor() {
+      document.querySelectorAll('.seg button').forEach(b => b.classList.toggle('on', b.dataset.c === colorSel));
+      $('txtZona').textContent = 'Dibujar zona ' + (colorSel === 'verde' ? 'verde' : 'roja');
+      $('btnZona').classList.toggle('verde', colorSel === 'verde'); $('btnZona').classList.toggle('rojo', colorSel === 'rojo');
+    }
+    document.querySelector('.seg').onclick = e => { const b = e.target.closest('button'); if (b) { colorSel = b.dataset.c; pintarColor(); } };
+
+    function nuevaZona(geometry, direccion) {
+      const id = 'z' + Date.now().toString(36);
+      lugares.push({ type: 'Feature', geometry, properties: { id, nombre: '', direccion: direccion || '', estado: colorSel, color: COLORES[colorSel],
+        dictamen: 'Sin dictamen', recomendacion: '', analizado: false, docs: {} } });
+      guardar(); abrirPanel(id);
+    }
+
+    function pintarBorrador() {
+      const color = COLORES[colorSel];
+      const features = puntos.map(p => ({ type: 'Feature', properties: { color }, geometry: { type: 'Point', coordinates: p } }));
+      if (puntos.length >= 2) features.push({ type: 'Feature', properties: { color },
+        geometry: puntos.length >= 3 ? { type: 'Polygon', coordinates: [[...puntos, puntos[0]]] } : { type: 'LineString', coordinates: puntos } });
+      map.getSource('borrador').setData({ type: 'FeatureCollection', features });
+    }
+
+    function modo(activo) {
+      estado = activo ? colorSel : null; puntos = [];
+      if (map.getSource('borrador')) map.getSource('borrador').setData(vacio);
+      map.getCanvas().style.cursor = activo ? 'crosshair' : '';
+      $('barraDibujo').hidden = !activo;
+    }
+    $('btnZona').onclick = () => { abrirMenuZona(false); cerrarPanel(); modo(true); };
+    $('cancelar').onclick = () => modo(false);
+    $('terminar').onclick = () => {
+      if (puntos.length < 3) return aviso('Marca al menos 3 esquinas.');
+      nuevaZona({ type: 'Polygon', coordinates: [[...puntos, puntos[0]]] });
+      modo(false);
+    };
+    map.on('click', e => {
+      if (!estado) return;
+      puntos.push([e.lngLat.lng, e.lngLat.lat]);
+      pintarBorrador();
+    });
+
+    // marcar un lugar por dirección: toma el contorno del edificio, o un cuadro pequeño si no hay
+    function edificioCercano(lng, lat) {
+      const c = map.project([lng, lat]), R = 35;
+      const cand = map.queryRenderedFeatures([[c.x - R, c.y - R], [c.x + R, c.y + R]])
+        .filter(x => x.sourceLayer === 'building' && /Polygon/.test(x.geometry.type));
+      const anillos = g => g.type === 'Polygon' ? [g.coordinates[0]] : g.coordinates.map(p => p[0]);
+      const dentro = r => {
+        let in_ = false;
+        for (let i = 0, j = r.length - 1; i < r.length; j = i++) {
+          const [xi, yi] = r[i], [xj, yj] = r[j];
+          if ((yi > lat) !== (yj > lat) && lng < (xj - xi) * (lat - yi) / (yj - yi) + xi) in_ = !in_;
+        }
+        return in_;
+      };
+      let mejor = null, dMin = Infinity;
+      for (const f of cand) {
+        const rs = anillos(f.geometry);
+        if (rs.some(dentro)) return f.geometry;
+        for (const r of rs) for (const [x, y] of r) {
+          const d = (x - lng) ** 2 + (y - lat) ** 2;
+          if (d < dMin) { dMin = d; mejor = f.geometry; }
+        }
+      }
+      return mejor;
+    }
+
+    $('buscador').onsubmit = async ev => {
+      ev.preventDefault();
+      const q = $('dir').value.trim();
+      if (!q) return;
+      let g;
+      try { g = await geocodificar(q); } catch (e) {}
+      if (!g) return aviso('No encontré esa dirección.');
+
+      abrirMenuZona(false);
+      const [lng, lat] = g.coords;
+      map.jumpTo({ center: [lng, lat], zoom: 18 });          // se consulta el contorno del edificio dibujado en el mapa
+      await new Promise(r => { map.once('idle', r); setTimeout(r, 3000); });
+
+      const edificio = edificioCercano(lng, lat);
+      const d = 0.0001;
+      nuevaZona(edificio || { type: 'Polygon', coordinates: [[[lng - d, lat - d], [lng + d, lat - d], [lng + d, lat + d], [lng - d, lat + d], [lng - d, lat - d]]] }, g.full);
+      $('dir').value = '';
+      if (!edificio) aviso('No encontré el contorno del edificio; marqué un cuadro alrededor del punto.');
+    };
+
+    async function cargarExpedientes() {
+      EXPS = await Datos.expedientes();
+      for (const e of EXPS) {                                      // los documentos que ya tenemos se asignan solos
+        if (!Object.keys(Estado.get(e.id).docs).length) await Modulo.asignarDocumentos(e.id, e);
+        try { resExp[e.id] = await resumen(e.id); estadoExp[e.id] = resExp[e.id].recomendacion; } catch (x) {}
+        if (coordsExp[e.id]) e.coords = coordsExp[e.id].c, e.aprox = coordsExp[e.id].aprox;
+      }
+      pintarStats(); pintarChips(); pintarLista(); refrescar();
+      // ubicar con el geocodificador los que aún no tienen marca (uno por uno, el resultado queda guardado)
+      let nuevas = 0;
+      for (const e of EXPS) {
+        if (e.coords || !e.busqueda) continue;
+        try {
+          const r = await fetch('https://api.mapbox.com/search/geocode/v6/forward?limit=1&language=es&country=mx&q=' + encodeURIComponent(e.busqueda) + `&access_token=${mapboxgl.accessToken}`);
+          const f = (await r.json()).features[0]; if (!f) continue;
+          e.coords = f.geometry.coordinates; e.aprox = (f.properties.match_code || {}).confidence !== 'exact';
+          coordsExp[e.id] = { c: e.coords, aprox: e.aprox }; localStorage.setItem('coordsExp', JSON.stringify(coordsExp));
+          refrescar(); pintarLista(); nuevas++;
+        } catch (x) {}
+      }
+      const n = EXPS.filter(e => e.coords).length;
+      if (n && AJUSTAR && !INTRO && !usuarioMovio) fitExpedientes();
+      if (n && nuevas) aviso(`${n} de ${EXPS.length} zonas ubicadas en el mapa.`);
+    }
+    map.once('load', () => cargarExpedientes());
+
+    pintarColor(); pintarStats(); pintarChips(); pintarLista(); aplicarLista();
+  </script></body>
+</html>

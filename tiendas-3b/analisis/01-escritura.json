@@ -1,0 +1,151 @@
+{
+ "id": "01-escritura",
+ "archivo": "01 Escritura...pdf",
+ "titulo": "Compraventa · escaneo desvanecido",
+ "paginas": [
+  {
+   "n": 1,
+   "img": "paginas/01-escritura/p1.jpg",
+   "w": 1000,
+   "h": 1647
+  },
+  {
+   "n": 2,
+   "img": "paginas/01-escritura/p2.jpg",
+   "w": 1000,
+   "h": 1647
+  }
+ ],
+ "total_paginas": 2,
+ "pasos": [
+  {
+   "pagina": 1,
+   "rect": [
+    0.06,
+    0.02,
+    0.88,
+    0.9
+   ],
+   "agente": "Preprocesamiento",
+   "campo": "Calidad del escaneo",
+   "valor": "Contraste bajo · texto tenue",
+   "ok": false,
+   "nota": "Se realzó el contraste para poder leer el documento. Los datos extraídos deben verificarse contra el original.",
+   "confianza": 0.0,
+   "n": 1,
+   "t": "00:00.7"
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.08,
+    0.02,
+    0.84,
+    0.065
+   ],
+   "agente": "Extractor",
+   "campo": "Autoridad emisora",
+   "valor": "No legible",
+   "ok": false,
+   "confianza": 0.0,
+   "nota": "Sin lectura automática: el texto es demasiado tenue. Verificar visualmente en el documento original.",
+   "n": 2,
+   "t": "00:01.5"
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.08,
+    0.105,
+    0.84,
+    0.035
+   ],
+   "agente": "Extractor",
+   "campo": "Instrumento y volumen",
+   "valor": "No legible",
+   "ok": false,
+   "confianza": 0.0,
+   "nota": "Sin lectura automática: el texto es demasiado tenue. Verificar visualmente en el documento original.",
+   "n": 3,
+   "t": "00:02.5"
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.08,
+    0.13,
+    0.84,
+    0.095
+   ],
+   "agente": "Extractor",
+   "campo": "Partes y fecha de otorgamiento",
+   "valor": "No legible",
+   "ok": false,
+   "confianza": 0.0,
+   "nota": "Sin lectura automática: el texto es demasiado tenue. Verificar visualmente en el documento original.",
+   "n": 4,
+   "t": "00:03.2"
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.08,
+    0.275,
+    0.84,
+    0.105
+   ],
+   "agente": "Extractor",
+   "campo": "Inmueble y superficie",
+   "valor": "No legible",
+   "ok": false,
+   "confianza": 0.0,
+   "nota": "Sin lectura automática: el texto es demasiado tenue. Verificar visualmente en el documento original.",
+   "n": 5,
+   "t": "00:04.0"
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.08,
+    0.4,
+    0.84,
+    0.11
+   ],
+   "agente": "Extractor",
+   "campo": "Medidas y colindancias",
+   "valor": "No legible",
+   "ok": false,
+   "confianza": 0.0,
+   "nota": "Sin lectura automática: el texto es demasiado tenue. Verificar visualmente en el documento original.",
+   "n": 6,
+   "t": "00:05.0"
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.08,
+    0.665,
+    0.84,
+    0.055
+   ],
+   "agente": "Extractor",
+   "campo": "Precio de la operación",
+   "valor": "No legible",
+   "ok": false,
+   "confianza": 0.0,
+   "nota": "Sin lectura automática: el texto es demasiado tenue. Verificar visualmente en el documento original.",
+   "n": 7,
+   "t": "00:05.7"
+  }
+ ],
+ "resumen": {
+  "pasos": 7,
+  "validados": 0,
+  "revisar": 7
+ },
+ "nota": "Resultado de ejemplo generado localmente (OCR + reglas). El backend real producirá este mismo formato.",
+ "bytes": 139518,
+ "originales": [
+  "01 Escritura...pdf"
+ ]
+}

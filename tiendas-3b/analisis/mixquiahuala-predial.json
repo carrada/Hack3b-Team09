@@ -1,0 +1,108 @@
+{
+ "id": "mixquiahuala-predial",
+ "tipo": "predial",
+ "grupo": "mixquiahuala",
+ "archivo": "PREDIAL 2025 (1).pdf",
+ "titulo": "Predial · mixquiahuala",
+ "parcial": true,
+ "paginas": [
+  {
+   "n": 1,
+   "img": "paginas/mixquiahuala-predial/p1.jpg",
+   "w": 1000,
+   "h": 1415
+  }
+ ],
+ "total_paginas": 1,
+ "pasos": [
+  {
+   "campo": "Tipo documental",
+   "valor": "Predial",
+   "pagina": 1,
+   "rect": [
+    0.06,
+    0.02,
+    0.88,
+    0.12
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 1,
+   "t": "00:00.7",
+   "nota": ""
+  },
+  {
+   "campo": "Titular actual",
+   "valor": "No legible",
+   "pagina": 1,
+   "rect": [
+    0.08,
+    0.1,
+    0.84,
+    0.05
+   ],
+   "ok": false,
+   "confianza": 0.0,
+   "nota": "Sin lectura automática: no se encontró el dato en el texto reconocido. Verificar en el documento original.",
+   "agente": "Extractor",
+   "n": 2,
+   "t": "00:01.4"
+  },
+  {
+   "campo": "Cuenta predial",
+   "valor": "U-06520",
+   "pagina": 1,
+   "rect": [
+    0.0533,
+    0.2745,
+    0.1568,
+    0.0242
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 3,
+   "t": "00:02.1",
+   "nota": ""
+  },
+  {
+   "campo": "Valor catastral",
+   "valor": "$ 197,941.12",
+   "pagina": 1,
+   "rect": [
+    0.2758,
+    0.2751,
+    0.2734,
+    0.0212
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 4,
+   "t": "00:02.8",
+   "nota": ""
+  },
+  {
+   "campo": "Autoridad emisora",
+   "valor": "DIRECCIÓN DEL PREDIO: COMUNIDAD: MIXQUIAHUALA DE JUAREZ, COLONIA: OCT",
+   "pagina": 1,
+   "rect": [
+    0.0269,
+    0.2983,
+    0.8969,
+    0.0212
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 5,
+   "t": "00:03.5",
+   "nota": ""
+  }
+ ],
+ "resumen": {
+  "validados": 4,
+  "revisar": 1
+ }
+}

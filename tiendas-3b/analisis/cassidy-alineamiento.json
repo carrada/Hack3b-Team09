@@ -1,0 +1,159 @@
+{
+ "id": "cassidy-alineamiento",
+ "tipo": "alineamiento",
+ "grupo": "cassidy",
+ "archivo": "ALINEAMIENTO Y NUMERO OFICIAL (2).pdf",
+ "titulo": "Alineamiento y número oficial · cassidy",
+ "parcial": true,
+ "paginas": [
+  {
+   "n": 1,
+   "img": "paginas/cassidy-alineamiento/p1.jpg",
+   "w": 1000,
+   "h": 1414
+  }
+ ],
+ "total_paginas": 1,
+ "pasos": [
+  {
+   "campo": "Tipo documental",
+   "valor": "Constancia de alineamiento y número oficial",
+   "pagina": 1,
+   "rect": [
+    0.06,
+    0.02,
+    0.88,
+    0.12
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 1,
+   "t": "00:00.7",
+   "nota": ""
+  },
+  {
+   "campo": "Autoridad emisora",
+   "valor": "H. AYUNTAMIENTO DE VILLA DEL CARBÓN 2025-2027 Villa Del Carbón \"2",
+   "pagina": 1,
+   "rect": [
+    0.1928,
+    0.0778,
+    0.7887,
+    0.1023
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 2,
+   "t": "00:01.4",
+   "nota": ""
+  },
+  {
+   "campo": "Dirección del inmueble",
+   "valor": "No legible",
+   "pagina": 1,
+   "rect": [
+    0.08,
+    0.1,
+    0.84,
+    0.05
+   ],
+   "ok": false,
+   "confianza": 0.0,
+   "nota": "Sin lectura automática: no se encontró el dato en el texto reconocido. Verificar en el documento original.",
+   "agente": "Extractor",
+   "n": 3,
+   "t": "00:02.1"
+  },
+  {
+   "campo": "Número oficial",
+   "valor": "No legible",
+   "pagina": 1,
+   "rect": [
+    0.08,
+    0.1,
+    0.84,
+    0.05
+   ],
+   "ok": false,
+   "confianza": 0.0,
+   "nota": "Sin lectura automática: no se encontró el dato en el texto reconocido. Verificar en el documento original.",
+   "agente": "Extractor",
+   "n": 4,
+   "t": "00:02.8"
+  },
+  {
+   "campo": "Fecha de expedición",
+   "valor": "07 DE JULIO DEL 2025",
+   "pagina": 1,
+   "rect": [
+    0.3651,
+    0.1793,
+    0.4751,
+    0.0341
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 5,
+   "t": "00:03.5",
+   "nota": ""
+  },
+  {
+   "campo": "Titular actual",
+   "valor": "CASSIDY SCARLETT BARRIOS CELIS",
+   "pagina": 1,
+   "rect": [
+    0.0839,
+    0.3034,
+    0.6638,
+    0.0369
+   ],
+   "ok": false,
+   "confianza": 0.75,
+   "nota": "Lectura de baja confianza: verificar contra el original.",
+   "agente": "Extractor",
+   "n": 6,
+   "t": "00:04.2"
+  },
+  {
+   "campo": "Superficie del predio",
+   "valor": "1039.71 m²",
+   "pagina": 1,
+   "rect": [
+    0.3471,
+    0.3969,
+    0.1005,
+    0.023
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 7,
+   "t": "00:04.9",
+   "nota": ""
+  },
+  {
+   "campo": "Clave catastral",
+   "valor": "037 06 033 43 00 0000",
+   "pagina": 1,
+   "rect": [
+    0.702,
+    0.4019,
+    0.1647,
+    0.0226
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 8,
+   "t": "00:05.6",
+   "nota": ""
+  }
+ ],
+ "resumen": {
+  "validados": 5,
+  "revisar": 3
+ }
+}

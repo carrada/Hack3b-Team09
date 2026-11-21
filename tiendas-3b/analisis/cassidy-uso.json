@@ -1,0 +1,165 @@
+{
+ "id": "cassidy-uso",
+ "tipo": "uso",
+ "grupo": "cassidy",
+ "archivo": "USO DE SUELO CASSIDY BARRIOS.pdf",
+ "titulo": "Uso de suelo · cassidy",
+ "parcial": true,
+ "paginas": [
+  {
+   "n": 1,
+   "img": "paginas/cassidy-uso/p1.jpg",
+   "w": 1000,
+   "h": 1414
+  },
+  {
+   "n": 2,
+   "img": "paginas/cassidy-uso/p2.jpg",
+   "w": 1000,
+   "h": 1414
+  }
+ ],
+ "total_paginas": 2,
+ "pasos": [
+  {
+   "campo": "Tipo documental",
+   "valor": "Uso de suelo",
+   "pagina": 1,
+   "rect": [
+    0.06,
+    0.02,
+    0.88,
+    0.12
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 1,
+   "t": "00:00.7",
+   "nota": ""
+  },
+  {
+   "campo": "Autoridad emisora",
+   "valor": "H. AYUNTAMIENTO DE VILLA DEL CARBÓN 2025-2027 Villa Del Carbón \"2",
+   "pagina": 1,
+   "rect": [
+    0.1993,
+    0.0818,
+    0.7906,
+    0.0967
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 2,
+   "t": "00:01.4",
+   "nota": ""
+  },
+  {
+   "campo": "Dirección del inmueble",
+   "valor": "No legible",
+   "pagina": 1,
+   "rect": [
+    0.08,
+    0.1,
+    0.84,
+    0.05
+   ],
+   "ok": false,
+   "confianza": 0.0,
+   "nota": "Sin lectura automática: no se encontró el dato en el texto reconocido. Verificar en el documento original.",
+   "agente": "Extractor",
+   "n": 3,
+   "t": "00:02.1"
+  },
+  {
+   "campo": "Uso de suelo",
+   "valor": "No legible",
+   "pagina": 1,
+   "rect": [
+    0.08,
+    0.1,
+    0.84,
+    0.05
+   ],
+   "ok": false,
+   "confianza": 0.0,
+   "nota": "Sin lectura automática: no se encontró el dato en el texto reconocido. Verificar en el documento original.",
+   "agente": "Extractor",
+   "n": 4,
+   "t": "00:02.8"
+  },
+  {
+   "campo": "Fecha de expedición",
+   "valor": "01 DE AGOSTO DE 2025",
+   "pagina": 1,
+   "rect": [
+    0.3716,
+    0.1779,
+    0.5649,
+    0.0299
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 5,
+   "t": "00:03.5",
+   "nota": ""
+  },
+  {
+   "campo": "Titular actual",
+   "valor": "CASSIDY SCARLETT BARRIOS CELIS. CALLEJÓN",
+   "pagina": 1,
+   "rect": [
+    0.1377,
+    0.3085,
+    0.6651,
+    0.0502
+   ],
+   "ok": false,
+   "confianza": 0.75,
+   "nota": "Lectura de baja confianza: verificar contra el original.",
+   "agente": "Extractor",
+   "n": 6,
+   "t": "00:04.2"
+  },
+  {
+   "campo": "Clave catastral",
+   "valor": "037 06 033 43 00 0000",
+   "pagina": 1,
+   "rect": [
+    0.7393,
+    0.4189,
+    0.1805,
+    0.0197
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 7,
+   "t": "00:04.9",
+   "nota": ""
+  },
+  {
+   "campo": "Vigencia",
+   "valor": "UN AÑO NATURAL A PARTIR DE LA FECHA",
+   "pagina": 2,
+   "rect": [
+    0.3737,
+    0.5375,
+    0.5995,
+    0.0232
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "nota": "Verificar contra la fecha de expedición.",
+   "agente": "Extractor",
+   "n": 8,
+   "t": "00:05.6"
+  }
+ ],
+ "resumen": {
+  "validados": 5,
+  "revisar": 3
+ }
+}

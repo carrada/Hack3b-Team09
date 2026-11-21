@@ -1,0 +1,176 @@
+{
+ "id": "mirador-uso",
+ "tipo": "uso",
+ "grupo": "mirador",
+ "archivo": "04 Licencia de Uso de Suelo!!.pdf",
+ "titulo": "Uso de suelo · mirador",
+ "parcial": true,
+ "paginas": [
+  {
+   "n": 1,
+   "img": "paginas/mirador-uso/p1.jpg",
+   "w": 1000,
+   "h": 1294
+  }
+ ],
+ "total_paginas": 1,
+ "pasos": [
+  {
+   "campo": "Tipo documental",
+   "valor": "Uso de suelo",
+   "pagina": 1,
+   "rect": [
+    0.06,
+    0.02,
+    0.88,
+    0.12
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 1,
+   "t": "00:00.7",
+   "nota": ""
+  },
+  {
+   "campo": "Autoridad emisora",
+   "valor": "H. AYUNTAMIENTO CONSTITUCIONAL DE OCOTLÁN DE LAS TORRES Estado de",
+   "pagina": 1,
+   "rect": [
+    0.1874,
+    0.0354,
+    0.7587,
+    0.052
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 2,
+   "t": "00:01.4",
+   "nota": ""
+  },
+  {
+   "campo": "Uso de suelo",
+   "valor": "No legible",
+   "pagina": 1,
+   "rect": [
+    0.08,
+    0.1,
+    0.84,
+    0.05
+   ],
+   "ok": false,
+   "confianza": 0.0,
+   "nota": "Sin lectura automática: no se encontró el dato en el texto reconocido. Verificar en el documento original.",
+   "agente": "Extractor",
+   "n": 3,
+   "t": "00:02.1"
+  },
+  {
+   "campo": "Titular actual",
+   "valor": "SILVIA ADRIANA PENALOZA RUIZ",
+   "pagina": 1,
+   "rect": [
+    0.0825,
+    0.1872,
+    0.6737,
+    0.0496
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 4,
+   "t": "00:02.8",
+   "nota": ""
+  },
+  {
+   "campo": "Dirección del inmueble",
+   "valor": "Avenida de las Torres No. S/N, Lote 12, Manzana 3, Col. El Mirador",
+   "pagina": 1,
+   "rect": [
+    0.3021,
+    0.2064,
+    0.4541,
+    0.0305
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 5,
+   "t": "00:03.5",
+   "nota": ""
+  },
+  {
+   "campo": "Identificación del predio",
+   "valor": "Lote 12, Manzana 3",
+   "pagina": 1,
+   "rect": [
+    0.3021,
+    0.2064,
+    0.4541,
+    0.0305
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 6,
+   "t": "00:04.2",
+   "nota": ""
+  },
+  {
+   "campo": "Clave catastral",
+   "valor": "077 04 310 12 00 0000",
+   "pagina": 1,
+   "rect": [
+    0.3024,
+    0.2489,
+    0.1659,
+    0.0211
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 7,
+   "t": "00:04.9",
+   "nota": ""
+  },
+  {
+   "campo": "Superficie del predio",
+   "valor": "300.00 m²",
+   "pagina": 1,
+   "rect": [
+    0.3005,
+    0.2676,
+    0.0832,
+    0.0212
+   ],
+   "ok": false,
+   "confianza": 0.5,
+   "nota": "Lectura de baja confianza: verificar contra el original.",
+   "agente": "Extractor",
+   "n": 8,
+   "t": "00:05.6"
+  },
+  {
+   "campo": "Fecha de expedición",
+   "valor": "10 DE MARZO DE 2022",
+   "pagina": 1,
+   "rect": [
+    0.0651,
+    0.5723,
+    0.3961,
+    0.0318
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 9,
+   "t": "00:06.3",
+   "nota": ""
+  }
+ ],
+ "resumen": {
+  "validados": 7,
+  "revisar": 2
+ }
+}

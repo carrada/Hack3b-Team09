@@ -1,0 +1,201 @@
+{
+ "id": "quma-pedregal-escrituras",
+ "tipo": "escrituras",
+ "grupo": "quma-pedregal",
+ "archivo": "ESCRITURA QUMA.pdf",
+ "titulo": "Escritura · quma-pedregal",
+ "parcial": true,
+ "paginas": [
+  {
+   "n": 1,
+   "img": "paginas/quma-pedregal-escrituras/p1.jpg",
+   "w": 1000,
+   "h": 1666
+  },
+  {
+   "n": 2,
+   "img": "paginas/quma-pedregal-escrituras/p2.jpg",
+   "w": 1000,
+   "h": 1666
+  },
+  {
+   "n": 3,
+   "img": "paginas/quma-pedregal-escrituras/p3.jpg",
+   "w": 1000,
+   "h": 1666
+  },
+  {
+   "n": 4,
+   "img": "paginas/quma-pedregal-escrituras/p4.jpg",
+   "w": 1000,
+   "h": 1666
+  },
+  {
+   "n": 5,
+   "img": "paginas/quma-pedregal-escrituras/p5.jpg",
+   "w": 1000,
+   "h": 1666
+  },
+  {
+   "n": 6,
+   "img": "paginas/quma-pedregal-escrituras/p6.jpg",
+   "w": 1000,
+   "h": 1666
+  },
+  {
+   "n": 7,
+   "img": "paginas/quma-pedregal-escrituras/p7.jpg",
+   "w": 1000,
+   "h": 1666
+  },
+  {
+   "n": 8,
+   "img": "paginas/quma-pedregal-escrituras/p8.jpg",
+   "w": 1000,
+   "h": 1666
+  }
+ ],
+ "total_paginas": 8,
+ "pasos": [
+  {
+   "campo": "Tipo documental",
+   "valor": "Escritura pública",
+   "pagina": 1,
+   "rect": [
+    0.06,
+    0.02,
+    0.88,
+    0.12
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 1,
+   "t": "00:00.7",
+   "nota": ""
+  },
+  {
+   "campo": "Identificación del predio",
+   "valor": "SENDERO DEL PEDREGAL",
+   "pagina": 1,
+   "rect": [
+    0.1118,
+    0.4333,
+    0.7571,
+    0.0537
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 2,
+   "t": "00:01.4",
+   "nota": ""
+  },
+  {
+   "campo": "Instrumento y volumen",
+   "valor": "Instrumento 10,381",
+   "pagina": 1,
+   "rect": [
+    0.6468,
+    0.654,
+    0.2317,
+    0.0271
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 3,
+   "t": "00:02.1",
+   "nota": ""
+  },
+  {
+   "campo": "Dirección del inmueble",
+   "valor": "el Ejido \"EL PEDREGAL",
+   "pagina": 2,
+   "rect": [
+    0.1193,
+    0.5583,
+    0.5992,
+    0.0249
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 4,
+   "t": "00:02.8",
+   "nota": ""
+  },
+  {
+   "campo": "Autoridad emisora",
+   "valor": "SECRETARÍA DE OBRAS PÚBLICAS, COMUNICACIOES, -TRANSPORTES Y ASENTAMIEN",
+   "pagina": 6,
+   "rect": [
+    0.2648,
+    0.2038,
+    0.4511,
+    0.0357
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 5,
+   "t": "00:03.5",
+   "nota": ""
+  },
+  {
+   "campo": "Fecha de expedición",
+   "valor": "26 de febrero de 2010",
+   "pagina": 6,
+   "rect": [
+    0.3494,
+    0.3359,
+    0.3691,
+    0.0209
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 6,
+   "t": "00:04.2",
+   "nota": ""
+  },
+  {
+   "campo": "Superficie del predio",
+   "valor": "278920.74 m²",
+   "pagina": 6,
+   "rect": [
+    0.1267,
+    0.63,
+    0.5723,
+    0.0214
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 7,
+   "t": "00:04.9",
+   "nota": ""
+  },
+  {
+   "campo": "Titular actual",
+   "valor": "Antonio Quadrini Medina",
+   "pagina": 8,
+   "rect": [
+    0.2234,
+    0.0883,
+    0.5072,
+    0.0224
+   ],
+   "ok": true,
+   "confianza": 1.0,
+   "agente": "Extractor",
+   "n": 8,
+   "t": "00:05.6",
+   "nota": ""
+  }
+ ],
+ "resumen": {
+  "validados": 8,
+  "revisar": 0
+ }
+}

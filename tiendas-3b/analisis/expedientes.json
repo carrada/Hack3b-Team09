@@ -1,0 +1,296 @@
+[
+ {
+  "id": "tepeji5",
+  "nombre": "Tepeji del Río 5 · Av. Melchor Ocampo, Col. Atengo",
+  "municipio": "Tepeji del Río de Ocampo, Hidalgo",
+  "busqueda": "Avenida Melchor Ocampo, Barrio de Atengo, Tepeji del Río de Ocampo, Hidalgo",
+  "coords": null,
+  "sintetico": false,
+  "docs": {
+   "escrituras": "tepeji5-escritura",
+   "predial": "tepeji5-predial",
+   "alineamiento": "tepeji5-alineamiento",
+   "uso": "tepeji5-uso"
+  },
+  "extras": []
+ },
+ {
+  "id": "mirador",
+  "nombre": "El Mirador, Ocotlán de las Torres (sintético)",
+  "municipio": "Ocotlán de las Torres, Estado de México",
+  "busqueda": null,
+  "coords": null,
+  "sintetico": true,
+  "docs": {
+   "escrituras": "01-escritura-2",
+   "predial": "mirador-predial",
+   "alineamiento": "mirador-alineamiento",
+   "uso": "mirador-uso"
+  },
+  "extras": []
+ },
+ {
+  "id": "laloma",
+  "nombre": "La Loma, San Jerónimo Atlaco (sintético)",
+  "municipio": "San Jerónimo Atlaco, Estado de México",
+  "busqueda": null,
+  "coords": null,
+  "sintetico": true,
+  "docs": {
+   "escrituras": "01-escritura-1",
+   "predial": "laloma-predial",
+   "alineamiento": "laloma-alineamiento",
+   "uso": "laloma-uso"
+  },
+  "extras": []
+ },
+ {
+  "id": "fresnos",
+  "nombre": "Villa de los Fresnos, Huehuetlán del Monte (sintético)",
+  "municipio": "Huehuetlán del Monte",
+  "busqueda": null,
+  "coords": null,
+  "sintetico": true,
+  "docs": {
+   "escrituras": "01-escriturav",
+   "predial": "fresnos-predial",
+   "alineamiento": "fresnos-alineamiento",
+   "uso": "fresnos-uso"
+  },
+  "extras": []
+ },
+ {
+  "id": "sanantonio",
+  "nombre": "Barrio San Antonio · escaneo desvanecido (sintético)",
+  "municipio": "Barrio San Antonio",
+  "busqueda": null,
+  "coords": null,
+  "sintetico": true,
+  "docs": {
+   "escrituras": "01-escritura",
+   "predial": "sanantonio-predial",
+   "alineamiento": "sanantonio-alineamiento",
+   "uso": "sanantonio-uso"
+  },
+  "extras": []
+ },
+ {
+  "id": "sorjuana",
+  "nombre": "Sor Juana · Ricardo Flores Magón, Tepotzotlán",
+  "municipio": "Tepotzotlán, Estado de México",
+  "busqueda": "Calle Ricardo Flores Magón, Tepotzotlán, Estado de México",
+  "coords": null,
+  "sintetico": false,
+  "docs": {
+   "escrituras": "sorjuana-escrituras",
+   "predial": "sorjuana-predial",
+   "alineamiento": "sorjuana-alineamiento",
+   "uso": "sorjuana-uso"
+  },
+  "extras": [
+   "sorjuana-alineamiento-2"
+  ]
+ },
+ {
+  "id": "melchorocampo3",
+  "nombre": "Melchor Ocampo III · Av. Crispín Pérez 174",
+  "municipio": "Melchor Ocampo, Estado de México",
+  "busqueda": "Avenida Crispín Pérez 174, Centro, Melchor Ocampo, Estado de México",
+  "coords": null,
+  "sintetico": false,
+  "docs": {
+   "escrituras": "melchorocampo3-escrituras",
+   "predial": "melchorocampo3-predial",
+   "alineamiento": "melchorocampo3-alineamiento",
+   "uso": "melchorocampo3-uso"
+  },
+  "extras": []
+ },
+ {
+  "id": "crispin",
+  "nombre": "Melchor Ocampo · Av. Crispín Pérez S/N (licencia 2009)",
+  "municipio": "Melchor Ocampo, Estado de México",
+  "busqueda": "Avenida Crispín Pérez, Melchor Ocampo, Estado de México",
+  "coords": null,
+  "sintetico": false,
+  "docs": {
+   "uso": "crispin-uso"
+  },
+  "extras": []
+ },
+ {
+  "id": "tultepec-insurgentes",
+  "nombre": "Tultepec · Insurgentes, Santa Rita",
+  "municipio": "Tultepec, Estado de México",
+  "busqueda": "Avenida Insurgentes, Santa Rita, Tultepec, Estado de México",
+  "coords": null,
+  "sintetico": false,
+  "docs": {
+   "predial": "tultepec-insurgentes-predial",
+   "alineamiento": "tultepec-insurgentes-alineamiento",
+   "uso": "tultepec-insurgentes-uso"
+  },
+  "extras": []
+ },
+ {
+  "id": "tultepec-sanjuan",
+  "nombre": "Tultepec · San Juan",
+  "municipio": "Tultepec, Estado de México",
+  "busqueda": "San Juan, Tultepec, Estado de México",
+  "coords": null,
+  "sintetico": false,
+  "docs": {
+   "predial": "tultepec-sanjuan-predial",
+   "alineamiento": "tultepec-sanjuan-alineamiento"
+  },
+  "extras": []
+ },
+ {
+  "id": "quma-pedregal",
+  "nombre": "Quma · Sendero del Pedregal Sur",
+  "municipio": "Atotonilco de Tula, Hidalgo",
+  "busqueda": "Boulevard Sendero del Pedregal Sur, Atotonilco de Tula, Hidalgo",
+  "coords": null,
+  "sintetico": false,
+  "docs": {
+   "escrituras": "quma-pedregal-escrituras",
+   "alineamiento": "quma-pedregal-alineamiento"
+  },
+  "extras": []
+ },
+ {
+  "id": "toscana",
+  "nombre": "La Toscana · Praderas del Potrero, Atotonilco de Tula",
+  "municipio": "Atotonilco de Tula, Hidalgo",
+  "busqueda": "Fraccionamiento La Toscana, Atotonilco de Tula, Hidalgo",
+  "coords": null,
+  "sintetico": false,
+  "docs": {
+   "escrituras": "toscana-escrituras",
+   "predial": "toscana-predial",
+   "uso": "toscana-uso"
+  },
+  "extras": []
+ },
+ {
+  "id": "tlahuelilpan",
+  "nombre": "Tlahuelilpan · 16 de Enero de 1869, Col. Cuauhtémoc",
+  "municipio": "Tlahuelilpan, Hidalgo",
+  "busqueda": "Calle 16 de Enero de 1869, Colonia Cuauhtémoc, Tlahuelilpan, Hidalgo",
+  "coords": null,
+  "sintetico": false,
+  "docs": {
+   "escrituras": "tlahuelilpan-escrituras",
+   "predial": "tlahuelilpan-predial",
+   "alineamiento": "tlahuelilpan-alineamiento",
+   "uso": "tlahuelilpan-uso"
+  },
+  "extras": []
+ },
+ {
+  "id": "mixquiahuala",
+  "nombre": "Mixquiahuala · Blvd. Octaviano Flores Mayorga",
+  "municipio": "Mixquiahuala de Juárez, Hidalgo",
+  "busqueda": "Boulevard Octaviano Flores Mayorga 36, Mixquiahuala de Juárez, Hidalgo",
+  "coords": null,
+  "sintetico": false,
+  "docs": {
+   "predial": "mixquiahuala-predial",
+   "alineamiento": "mixquiahuala-alineamiento",
+   "uso": "mixquiahuala-uso"
+  },
+  "extras": []
+ },
+ {
+  "id": "tezontepec",
+  "nombre": "Tezontepec de Aldama · San Bernardino, El Tinaco",
+  "municipio": "Tezontepec de Aldama, Hidalgo",
+  "busqueda": "Carretera Tula-Actopan Km 27.5, El Tinaco, Tezontepec de Aldama, Hidalgo",
+  "coords": null,
+  "sintetico": false,
+  "docs": {
+   "predial": "tezontepec-predial",
+   "alineamiento": "tezontepec-alineamiento",
+   "uso": "tezontepec-uso"
+  },
+  "extras": []
+ },
+ {
+  "id": "ixmiquilpan",
+  "nombre": "Ixmiquilpan · Lázaro Cárdenas, Barrio San Miguel",
+  "municipio": "Ixmiquilpan, Hidalgo",
+  "busqueda": "Calle Lázaro Cárdenas, Barrio San Miguel, Ixmiquilpan, Hidalgo",
+  "coords": null,
+  "sintetico": false,
+  "docs": {
+   "escrituras": "ixmiquilpan-escrituras",
+   "predial": "ixmiquilpan-predial",
+   "alineamiento": "ixmiquilpan-alineamiento"
+  },
+  "extras": []
+ },
+ {
+  "id": "temascalcingo",
+  "nombre": "Temascalcingo · Calzada del Molino",
+  "municipio": "Temascalcingo, Estado de México",
+  "busqueda": "Calzada del Molino, Centro, Temascalcingo, Estado de México",
+  "coords": null,
+  "sintetico": false,
+  "docs": {
+   "alineamiento": "temascalcingo-alineamiento",
+   "uso": "temascalcingo-uso"
+  },
+  "extras": []
+ },
+ {
+  "id": "villadelcarbon",
+  "nombre": "Villa del Carbón · Alfredo del Mazo S/N",
+  "municipio": "Villa del Carbón, Estado de México",
+  "busqueda": "Avenida Alfredo del Mazo, Villa del Carbón, Estado de México",
+  "coords": null,
+  "sintetico": false,
+  "docs": {
+   "predial": "villadelcarbon-predial",
+   "alineamiento": "villadelcarbon-alineamiento",
+   "uso": "villadelcarbon-uso"
+  },
+  "extras": []
+ },
+ {
+  "id": "cassidy",
+  "nombre": "Villa del Carbón · Cassidy Barrios",
+  "municipio": "Villa del Carbón, Estado de México",
+  "busqueda": "Villa del Carbón, Estado de México",
+  "coords": null,
+  "sintetico": false,
+  "docs": {
+   "alineamiento": "cassidy-alineamiento",
+   "uso": "cassidy-uso"
+  },
+  "extras": []
+ },
+ {
+  "id": "lomaalta",
+  "nombre": "Villa del Carbón · La Manzana, Loma Alta",
+  "municipio": "Villa del Carbón, Estado de México",
+  "busqueda": "Loma Alta, Villa del Carbón, Estado de México",
+  "coords": null,
+  "sintetico": false,
+  "docs": {
+   "predial": "lomaalta-predial"
+  },
+  "extras": []
+ },
+ {
+  "id": "xhala",
+  "nombre": "San Sebastián Xhala",
+  "municipio": "San Sebastián Xhala, Estado de México",
+  "busqueda": "San Sebastián Xhala, Estado de México",
+  "coords": null,
+  "sintetico": false,
+  "docs": {
+   "predial": "xhala-predial"
+  },
+  "extras": []
+ }
+]

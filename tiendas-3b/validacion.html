@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tiendas 3B · Validación cruzada</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="paginas.css">
+  <style>
+    .app { min-height: 760px; }
+    main { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; min-height: 0; }
+    .top { position: relative; flex: none; background: var(--panel); border-bottom: 1px solid var(--borde); padding: 10px 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .top h1 { margin: 0; font-size: 15px; font-weight: 600; } .top .m { font-size: 11px; color: var(--gris); }
+    .top .cnt { display: inline-flex; align-items: center; gap: 14px; font-size: 13px; color: #3A3A37; } .top .cnt span { display: inline-flex; align-items: center; gap: 6px; } .top .cnt i { width: 9px; height: 9px; display: inline-block; }
+    .tabs { flex: none; display: flex; gap: 2px; padding: 0 20px; background: var(--panel); border-bottom: 1px solid var(--borde); overflow-x: auto; }
+    .tabs button { height: 42px; padding: 0 12px; border: 0; background: transparent; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; font-size: 13px; font-weight: 500; color: var(--gris); border-bottom: 2px solid transparent; }
+    .tabs button.on { color: var(--tinta); border-bottom-color: var(--tinta); } .tabs button i { width: 7px; height: 7px; background: #D3D1CA; transition: background .3s; }
+    .cuerpo { flex: 1 1 0; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; }
+    .paralelo { flex: none; overflow-x: auto; padding: 16px 20px 16px; }
+    .cols { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; min-width: 1000px; }
+    .col { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+    .col .h { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; } .col .h b { font-size: 13px; font-weight: 600; } .col .h span { font-size: 12px; font-weight: 600; }
+    .marco { display: flex; justify-content: center; padding: 10px 0; background: #E4E2DC; transition: box-shadow .3s; }
+    .hojita { position: relative; width: 243px; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.14); overflow: hidden; }
+    .hojita img { display: block; width: 100%; } .hojita .n { position: absolute; inset: 0; background: #fff; transition: clip-path .6s cubic-bezier(.2,.7,.2,1); }
+    .hojita .c { position: absolute; box-sizing: border-box; border: 3px solid; border-radius: 3px; transition: top .6s cubic-bezier(.2,.7,.2,1), left .6s cubic-bezier(.2,.7,.2,1), width .6s cubic-bezier(.2,.7,.2,1), height .6s cubic-bezier(.2,.7,.2,1), border-color .3s; }
+    .vacia { width: 243px; height: 314px; border: 1.5px dashed #B9B6AD; background: #EFEDE7; display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px; font-size: 13px; color: var(--gris); line-height: 1.5; }
+    .valor { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; background: #fff; border: 1px solid var(--borde); } .valor small { font-size: 11px; color: var(--gris); }
+    .valor span { font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 14px; line-height: 1.35; }
+    .banda { flex: none; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; padding: 12px 20px; border-top: 1px solid var(--borde); transition: background .3s; }
+    .banda .k { font-size: 12px; color: var(--gris); } .banda .t { font-size: 17px; font-weight: 600; }
+    .pill { flex: none; padding: 6px 12px; font-size: 13px; font-weight: 600; }
+    .grupo { max-width: 460px; display: flex; flex-direction: column; gap: 2px; padding: 8px 12px; background: #fff; border: 1px solid #BFD9C7; } .grupo b { font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 14px; line-height: 1.35; font-weight: 400; } .grupo span { font-size: 12px; color: var(--gris); }
+    .matriz { flex: none; background: var(--panel); padding: 6px 20px 14px; overflow-x: auto; }
+    .matriz table { width: 100%; min-width: 1000px; table-layout: fixed; border-collapse: separate; border-spacing: 0 4px; font-size: 13px; }
+    .matriz th { text-align: left; font-weight: 500; font-size: 12px; color: var(--gris); padding: 4px 12px; }
+    .matriz td, .matriz tbody th { background: #fff; border-top: 1px solid var(--linea); border-bottom: 1px solid var(--linea); padding: 10px 12px; vertical-align: middle; font-size: 13px; color: var(--tinta); font-weight: 400; }
+    .matriz tr.sel td, .matriz tr.sel th { border-color: var(--tinta); border-top-width: 1.5px; border-bottom-width: 1.5px; }
+    .matriz tbody th { padding: 0; } .matriz tbody th button { width: 100%; text-align: left; border: 0; background: transparent; padding: 10px 12px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+    .matriz .ic2 { flex: none; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; color: #fff; }
+    .matriz .na { color: #A6A49D; } .matriz td.r { text-align: right; } .matriz .res { display: inline-block; padding: 4px 10px; font-weight: 600; font-size: 12px; }
+    .nota { margin: 0 20px 0; padding: 10px 0 0; font-size: 12px; color: var(--gris); }
+    mark { background: #F6D2CE; color: #7A1812; padding: 0 2px; border-radius: 2px; }
+    .rec { position: relative; overflow: hidden; background: #E4E2DC; cursor: zoom-in; width: calc(100% + 20px); box-sizing: border-box; margin: -8px -10px 8px; border-bottom: 1px solid var(--borde); }
+    .rec img { position: absolute; display: block; max-width: none; }
+    .rec .c, .vis-pg .c { position: absolute; box-sizing: border-box; border: 2px solid; border-radius: 2px; pointer-events: none; }
+    .rec .lupa { position: absolute; right: 6px; bottom: 6px; padding: 3px 8px; font-size: 11px; font-weight: 500; background: rgba(27,27,26,.82); color: #fff; }
+    .marco[data-ver] { cursor: zoom-in; }
+    .vis { position: fixed; inset: 0; z-index: 50; display: none; flex-direction: column; background: #1B1B1A; color: #fff; }
+    .vis.on { display: flex; }
+    .vis-top { flex: none; display: flex; align-items: center; gap: 10px; padding: 10px 20px; box-shadow: inset 0 -1px 0 #3A3A37; }
+    .vis-top small { display: block; font-size: 11px; color: #A6A49D; } .vis-top b { font-size: 15px; font-weight: 600; }
+    .vis-top button { height: 32px; min-width: 32px; padding: 0 12px; border: 1px solid #5A5A56; background: transparent; color: #fff; font: inherit; font-size: 13px; cursor: pointer; }
+    .vis-top button:hover { background: #2E2E2C; } .vis-top button.cerrar { background: #B3261E; border-color: #B3261E; }
+    .vis-val { flex: none; padding: 10px 20px; background: #262624; font-size: 15px; line-height: 1.4; box-shadow: inset 4px 0 0 #B3261E; }
+    .vis-area { flex: 1 1 0; min-height: 0; overflow: auto; background: #2E2E2C; cursor: grab; }
+    .vis-area.arr { cursor: grabbing; user-select: none; }
+    .vis-pg { position: relative; margin: 0 auto; background: #fff; }
+    .vis-pg img { display: block; width: 100%; user-select: none; -webkit-user-drag: none; }
+  </style>
+</head>
+<body>
+<div class="app">
+  <nav class="rail" id="rail" aria-label="Navegación principal"></nav>
+  <main>
+    <div class="top">
+      <a class="volver" id="volver" href="analizador.html" style="font-size:12px;color:var(--gris);text-decoration:none">← Expediente</a>
+      <span class="sep"></span>
+      <div style="display:flex;flex-direction:column"><h1>Validación cruzada</h1><span class="m mono" id="sub"></span></div>
+      <span class="grow"></span>
+      <span class="cnt"><span><i style="background:#2F7A4A"></i><b id="nOk">0</b>&nbsp;coinciden</span><span><i style="background:#B3261E"></i><b id="nDif">0</b>&nbsp;difieren</span><span><i style="background:#8E8E89"></i><b id="nPen">0</b>&nbsp;sin contraste</span></span>
+      <button class="btn neg" id="btnRun" style="height:32px;padding:0 14px"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8z"/></svg><span id="runTxt">Analizar de nuevo</span></button>
+      <div class="prog" id="prog" style="width:0"></div>
+    </div>
+    <div class="tabs" id="tabs" role="tablist" aria-label="Dato a comparar"></div>
+    <div class="cuerpo">
+      <div class="paralelo"><div class="cols" id="cols"></div></div>
+      <div class="banda" id="banda"></div>
+      <div class="matriz"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table>
+        <p class="nota" id="nota"></p></div>
+    </div>
+  </main>
+</div>
+<div class="vis" id="vis" role="dialog" aria-label="Documento ampliado">
+  <div class="vis-top">
+    <div><small id="visDoc"></small><b id="visDato"></b></div><span class="grow"></span>
+    <button id="visPrev" title="Documento anterior (←)">← Anterior</button><button id="visNext" title="Documento siguiente (→)">Siguiente →</button>
+    <button id="visMenos" title="Alejar (−)">−</button><button id="visMas" title="Acercar (+)">+</button><button id="visDato2" title="Volver a la zona marcada">Ir al dato</button>
+    <button class="cerrar" id="visCerrar" title="Cerrar (Esc)">Cerrar</button>
+  </div>
+  <div class="vis-val" id="visVal"></div>
+  <div class="vis-area" id="visArea"><div class="vis-pg" id="visPg"></div></div>
+</div>
+<script src="tiendas.js?v=3"></script>
+<script src="modulo.js"></script>
+<script>
+(() => {
+  const { Datos, Estado, TIPOS, rail, escapar, parametros } = Modulo;
+  const $ = id => document.getElementById(id);
+  const P = parametros(), EXP = P.get('exp') || 'demo';
+  const COL = { ok: '#2F7A4A', dif: '#B3261E', pen: '#8E8E89' };
+  // cada dato se busca por el nombre del campo que extrajo el agente; null = ese documento no suele traerlo
+  const CAMPOS = [
+    { id: 'direccion', label: 'Dirección', campo: 'Dirección del inmueble' },
+    { id: 'titular', label: 'Propietario o titular', campo: ['Titular actual', 'Transmitente (vendedor)'] },
+    { id: 'superficie', label: 'Superficie', campo: 'Superficie del predio' },
+    { id: 'numero', label: 'Número oficial', campo: 'Número oficial' },
+    { id: 'predio', label: 'Identificación del predio', campo: 'Identificación del predio' },
+    { id: 'cuenta', label: 'Cuenta catastral', campo: 'Clave catastral' }
+  ];
+  const ans = {}; let visor = [], vi = -1, vz = 1, expCat = null, campo = 'direccion', fase = 'listo', rev = {}, leyendo = false, timers = [];
+  $('rail').innerHTML = rail('validacion');
+  $('volver').href = 'analizador.html?exp=' + encodeURIComponent(EXP);
+
+  const docs = () => Estado.get(EXP).docs, corr = k => (ans[k] ? (Estado.get(EXP).corr[ans[k].id] || {}) : {});
+  // el análisis de cada documento (escritura, predial, alineamiento, uso de suelo) trae sus datos con los mismos nombres de campo
+  const paso = (c, k) => { const a = ans[k]; if (!a) return null; for (const n of [].concat(c.campo)) { const p = a.pasos.find(x => x.campo === n); if (p) return p; } return null; };
+  // valor de un campo en un documento: solo la escritura tiene análisis; los demás están sin recibir o en cola
+  function celda(c, tipo) {
+    const d = docs()[tipo.k];
+    if (!d) return { v: null, est: 'falta' };
+    if (!ans[tipo.k]) return { v: null, est: 'cola' };
+    const p = paso(c, tipo.k);
+    if (!p && tipo.k === 'escrituras' && (c.id === 'numero' || c.id === 'predio')) {          // en escrituras sin esos campos se leen de la dirección
+      const dp = ans.escrituras.pasos.find(x => x.campo === 'Dirección del inmueble'), t = dp && (corr('escrituras')[dp.n] || dp.valor), m = t && t.match(c.id === 'numero' ? /No\.?\s*([\w\/]+)/i : /Lote\s+\w+,\s*Manzana\s+\w+/i);
+      if (m) return { v: c.id === 'numero' ? m[1] : m[0], est: /No legible/.test(t) ? 'ilegible' : 'ok', p: dp };
+    }
+    if (!p || /^No consta/.test(p.valor)) return { v: null, est: 'na', p };
+    return { v: corr(tipo.k)[p.n] || p.valor, est: /No legible|Contraste/.test(p.valor) ? 'ilegible' : 'ok', p };
+  }
+  function resultado(c) {
+    const cs = TIPOS.map(t => celda(c, t)).filter(x => x.est === 'ok');
+    if (cs.length < 2) return 'pen';
+    if (c.id === 'superficie') {                                       // regla VC-03: tolerancia de ±2 %
+      const n = cs.map(x => parseFloat(String(x.v).replace(/,/g, ''))), mx = Math.max(...n), mn = Math.min(...n);
+      if (n.every(isFinite)) return (mx - mn) / mx <= 0.02 ? 'ok' : 'dif';
+    }
+    let vs = cs.map(x => Modulo.normalizar(x.v));
+    if (c.id === 'cuenta') vs = vs.map(v => v.replace(/\s+/g, ''));        // 63 01 144 006 = 6301144006
+    const mismo = c.id === 'numero' || c.id === 'cuenta' ? (a, b) => a === b : (a, b) => a === b || a.includes(b) || b.includes(a);   // direcciones y nombres: uno puede contener al otro
+    return vs.every(a => vs.every(b => mismo(a, b))) ? 'ok' : 'dif';
+  }
+  // palabras de un valor que no aparecen en ningún otro documento: son las que hacen que difiera
+  function marcar(v, otros) {
+    const set = new Set(otros.flatMap(o => Modulo.normalizar(o).split(' ').filter(Boolean)));
+    return String(v).split(/\s+/).filter(Boolean).map(w => { const ps = Modulo.normalizar(w).split(' ').filter(Boolean); return ps.length && ps.every(p => !set.has(p)) ? `<mark>${escapar(w)}</mark>` : escapar(w); }).join(' ');
+  }
+  const otrosValores = (c, k) => TIPOS.filter(t => t.k !== k).map(t => celda(c, t)).filter(x => x.est === 'ok').map(x => x.v);
+  const conMarca = (c, k, v, res) => res === 'dif' ? marcar(v, otrosValores(c, k)) : escapar(v);
+  // recorte ampliado alrededor del dato: devuelve el estilo de la imagen y de la caja roja, en porcentajes del recorte
+  function recorte(pg, r) {
+    const pa = pg.w / pg.h, ex = Math.max(r[2] * .2, .03), ey = Math.max(r[3] * .8, .015);
+    const e = { x: Math.max(0, r[0] - ex), y: Math.max(0, r[1] - ey) }; e.w = Math.min(1, r[0] + r[2] + ex) - e.x; e.h = Math.min(1, r[1] + r[3] + ey) - e.y;
+    const A = Math.min(Math.max(e.w * pa / e.h, 1.6), 5);
+    const iw = e.w * pa / e.h >= A ? 1 / e.w : (1 / A / e.h) * pa, ih = iw / pa;
+    const left = .5 - (e.x + e.w / 2) * iw, top = .5 / A - (e.y + e.h / 2) * ih;
+    return { A, img: `left:${left * 100}%;top:${top * A * 100}%;width:${iw * 100}%`, caja: `left:${(left + r[0] * iw) * 100}%;top:${(top + r[1] * ih) * A * 100}%;width:${r[2] * iw * 100}%;height:${r[3] * ih * A * 100}%` };
+  }
+  const esperar = ms => new Promise(r => timers.push(setTimeout(r, ms)));
+  const limpiar = () => { timers.forEach(clearTimeout); timers = []; };
+  const visible = id => fase !== 'corre' || !!rev[id];
+
+  function pintar() {
+    const c = CAMPOS.find(x => x.id === campo), res = resultado(c), mostrar = visible(c.id), lee = fase === 'corre' && leyendo;
+    const cuenta = { ok: 0, dif: 0, pen: 0 }; CAMPOS.forEach(x => { if (visible(x.id)) cuenta[resultado(x)]++; });
+    $('nOk').textContent = cuenta.ok; $('nDif').textContent = cuenta.dif; $('nPen').textContent = cuenta.pen;
+    $('sub').textContent = `EXP · ${expCat ? expCat.nombre : (typeof TIENDAS === 'undefined' ? [] : TIENDAS).find(t => t.id === EXP)?.dir || 'sin nombre'} · ${TIPOS.filter(t => docs()[t.k]).length} de 4 documentos`;
+    $('runTxt').textContent = fase === 'corre' ? `Analizando ${Math.min(CAMPOS.length, CAMPOS.findIndex(x => x.id === campo) + 1)}/${CAMPOS.length}` : 'Analizar de nuevo';
+    $('prog').style.width = fase === 'corre' ? (CAMPOS.filter(x => rev[x.id]).length / CAMPOS.length * 100) + '%' : '0';
+    $('tabs').innerHTML = CAMPOS.map(x => `<button role="tab" aria-selected="${x.id === campo}" class="${x.id === campo ? 'on' : ''}" data-c="${x.id}"><i style="${visible(x.id) ? `background:${COL[resultado(x)]}` : ''}"></i>${x.label}</button>`).join('');
+
+    const rec = r => `inset(${r[1] * 100}% ${(1 - r[0] - r[2]) * 100}% ${(1 - r[1] - r[3]) * 100}% ${r[0] * 100}% round 3px)`;
+    visor = [];
+    $('cols').innerHTML = TIPOS.map(t => {
+      const cl = celda(c, t), nombre = t.t, pg = ans[t.k] ? ans[t.k].paginas[(cl.p ? cl.p.pagina : 1) - 1] : null;
+      const est = lee ? 'leyendo…' : cl.est === 'falta' ? 'no recibido' : cl.est === 'cola' ? 'en cola' : cl.est === 'na' ? 'no aplica' : cl.est === 'ilegible' ? 'ilegible' : (res === 'dif' ? 'difiere' : res === 'ok' ? 'coincide' : 'sin contraste');
+      const col = lee ? '#6A6A65' : cl.est === 'ok' ? COL[res] : cl.est === 'ilegible' ? COL.dif : '#8E8E89';
+      const dif = !lee && cl.est === 'ok' && res === 'dif', r = cl.p ? cl.p.rect : null;
+      const html = lee ? 'leyendo…' : cl.v ? (dif ? conMarca(c, t.k, cl.v, res) : escapar(cl.v)) : '—';
+      let marco, ver = '', rc = '';
+      if (cl.est === 'na') marco = '<div class="vacia">Este documento no contiene este dato.</div>';
+      else if (!pg) marco = `<div class="vacia">${cl.est === 'cola' ? 'Documento recibido. Esperando el análisis de los agentes.' : cl.est === 'falta' ? 'Documento no recibido. Sin él no se puede contrastar este dato.' : ''}</div>`;
+      else {
+        marco = `<div class="hojita"><img alt="" src="${pg.img}" style="filter:blur(2px) grayscale(.4);opacity:${r ? .5 : .35}">${r ? `<div class="n" style="clip-path:${rec(r)}"><img alt="" src="${pg.img}"></div><div class="c" style="top:${r[1] * 100}%;left:${r[0] * 100}%;width:${r[2] * 100}%;height:${r[3] * 100}%;border-color:${col};border-style:${lee ? 'dashed' : 'solid'}"></div>` : ''}</div>`;
+        if (r && !lee) {
+          visor.push({ doc: nombre, pagina: cl.p.pagina, label: c.label, html, img: pg.img, r, col });
+          ver = `data-ver="${visor.length - 1}"`;
+          const q = recorte(pg, r);
+          rc = `<div class="rec" ${ver} style="aspect-ratio:${q.A}" title="Ampliar documento"><img alt="" src="${pg.img}" style="${q.img}"><div class="c" style="${q.caja};border-color:${col}"></div><span class="lupa">Ampliar</span></div>`;
+        }
+      }
+      return `<section class="col"><div class="h"><b>${nombre}</b><span style="color:${col}">${est}</span></div><div class="valor" style="${dif ? 'border-color:#B3261E' : ''}">${rc}<small>${c.label}</small><span style="${cl.v ? '' : 'color:#8E8E89'}">${html}</span></div>
+        <div class="marco" ${ver} style="${dif ? 'box-shadow:inset 0 0 0 2px #B3261E' : ''}">${marco}</div></section>`;
+    }).join('');
+
+    const vals = TIPOS.map(t => Object.assign({ doc: t.t }, celda(c, t))).filter(x => x.est === 'ok'), sinDato = TIPOS.filter(t => celda(c, t).est !== 'ok').map(t => t.t);
+    const grupos = []; vals.forEach(x => { const k = Modulo.normalizar(x.v), g = grupos.find(y => y.k === k); if (g) g.docs.push(x.doc); else grupos.push({ k, v: x.v, docs: [x.doc] }); });
+    const fondo = lee ? '#FAFAF8' : res === 'dif' ? '#FCEEEC' : res === 'ok' ? '#F0F6F2' : '#F4F3EF', barra = lee ? '#1B1B1A' : COL[res];
+    $('banda').style.cssText = `background:${fondo};box-shadow:inset 4px 0 0 ${barra}`;
+    $('banda').innerHTML = `<div style="display:flex;flex-direction:column;gap:4px;min-width:200px"><span class="k">Dato seleccionado</span><span class="t">${c.label}</span></div>
+      <span class="pill" style="${lee ? 'border:1px dashed #1B1B1A' : `color:#fff;background:${barra}`}">${lee ? 'Analizando…' : res === 'dif' ? '≠  Requiere revisión' : res === 'ok' ? '=  Coincide en todos' : 'Sin contraste posible'}</span>
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;flex:1">${mostrar && !lee ? grupos.map(g => `<span class="grupo" style="${res === 'dif' ? 'border-color:#E7B3AE' : res === 'pen' ? 'border-color:#D3D1CA' : ''}"><b>${res === 'dif' ? marcar(g.v, grupos.filter(y => y !== g).map(y => y.v)) : escapar(g.v)}</b><span>${escapar(g.docs.join(' · '))}</span></span>`).join('') : ''}
+        ${mostrar && !lee && sinDato.length ? `<span style="font-size:12px;color:#8E8E89">Sin dato en: ${escapar(sinDato.join(', '))}</span>` : ''}</div>`;
+
+    $('thead').innerHTML = `<tr><th style="width:200px">Dato</th>${TIPOS.map(t => `<th>${t.t}</th>`).join('')}<th style="text-align:right;width:140px">Resultado</th></tr>`;
+    $('tbody').innerHTML = CAMPOS.map(x => {
+      const r = resultado(x), v = visible(x.id), cur = fase === 'corre' && campo === x.id;
+      const cel = TIPOS.map(t => { const cl = celda(x, t); return `<td class="${cl.v && v ? '' : 'na'}">${!v ? (cur ? 'leyendo…' : '· · ·') : cl.v ? conMarca(x, t.k, cl.v, r) : cl.est === 'falta' ? 'no recibido' : '—'}</td>`; }).join('');
+      const bg = !v ? '#8E8E89' : COL[r];
+      return `<tr class="${x.id === campo ? 'sel' : ''}" id="row-${x.id}"><th scope="row"><button data-c="${x.id}"><span class="ic2" style="background:${v ? bg : '#E6E4DE'};${v ? '' : 'color:#6A6A65'}">${!v ? (cur ? '…' : '·') : r === 'dif' ? '≠' : r === 'ok' ? '=' : '?'}</span>${x.label}</button></th>${cel}
+        <td class="r">${v ? `<span class="res" style="${r === 'dif' ? 'background:#B3261E;color:#fff' : r === 'ok' ? 'color:#2F7A4A;border:1px solid #BFD9C7;background:#F0F6F2' : 'color:#6A6A65;border:1px solid #D3D1CA'}">${r === 'dif' ? '≠  Revisar' : r === 'ok' ? '=  Coincide' : 'Sin contraste'}</span>` : `<span style="font-size:12px;color:#6A6A65">${cur ? 'analizando…' : '—'}</span>`}</td></tr>`;
+    }).join('');
+    const n = TIPOS.filter(t => docs()[t.k]).length;
+    $('nota').textContent = n < 2 ? 'Solo hay un documento con análisis: para comparar un dato hacen falta al menos dos. Los datos que ningún documento recibido trae aparecen como «—».' : '';
+  }
+
+  function elegir(id) { if (fase === 'corre') { limpiar(); fase = 'listo'; leyendo = false; } campo = id; pintar(); const f = document.getElementById('row-' + id); if (f) f.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+  async function correr() {
+    limpiar(); fase = 'corre'; rev = {};
+    for (const c of CAMPOS) {
+      campo = c.id; leyendo = true; pintar(); await esperar(1000);
+      if (fase !== 'corre') return; rev[c.id] = true; leyendo = false; pintar(); await esperar(900);
+      if (fase !== 'corre') return;
+    }
+    fase = 'listo'; campo = CAMPOS[0].id; pintar();
+  }
+  document.addEventListener('click', e => { const b = e.target.closest('[data-c]'); if (b) elegir(b.dataset.c); });
+  const vArea = $('visArea'), vPg = $('visPg'), acota = (n, a, b) => Math.min(Math.max(n, a), b);
+  function visorTam(z, fx, fy) {
+    vz = acota(z, .6, 8); vPg.style.width = vArea.clientWidth * vz + 'px';
+    vArea.scrollLeft = fx * vPg.offsetWidth - vArea.clientWidth / 2; vArea.scrollTop = fy * vPg.offsetHeight - vArea.clientHeight / 2;
+  }
+  const alDato = () => { const r = visor[vi].r; visorTam(acota(.5 / r[2], 1, 6), r[0] + r[2] / 2, r[1] + r[3] / 2); };
+  function visorMostrar(i) {
+    if (!visor.length) return;
+    vi = (i + visor.length) % visor.length; const it = visor[vi], r = it.r;
+    $('vis').classList.add('on');
+    $('visDoc').textContent = `${it.doc} · página ${it.pagina} · ${vi + 1} de ${visor.length}`; $('visDato').textContent = it.label; $('visVal').innerHTML = it.html;
+    vPg.innerHTML = `<img alt="" src="${it.img}"><div class="c" style="top:${r[1] * 100}%;left:${r[0] * 100}%;width:${r[2] * 100}%;height:${r[3] * 100}%;border-color:#B3261E;box-shadow:0 0 0 2px rgba(255,255,255,.85)"></div>`;
+    vPg.style.width = vArea.clientWidth + 'px'; alDato();
+    const im = vPg.querySelector('img'); if (!im.complete) im.onload = alDato;
+  }
+  const visorCierra = () => $('vis').classList.remove('on');
+  const zoomCentro = f => visorTam(vz * f, (vArea.scrollLeft + vArea.clientWidth / 2) / vPg.offsetWidth, (vArea.scrollTop + vArea.clientHeight / 2) / vPg.offsetHeight);
+  document.addEventListener('click', e => { const v = e.target.closest('[data-ver]'); if (v) visorMostrar(+v.dataset.ver); });
+  $('visCerrar').onclick = visorCierra; $('visPrev').onclick = () => visorMostrar(vi - 1); $('visNext').onclick = () => visorMostrar(vi + 1);
+  $('visMas').onclick = () => zoomCentro(1.4); $('visMenos').onclick = () => zoomCentro(1 / 1.4); $('visDato2').onclick = alDato;
+  document.addEventListener('keydown', e => {
+    if (!$('vis').classList.contains('on')) return;
+    if (e.key === 'Escape') visorCierra(); else if (e.key === 'ArrowLeft') visorMostrar(vi - 1); else if (e.key === 'ArrowRight') visorMostrar(vi + 1);
+    else if (e.key === '+' || e.key === '=') zoomCentro(1.4); else if (e.key === '-') zoomCentro(1 / 1.4);
+  });
+  vArea.addEventListener('wheel', e => { if (e.ctrlKey || e.metaKey) { e.preventDefault(); const rc = vPg.getBoundingClientRect(); visorTam(vz * (e.deltaY < 0 ? 1.12 : 1 / 1.12), acota((e.clientX - rc.left) / rc.width, 0, 1), acota((e.clientY - rc.top) / rc.height, 0, 1)); } }, { passive: false });
+  let arr = null;
+  vArea.addEventListener('mousedown', e => { arr = { x: e.clientX, y: e.clientY, l: vArea.scrollLeft, t: vArea.scrollTop }; vArea.classList.add('arr'); });
+  window.addEventListener('mousemove', e => { if (arr) { vArea.scrollLeft = arr.l - (e.clientX - arr.x); vArea.scrollTop = arr.t - (e.clientY - arr.y); } });
+  window.addEventListener('mouseup', () => { arr = null; vArea.classList.remove('arr'); });
+  $('btnRun').onclick = () => { if (fase !== 'corre') correr(); };
+
+  (async () => {
+    const cat = await Datos.expedientes();
+    expCat = cat.find(x => x.id === EXP) || null;
+    // sin expediente elegido: se muestra el primero del catálogo con sus documentos reales
+    if (EXP === 'demo') { expCat = cat.find(x => x.id === 'tepeji5') || cat[0] || null; const d = docs().predial; if (expCat && (!d || !d.analisis)) await Modulo.asignarDocumentos(EXP, expCat); }
+    else if (expCat && !Object.keys(docs()).length) await Modulo.asignarDocumentos(EXP, expCat);
+    for (const t of TIPOS) { const a = docs()[t.k]; ans[t.k] = a && a.analisis ? await Datos.analisis(a.analisis) : null; }
+    pintar();
+  })();
+  window.__validacion = { estado: () => ({ campo, fase, resultados: CAMPOS.map(c => resultado(c)), vistos: CAMPOS.filter(c => visible(c.id)).length }), correr, elegir };
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+{
+ "id": "01-escritura-2",
+ "archivo": "01 Escritura.pdf",
+ "titulo": "Compraventa · Ecatepec · Notaría 57",
+ "paginas": [
+  {
+   "n": 1,
+   "img": "paginas/01-escritura-2/p1.jpg",
+   "w": 1000,
+   "h": 1647
+  },
+  {
+   "n": 2,
+   "img": "paginas/01-escritura-2/p2.jpg",
+   "w": 1000,
+   "h": 1647
+  }
+ ],
+ "total_paginas": 2,
+ "pasos": [
+  {
+   "pagina": 1,
+   "rect": [
+    0.2548,
+    0.1726,
+    0.3205,
+    0.0203
+   ],
+   "agente": "Clasificador",
+   "campo": "Tipo documental",
+   "valor": "Escritura pública · Contrato de compraventa",
+   "ok": true,
+   "nota": "Coincide con el tipo esperado en el expediente.",
+   "confianza": 1,
+   "n": 1,
+   "t": "00:00.7"
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.3836,
+    0.051,
+    0.2282,
+    0.0185
+   ],
+   "agente": "Extractor",
+   "campo": "Autoridad emisora",
+   "valor": "Notario Público No. 57",
+   "ok": true,
+   "nota": "",
+   "confianza": 1,
+   "n": 2,
+   "t": "00:01.5"
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.362,
+    0.1107,
+    0.3055,
+    0.0198
+   ],
+   "agente": "Extractor",
+   "campo": "Instrumento y volumen",
+   "valor": "Instrumento número 62,390 · Volumen 1,871",
+   "ok": true,
+   "nota": "",
+   "confianza": 1,
+   "n": 3,
+   "t": "00:02.5"
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.3898,
+    0.1358,
+    0.2285,
+    0.0212
+   ],
+   "agente": "Extractor",
+   "campo": "Fecha de otorgamiento",
+   "valor": "30 de enero de 2018",
+   "ok": true,
+   "nota": "",
+   "confianza": 1,
+   "n": 4,
+   "t": "00:03.2"
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.1515,
+    0.1922,
+    0.393,
+    0.0198
+   ],
+   "agente": "Extractor",
+   "campo": "Transmitente (vendedor)",
+   "valor": "Rogelio Avendano Tellez",
+   "ok": true,
+   "nota": "Debe coincidir con el titular que consta en el expediente.",
+   "confianza": 1,
+   "n": 5,
+   "t": "00:04.0"
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.1515,
+    0.1922,
+    0.7664,
+    0.04
+   ],
+   "agente": "Extractor",
+   "campo": "Adquirente (comprador)",
+   "valor": "Silvia Adriana Penaloza Ruiz",
+   "ok": true,
+   "nota": "",
+   "confianza": 1,
+   "n": 6,
+   "t": "00:05.0"
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.1515,
+    0.2794,
+    0.7664,
+    0.0574
+   ],
+   "agente": "Validación cruzada",
+   "campo": "Dirección del inmueble",
+   "valor": "Avenida de las Torres No. S/N, Lote 12, Manzana 3, Col. El Mirador, Municipio de Ocotlán de las Torres, Estado de México",
+   "ok": false,
+   "nota": "Falta contrastarla con la dirección del predial y del alineamiento (no están en el expediente).",
+   "confianza": 1,
+   "n": 7,
+   "t": "00:05.7"
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.4169,
+    0.3157,
+    0.3537,
+    0.021
+   ],
+   "agente": "Validación cruzada",
+   "campo": "Superficie del predio",
+   "valor": "300.00 m²",
+   "ok": true,
+   "nota": "Coincide con las medidas y colindancias (20.00 × 15.00 m = 300.00 m²).",
+   "confianza": 1,
+   "n": 8,
+   "t": "00:06.6"
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.1491,
+    0.3359,
+    0.3452,
+    0.0214
+   ],
+   "agente": "Extractor",
+   "campo": "Clave catastral",
+   "valor": "077 04 310 12 00 0000",
+   "ok": true,
+   "nota": "",
+   "confianza": 1,
+   "n": 9,
+   "t": "00:07.6"
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.5015,
+    0.5203,
+    0.4164,
+    0.0221
+   ],
+   "agente": "Reglas de escrituras",
+   "campo": "Libertad de gravamen",
+   "valor": "Declarado libre de gravámenes",
+   "ok": false,
+   "nota": "Es una declaración de la parte vendedora. Confirmar con el certificado de libertad de gravamen.",
+   "confianza": 1,
+   "n": 10,
+   "t": "00:08.3"
+  },
+  {
+   "pagina": 1,
+   "rect": [
+    0.5414,
+    0.6691,
+    0.2484,
+    0.0193
+   ],
+   "agente": "Extractor",
+   "campo": "Precio de la operación",
+   "valor": "$1,380,000.00",
+   "ok": true,
+   "nota": "",
+   "confianza": 1,
+   "n": 11,
+   "t": "00:09.1"
+  }
+ ],
+ "resumen": {
+  "pasos": 11,
+  "validados": 9,
+  "revisar": 2
+ },
+ "nota": "Resultado de ejemplo generado localmente (OCR + reglas). El backend real producirá este mismo formato.",
+ "bytes": 635187,
+ "originales": [
+  "01 Escritura!!.pdf"
+ ]
+}
