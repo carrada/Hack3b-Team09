@@ -3,22 +3,59 @@
  * Contrato con el backend: el análisis de cada PDF llega como `analisis/<id>.json`
  *   { id, archivo, titulo, paginas:[{n,img,w,h}], pasos:[{n,pagina,rect,agente,campo,valor,ok,nota,t}], resumen }
  * donde rect = [x, y, ancho, alto] normalizado (0..1, origen arriba a la izquierda).
- * Mientras no haya backend, esos archivos los genera un script local (OCR + reglas) con el mismo formato. */
+ * Esas rutas las responde el backend multiagente (api/servidor.py) con el análisis real de los agentes;
+ * los PDFs se suben a `api/expedientes/<exp>/documentos` y se analizan en segundo plano. */
 (function () {
   const LLAVE = 'exp3b';
   const cache = {};
+  const API = 'api/expedientes/';
+  const dormir = ms => new Promise(r => setTimeout(r, ms));
 
-  // Recibe PDFs y los clasifica: los que reconoce (por nombre y tamaño) quedan como Escritura analizada; los demás, en cola.
-  async function recibir(exp, files, tipo) {
-    const docs = Object.assign({}, Estado.get(exp).docs), msgs = [];
+  // Envía los PDFs al backend: los agentes los clasifican por contenido, extraen, validan y cruzan.
+  // `alAvanzar(estado)` se llama mientras esperan en la fila y cuando el análisis termina (estado.estado = 'listo' | 'error').
+  async function recibir(exp, files, tipo, alAvanzar) {
+    const msgs = [], pdfs = [];
     for (const file of files) {
       if (!/\.pdf$/i.test(file.name) && file.type !== 'application/pdf') { msgs.push(file.name + ': no es un PDF'); continue; }
-      const m = await Datos.buscarPorArchivo(file);
-      if (m) { const k = m.tipo || 'escrituras'; docs[k] = { analisis: m.id, archivo: file.name }; msgs.push(file.name + ' → clasificado como ' + nombreTipo(k)); }
-      else if (tipo) { docs[tipo] = { archivo: file.name }; msgs.push(file.name + ' recibido; el backend lo analizará'); }
-      else msgs.push(file.name + ': aún no hay análisis disponible');
+      pdfs.push(file);
     }
-    Estado.set(exp, { docs }); return msgs;
+    if (!pdfs.length) return msgs;
+    const fd = new FormData(); pdfs.forEach(f => fd.append('files', f)); if (tipo) fd.append('tipo', tipo);
+    let r;
+    try { r = await fetch(API + encodeURIComponent(exp) + '/documentos', { method: 'POST', body: fd }); }
+    catch (e) { msgs.push('No hay conexión con el backend de análisis'); return msgs; }
+    if (!r.ok) { msgs.push('El backend no aceptó los archivos (' + r.status + ')'); return msgs; }
+    const j = await r.json();
+    j.rechazados.forEach(m => msgs.push(m));
+    if (tipo && j.recibidos.length) {                       // mientras se analiza, el documento queda "en cola de análisis"
+      const docs = Object.assign({}, Estado.get(exp).docs); docs[tipo] = { archivo: j.recibidos[0] }; Estado.set(exp, { docs });
+    }
+    if (j.recibidos.length) { msgs.push(j.recibidos.length === 1 ? j.recibidos[0] + ' recibido; los agentes lo están analizando' : j.recibidos.length + ' PDF recibidos; los agentes los están analizando'); seguir(exp, alAvanzar); }
+    return msgs;
+  }
+
+  // Pregunta al backend por el análisis del expediente hasta que termine; al terminar asigna los documentos analizados.
+  const siguiendo = {};
+  async function seguir(exp, alAvanzar) {
+    if (siguiendo[exp]) { siguiendo[exp].push(alAvanzar); return; }
+    siguiendo[exp] = [alAvanzar];
+    const avisar = e => siguiendo[exp].forEach(f => f && f(e));
+    try {
+      for (;;) {
+        let e; try { e = await (await fetch(API + encodeURIComponent(exp))).json(); } catch (x) { await dormir(3000); continue; }
+        if (e.estado === 'listo') {
+          Datos.limpiar(); const docs = {};
+          Object.keys(e.docs).forEach(k => { docs[k] = { analisis: e.docs[k], archivo: e.archivos[k] }; Estado.reiniciar(exp, e.docs[k]); });
+          Estado.set(exp, { docs }); avisar(e); return;
+        }
+        if (e.estado === 'error' || e.estado === 'sin_documentos') { avisar(e); return; }
+        avisar(e); await dormir(3000);
+      }
+    } finally { delete siguiendo[exp]; }
+  }
+  // al abrir una pantalla: si el backend sigue analizando este expediente, se retoma la espera
+  async function retomar(exp, alAvanzar) {
+    try { const e = await (await fetch(API + encodeURIComponent(exp))).json(); if (e.estado === 'en_fila' || e.estado === 'procesando') seguir(exp, alAvanzar); } catch (x) {}
   }
 
   const Datos = {
@@ -38,12 +75,8 @@
       }
       return cache[id];
     },
-    // un archivo PDF elegido por el usuario se reconoce por nombre y tamaño (el backend real lo analizaría)
-    async buscarPorArchivo(file) {
-      const idx = await this.indice();
-      return idx.find(d => d.bytes === file.size && (d.originales || []).includes(file.name))
-          || idx.find(d => d.bytes === file.size) || null;
-    }
+    // tras un análisis nuevo se vuelven a pedir índice, expedientes y documentos
+    limpiar() { Object.keys(cache).forEach(k => delete cache[k]); }
   };
 
   /* ----- estado por expediente (se guarda en este navegador) ----- */
@@ -227,5 +260,5 @@
   const escapar = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const parametros = () => new URLSearchParams(location.search);
 
-  window.Modulo = { Datos, Estado, recibir, normalizar, asignarDocumentos, cruce, nav, hrefMapa, TIPOS, SEV, REGLAS, hallazgos, hora, nombreTipo, estadoPaso, resumen, rail, escapar, parametros };
+  window.Modulo = { Datos, Estado, recibir, seguir, retomar, normalizar, asignarDocumentos, cruce, nav, hrefMapa, TIPOS, SEV, REGLAS, hallazgos, hora, nombreTipo, estadoPaso, resumen, rail, escapar, parametros };
 })();

@@ -100,6 +100,30 @@ Límites conocidos (aceptables para el hackatón):
 | Estado | `InMemorySaver` | Checkpointer de LangGraph en Postgres (sobrevive reinicios, permite HITL días después) |
 | Archivos | `.cache/` local | Almacenamiento de objetos (S3/Blob) con caché de lectura por hash compartida |
 
+## Frontend tiendas-3b conectado al backend (API)
+
+```powershell
+python -m api                      # → http://localhost:8000  (sirve tiendas-3b/ y la API)
+```
+
+El módulo `tiendas-3b/` (mapa, analizador, cruce de datos y revisión por agentes) ya no usa análisis precalculados:
+cada PDF que se sube se manda al backend, los agentes lo clasifican por contenido, extraen, validan y cruzan, y el
+frontend recibe el resultado en su mismo contrato (`tiendas-3b/modulo.js`).
+
+| Ruta | Qué devuelve |
+|---|---|
+| `POST /api/expedientes/<exp>/documentos` | Sube PDFs (`files`, opcional `tipo`, `uso`); se analizan en segundo plano |
+| `GET /api/expedientes/<exp>` | `en_fila` · `procesando` · `listo` · `error`, documentos y dictamen del backend |
+| `GET /analisis/indice.json` · `/analisis/expedientes.json` · `/analisis/<id>.json` | Contrato del frontend, con datos reales |
+| `GET /paginas/<id>/p<n>.jpg` | Imagen de la página |
+
+- [api/contrato.py](api/contrato.py) traduce el resultado del grafo: datos extraídos (cita verificada → `ok`), reglas que
+  no cumplen y discrepancias del Validador cruzado se vuelven `pasos` con agente, página y recuadro (`rect`).
+- `rect`: exacto en PDFs con texto; en escaneos (leídos por el modelo de visión) se ubica el renglón de tinta que
+  corresponde a la línea transcrita (aproximado).
+- Usa la misma fila que Streamlit: un análisis local a la vez en la GPU. Los PDFs y resultados viven en `.cache/api/`
+  (ignorado por git).
+
 ## Frontend Next.js (`frontend/`)
 
 Frontend de expedientes (Next.js). El código está en la carpeta `frontend/`.

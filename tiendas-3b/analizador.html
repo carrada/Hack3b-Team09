@@ -324,8 +324,18 @@
   $('listaDocs').addEventListener('click', e => { const b = e.target.closest('[data-doc]'); if (b) { elegirDoc(b.dataset.doc); pintar(); } });
   $('fArchivo').addEventListener('change', async e => {
     if (!e.target.files.length) return;
-    await recibir(EXP, [...e.target.files], docSel); await cargar(); elegirDoc(docSel); pintar();
+    await recibir(EXP, [...e.target.files], docSel, alAvanzar); await cargar(); elegirDoc(docSel); pintar();
   });
+  // el backend avisa cuando los agentes terminan: se recargan los análisis y se vuelve a pintar
+  async function alAvanzar(ev) {
+    if (ev.estado === 'listo' || ev.estado === 'error') {
+      await cargar();
+      // los agentes clasifican por contenido: si el PDF resultó de otro tipo, se abre donde quedó
+      const k = docs()[docSel] ? docSel : (TIPOS.find(t => ans[t.k]) || {}).k || docSel;
+      elegirDoc(k); pintar();
+    }
+    if (ev.estado === 'error') $('pendLabel').textContent = 'El análisis falló: ' + (ev.error || 'error del backend');
+  }
   $('chkDim').onchange = e => { dim = e.target.checked; pintarVisor(); };
   $('selZoom').onchange = e => { zoom = +e.target.value; pintarVisor(); };
   $('fAnt').onclick = () => ciclar(-1); $('fSig').onclick = () => ciclar(1);
@@ -350,6 +360,7 @@
     const pedido = an && an.pasos.find(x => x.n === +P.get('sel'));
     if (pedido) { const h = lista.find(x => x.n === pedido.n); if (h) sel = h.n; else { sel = null; loc = pedido.n; } }
     pintar(); if (sel) irA('mk-' + sel); else if (loc) irA('loc');
+    Modulo.retomar(EXP, alAvanzar);
   })();
 
   window.__analizador = { estado: () => ({ id: an && an.id, sel, loc, doc: docSel, pendientes: pend().length, hallazgos: lista.length, dim, zoom }), seleccionar };

@@ -1053,18 +1053,17 @@
       }
     }
 
-    /* ---------- recibir PDFs: se clasifican por tipo documental ---------- */
+    /* ---------- recibir PDFs: el backend los clasifica por tipo documental y los analiza con los agentes ---------- */
     async function recibir(files, tipo) {
       const id = zonaAbierta; if (!id) return;
-      const docs = Object.assign({}, Estado.get(id).docs), msgs = [];
-      for (const file of files) {
-        if (!/\.pdf$/i.test(file.name) && file.type !== 'application/pdf') { msgs.push(file.name + ': no es un PDF'); continue; }
-        const m = await Datos.buscarPorArchivo(file);
-        if (m) { const k = m.tipo || 'escrituras'; docs[k] = { analisis: m.id, archivo: file.name }; msgs.push(file.name + ' → clasificado como ' + DOCS_LARGO[k]); }
-        else if (tipo) { docs[tipo] = { archivo: file.name }; msgs.push(file.name + ' recibido; el backend lo analizará'); }
-        else msgs.push(file.name + ': aún no hay análisis disponible');
-      }
-      Estado.set(id, { docs }); guardar(); aviso(msgs.join(' · ')); pintarPanel();
+      const msgs = await Modulo.recibir(id, files, tipo, ev => {
+        if (ev.estado === 'en_fila' && ev.posicion > 1) return;
+        if (ev.estado === 'listo') aviso('Análisis listo: ' + Object.keys(ev.docs).map(k => DOCS_LARGO[k]).join(', '));
+        else if (ev.estado === 'error') aviso('El análisis falló: ' + (ev.error || 'error del backend'));
+        else return;
+        guardar(); if (zonaAbierta === id) pintarPanel();
+      });
+      guardar(); aviso(msgs.join(' · ')); pintarPanel();
     }
 
     // un solo manejador para todo el panel de zona
