@@ -2,7 +2,7 @@
 
 Prototipo para revisar expedientes inmobiliarios (escritura, predial, alineamiento y número oficial, uso de suelo) sobre un mapa. Es HTML y JavaScript estático, sin paso de compilación.
 
-**Video de demostración:** [`demo/demo.mp4`](demo/demo.mp4) (3 min 16 s).
+**Video de demostración:** [`video`](video.md) (3 min 16 s).
 
 ## Qué hace
 
