@@ -1,0 +1,37 @@
+tipo: escrituras
+nombre: "Escritura pública"
+clasificacion:
+  palabras_clave: [escritura, notario, notaria, "fe publica", protocolo, compraventa, volumen,
+                   "registro publico de la propiedad", "folio real", otorgantes, comparecen, instrumento]
+campos:
+  - {nombre: propietario, obligatorio: true, descripcion: "Nombre completo del adquirente/titular ACTUAL (persona física o moral), no el vendedor"}
+  - {nombre: tipo_persona, obligatorio: false, descripcion: "fisica o moral"}
+  - {nombre: curp_rfc_propietario, obligatorio: false, descripcion: "CURP o RFC del titular si aparece, tal cual"}
+  - {nombre: direccion, obligatorio: true, descripcion: "Ubicación del inmueble: calle, número, colonia/fraccionamiento, municipio, estado"}
+  - {nombre: numero_oficial, obligatorio: false, descripcion: "Número exterior/oficial del inmueble"}
+  - {nombre: colonia, obligatorio: false, descripcion: "Colonia o fraccionamiento"}
+  - {nombre: codigo_postal, obligatorio: false, descripcion: "Código postal"}
+  - {nombre: municipio, obligatorio: false, descripcion: "Municipio o alcaldía"}
+  - {nombre: lote_manzana, obligatorio: false, descripcion: "Lote, manzana, fracción o identificación del predio"}
+  - {nombre: clave_catastral, obligatorio: false, descripcion: "Clave o cuenta catastral si se menciona"}
+  - {nombre: superficie, obligatorio: true, descripcion: "Superficie del terreno con unidad (ej. 450.00 m2)"}
+  - {nombre: numero_escritura, obligatorio: true, descripcion: "Número de escritura o instrumento"}
+  - {nombre: notaria, obligatorio: true, descripcion: "Número de notaría y nombre del notario"}
+  - {nombre: fecha_escritura, obligatorio: true, descripcion: "Fecha de otorgamiento de la escritura"}
+  - {nombre: folio_real, obligatorio: false, descripcion: "Folio real / datos de inscripción en el Registro Público"}
+  - {nombre: acto_juridico, obligatorio: false, descripcion: "Acto: compraventa, donación, adjudicación, etc."}
+reglas:
+  - {id: ESC-01, tipo: campo_presente, campo: propietario, severidad: critica, si_falla: requiere_revision,
+     descripcion: "La escritura identifica al propietario o titular"}
+  - {id: ESC-02, tipo: campo_presente, campo: direccion, severidad: critica, si_falla: requiere_revision,
+     descripcion: "La escritura identifica la ubicación del inmueble"}
+  - {id: ESC-03, tipo: campo_presente, campo: superficie, severidad: menor, si_falla: requiere_revision,
+     descripcion: "La escritura indica la superficie del terreno"}
+  - {id: ESC-04, tipo: campo_presente, campo: notaria, severidad: menor, si_falla: requiere_revision,
+     descripcion: "Se identifica la notaría / notario que da fe"}
+  - {id: ESC-05, tipo: campo_presente, campo: folio_real, severidad: menor, si_falla: requiere_revision,
+     descripcion: "Hay datos de inscripción en el Registro Público"}
+  - {id: ESC-06, tipo: curp_rfc, campo: curp_rfc_propietario, severidad: menor, si_falla: requiere_revision,
+     descripcion: "CURP/RFC del titular con formato y dígito verificador válidos (si aparece)"}
+  - {id: ESC-07, tipo: autoridad_kb, campo: notaria, severidad: info, si_falla: info,
+     descripcion: "Notaría registrada en la base de conocimiento"}

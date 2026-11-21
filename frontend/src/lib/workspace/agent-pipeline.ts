@@ -1,43 +1,51 @@
 import type { StatusMarkState } from "@/components/ui/StatusMark";
 
+/** Los 6 agentes del grafo, con los textos de la rama backend. El Dictamen es el cierre, no el séptimo. */
 export const AGENT_PIPELINE_STEPS = [
   {
-    id: "clasificador",
-    label: "01 · Clasificador Documental",
-    runningMessage: "Clasificando documentos del expediente...",
-    thought: "Leyendo y clasificando cada documento",
+    id: "recepcion",
+    label: "01 · Recepción",
+    runningMessage: "OCR, clasificación por contenido y agrupación...",
+    thought: "Recepción: OCR, clasificación por contenido y agrupación",
   },
   {
-    id: "extractor",
-    label: "02 · Extractor Especializado",
-    runningMessage: "Extrayendo campos clave por documento...",
-    thought: "Extrayendo los campos de cada tipo documental",
+    id: "escrituras",
+    label: "02 · Especialista Escrituras",
+    runningMessage: "Extrayendo la escritura y evaluando sus reglas...",
+    thought: "Especialista Escrituras: valor, página y fragmento",
   },
   {
-    id: "reglas",
-    label: "03 · Validador de Reglas",
-    runningMessage: "Evaluando criterios y reglas normativas...",
-    thought: "Evaluando reglas y criterios del expediente",
+    id: "predial",
+    label: "03 · Especialista Predial",
+    runningMessage: "Extrayendo el predial y evaluando sus reglas...",
+    thought: "Especialista Predial: valor, página y fragmento",
   },
   {
-    id: "cruzado",
-    label: "04 · Validador Cruzado",
-    runningMessage: "Contrastando datos entre documentos...",
-    thought: "Cruzando dirección, titular y superficie",
+    id: "alineamiento",
+    label: "04 · Especialista Alineamiento y Número Oficial",
+    runningMessage: "Extrayendo alineamiento y número oficial...",
+    thought: "Especialista Alineamiento y Número Oficial",
   },
   {
-    id: "evidencia",
-    label: "05 · Verificador de Evidencia",
-    runningMessage: "Anclando hallazgos a página y fragmento...",
-    thought: "Anclando cada hallazgo a su página",
+    id: "uso_suelo",
+    label: "05 · Especialista Uso de Suelo",
+    runningMessage: "Extrayendo uso de suelo y evaluando sus reglas...",
+    thought: "Especialista Uso de Suelo",
   },
   {
-    id: "dictaminador",
-    label: "06 · Dictaminador y Explicador Legal",
-    runningMessage: "Redactando recomendación y justificación...",
-    thought: "Redactando la recomendación para el equipo legal",
+    id: "validador_cruzado",
+    label: "06 · Validador cruzado",
+    runningMessage: "Cruzando dirección, número oficial, propietario y superficie...",
+    thought: "Validador cruzado: corre siempre",
   },
 ] as const;
+
+export const DICTAMEN_CIERRE = {
+  id: "dictamen",
+  label: "Cierre · Dictamen",
+  detail:
+    "Verifica cada cita contra el OCR, calcula la confianza y emite Cumple, Requiere revisión o No cumple. Si no es Cumple, deja los puntos para la revisión humana.",
+} as const;
 
 export function thoughtStepsForStatuses(
   statuses: readonly StatusMarkState[],

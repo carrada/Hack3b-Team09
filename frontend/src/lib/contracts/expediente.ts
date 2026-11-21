@@ -178,6 +178,7 @@ export type CrearExpedienteResponse = z.infer<typeof CrearExpedienteResponseSche
 export const HealthResponseSchema = z.object({
   status: z.enum(["ok", "degraded"]),
   version: z.string().optional(),
+  detalle: z.string().nullable().optional(),
 });
 export type HealthResponse = z.infer<typeof HealthResponseSchema>;
 

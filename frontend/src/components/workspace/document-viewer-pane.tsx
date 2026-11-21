@@ -10,6 +10,7 @@ export interface DocumentViewerTarget {
   documentoId: string;
   nombreArchivo: string;
   tipoDocumento: TipoDocumento;
+  etiquetaTipo?: string;
   file?: File;
   url?: string;
   page?: number;
@@ -66,7 +67,7 @@ export function DocumentViewerPane({
             </p>
             <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
               <Badge variant="secondary" className="border-border text-primary">
-                {TIPO_DOCUMENTO_LABELS[target.tipoDocumento]}
+                {target.etiquetaTipo ?? TIPO_DOCUMENTO_LABELS[target.tipoDocumento]}
               </Badge>
               {target.page && target.page > 0 && (
                 <Badge variant="outline" className="border-border bg-white">

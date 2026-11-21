@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { env } from "@/lib/config/env";
+import { resolveApiBaseUrl } from "@/lib/config/env";
 
 export class ApiClientError extends Error {
   readonly status: number;
@@ -29,18 +29,46 @@ export interface RequestOptions<TSchema extends z.ZodType> {
 
 const DEFAULT_TIMEOUT_MS = 30_000;
 
+function esAbort(error: unknown): boolean {
+  return (
+    (error instanceof DOMException || error instanceof Error) &&
+    error.name === "AbortError"
+  );
+}
+
+function mensajeDetalle(payload: unknown): string | null {
+  if (typeof payload !== "object" || payload === null || !("detail" in payload)) {
+    return null;
+  }
+  const detail = payload.detail;
+  if (typeof detail === "string" && detail.trim()) return detail;
+  if (Array.isArray(detail)) {
+    const partes = detail.map((item) => {
+      if (typeof item === "string") return item;
+      if (typeof item === "object" && item !== null && "msg" in item) {
+        return String(item.msg);
+      }
+      return "";
+    });
+    const texto = partes.filter(Boolean).join(" ");
+    return texto || null;
+  }
+  return null;
+}
+
 export async function apiRequest<TSchema extends z.ZodType>(
   path: string,
   options: RequestOptions<TSchema>,
 ): Promise<z.infer<TSchema>> {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-  const url = `${env.apiBaseUrl}${normalizedPath}`;
+  const url = `${resolveApiBaseUrl()}${normalizedPath}`;
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(
-    () => controller.abort(),
-    options.timeoutMs ?? DEFAULT_TIMEOUT_MS,
-  );
+  let timedOut = false;
+  const timeoutId = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, options.timeoutMs ?? DEFAULT_TIMEOUT_MS);
 
   const onExternalAbort = () => controller.abort();
   options.signal?.addEventListener("abort", onExternalAbort, { once: true });
@@ -76,12 +104,8 @@ export async function apiRequest<TSchema extends z.ZodType>(
 
     if (!response.ok) {
       const errorMessage =
-        typeof payload === "object" &&
-        payload !== null &&
-        "detail" in payload &&
-        typeof payload.detail === "string"
-          ? payload.detail
-          : `Error HTTP ${response.status} al consultar ${normalizedPath}`;
+        mensajeDetalle(payload) ??
+        `Error HTTP ${response.status} al consultar ${normalizedPath}`;
 
       throw new ApiClientError(errorMessage, {
         status: response.status,
@@ -108,24 +132,28 @@ export async function apiRequest<TSchema extends z.ZodType>(
       throw error;
     }
 
-    if (error instanceof DOMException && error.name === "AbortError") {
+    if (esAbort(error)) {
       throw new ApiClientError(
-        "Tiempo de espera agotado al comunicarse con el backend.",
+        timedOut
+          ? "Tiempo de espera agotado al comunicarse con el backend."
+          : "La petición se cortó antes de una respuesta (la página se recargó o se canceló).",
         {
-          status: 408,
-          code: "TIMEOUT",
+          status: timedOut ? 408 : 0,
+          code: timedOut ? "TIMEOUT" : "ABORTED",
+          details: error,
         },
       );
     }
 
-    throw new ApiClientError(
-      "No fue posible conectar con el backend configurado.",
-      {
-        status: 0,
-        code: "NETWORK_ERROR",
-        details: error,
-      },
-    );
+    const causa =
+      error instanceof Error && error.message.trim()
+        ? error.message.trim()
+        : "la petición se cortó antes de una respuesta";
+    throw new ApiClientError(`No fue posible conectar con el backend: ${causa}.`, {
+      status: 0,
+      code: "NETWORK_ERROR",
+      details: error,
+    });
   } finally {
     clearTimeout(timeoutId);
     options.signal?.removeEventListener("abort", onExternalAbort);
