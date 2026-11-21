@@ -97,7 +97,9 @@ async def analisis(
             nombre = Path(upload.filename or f"documento-{indice}").name
             if nombre in {"", ".", ".."}:
                 nombre = f"documento-{indice}"
-            destino = Path(tmp) / f"{indice:02d}-{nombre}"
+            # Carpeta por archivo para conservar el nombre original (el visor lo cruza con la carga).
+            destino = Path(tmp) / f"{indice:02d}" / nombre
+            destino.parent.mkdir(parents=True, exist_ok=True)
             data = await upload.read()
             if not data:
                 raise HTTPException(status_code=400, detail=f"El archivo {nombre} está vacío.")

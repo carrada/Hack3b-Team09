@@ -1,6 +1,6 @@
 "use client";
 
-import { FileSearch } from "lucide-react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -9,13 +9,22 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { DocumentoLadoALado } from "@/components/workspace/documento-lado-a-lado";
 import {
   ETIQUETA_RECOMENDACION,
-  NOMBRES_TIPO_BACKEND,
   type AnalisisEstado,
-  type EvidenciaBackend,
   type RecomendacionBackend,
 } from "@/lib/contracts";
+import { etiquetaCampo } from "@/lib/workspace/campos-documento";
+
+type Seccion = "resumen" | "documentos" | "cruces" | "bitacora";
+
+const SECCIONES: { id: Seccion; label: string }[] = [
+  { id: "resumen", label: "Resumen" },
+  { id: "documentos", label: "Documentos" },
+  { id: "cruces", label: "Cruces" },
+  { id: "bitacora", label: "Bitácora" },
+];
 
 function variante(recomendacion: RecomendacionBackend) {
   if (recomendacion === "cumple") return "success" as const;
@@ -23,36 +32,34 @@ function variante(recomendacion: RecomendacionBackend) {
   return "warning" as const;
 }
 
-function cita(ev?: EvidenciaBackend | null): string {
-  if (!ev?.fragmento) return "—";
-  const marca = ev.verificada ? "verificada" : "no verificada";
-  return `${ev.documento_id} p.${ev.pagina}: «${ev.fragmento}» (${marca})`;
-}
-
 export function ResultadoView({
   analisis,
+  files,
+  manuales,
   isRunning,
   error,
   elapsedSec,
-  onPreviewDoc,
 }: {
   analisis: AnalisisEstado | null;
+  files: File[];
+  manuales: Record<string, string>;
   isRunning: boolean;
   error: string | null;
   elapsedSec: number | null;
-  onPreviewDoc: (nombreArchivo: string, pagina?: number) => void;
 }) {
+  const [seccion, setSeccion] = useState<Seccion>("resumen");
+
   if (!analisis) {
     return (
       <Card className="border-border bg-white">
         <CardHeader>
           <CardTitle className="text-base">Aún no hay dictamen</CardTitle>
           <CardDescription>
-            Carga los archivos, elige tienda o CEDIS y espera a que el grafo
-            termine. Esta pantalla no simula agentes.
+            En Carga sube los PDF y detecta los campos. El dictamen aparece aquí
+            cuando el grafo termina.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent>
           {error && (
             <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
               {error}
@@ -66,261 +73,179 @@ export function ResultadoView({
     );
   }
 
-  const { dictamen, bitacora, resultados_verificados, cruces, discrepancias } =
-    analisis;
+  const { dictamen, bitacora, resultados_verificados, cruces, discrepancias } = analisis;
+  const capturas = Object.entries(manuales);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5">
       <Card className="border-border bg-white">
-        <CardHeader>
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <CardTitle className="text-base">Dictamen del grafo</CardTitle>
-            <Badge variant={variante(dictamen.recomendacion)}>
-              {ETIQUETA_RECOMENDACION[dictamen.recomendacion]}
-            </Badge>
-          </div>
-          <CardDescription>
-            Confianza {dictamen.confianza}/100 · uso {dictamen.uso_requerido} ·
-            citas {dictamen.citas_verificadas ?? 0}/{dictamen.citas_total ?? 0}
-            {dictamen.requiere_humano ? " · revisión humana" : ""}
-            {elapsedSec !== null ? ` · ${elapsedSec.toFixed(1)} s` : ""}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4 text-sm leading-relaxed text-foreground">
-          {dictamen.resumen && <p>{dictamen.resumen}</p>}
-          <div>
-            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-primary">
-              Razones
-            </p>
-            <ul className="space-y-1 text-sm">
-              {dictamen.razones.map((razon) => (
-                <li key={razon}>{razon}</li>
-              ))}
-            </ul>
-          </div>
-          {dictamen.requiere_humano && dictamen.puntos_a_verificar.length > 0 && (
+        <CardContent className="flex flex-col gap-4 pt-5">
+          <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-primary">
-                Puntos a verificar
+              <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+                Dictamen
               </p>
-              <ul className="list-disc space-y-1 pl-5">
-                {dictamen.puntos_a_verificar.map((punto) => (
-                  <li key={punto}>{punto}</li>
-                ))}
-              </ul>
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                <Badge variant={variante(dictamen.recomendacion)} className="text-sm">
+                  {ETIQUETA_RECOMENDACION[dictamen.recomendacion]}
+                </Badge>
+                <span className="text-sm text-muted-foreground">
+                  Confianza {dictamen.confianza}/100 · {dictamen.uso_requerido}
+                  {elapsedSec !== null ? ` · ${elapsedSec.toFixed(1)} s` : ""}
+                </span>
+              </div>
             </div>
+            {dictamen.requiere_humano && (
+              <Badge variant="warning">Revisión humana</Badge>
+            )}
+          </div>
+          <div className="h-2 overflow-hidden rounded-full bg-secondary">
+            <div
+              className="h-full rounded-full bg-primary"
+              style={{ width: `${Math.max(0, Math.min(100, dictamen.confianza))}%` }}
+            />
+          </div>
+          {dictamen.resumen && (
+            <p className="text-sm leading-relaxed text-foreground">{dictamen.resumen}</p>
           )}
+          <div className="grid gap-2 sm:grid-cols-3">
+            <Dato titulo="Recibidos" valor={String(dictamen.documentos_recibidos.length)} />
+            <Dato titulo="Faltantes" valor={String(dictamen.documentos_faltantes.length)} />
+            <Dato
+              titulo="Citas verificadas"
+              valor={`${dictamen.citas_verificadas ?? 0}/${dictamen.citas_total ?? 0}`}
+            />
+          </div>
         </CardContent>
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Lista titulo="Recibidos" items={dictamen.documentos_recibidos} vacio="Ninguno" />
-        <Lista titulo="Faltantes" items={dictamen.documentos_faltantes} vacio="Ninguno" />
-        <Lista
-          titulo="Descartados"
-          items={dictamen.documentos_descartados}
-          vacio="Ninguno"
-        />
+      <div className="flex flex-wrap gap-2">
+        {SECCIONES.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => setSeccion(item.id)}
+            className={`rounded-full border px-3 py-1 text-sm font-medium ${
+              seccion === item.id
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-border bg-white text-foreground"
+            }`}
+          >
+            {item.label}
+          </button>
+        ))}
       </div>
 
-      {resultados_verificados.map((resultado) => (
-        <Card key={resultado.documento_id} className="border-border bg-white">
-          <CardHeader>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <CardTitle className="text-base">
-                {NOMBRES_TIPO_BACKEND[resultado.tipo]} — {resultado.nombre_archivo}
-              </CardTitle>
-              <Badge variant={variante(resultado.estado)}>
-                {ETIQUETA_RECOMENDACION[resultado.estado]}
-              </Badge>
-            </div>
-            <CardDescription>
-              {resultado.agente}
-              {resultado.calidad_ocr !== undefined
-                ? ` · OCR ${(resultado.calidad_ocr * 100).toFixed(0)}%`
-                : ""}
-              {resultado.obligatorios_total !== undefined
-                ? ` · obligatorios ${resultado.obligatorios_encontrados ?? 0}/${resultado.obligatorios_total}`
-                : ""}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="text-xs uppercase text-muted-foreground">
-                  <tr>
-                    <th className="py-1 pr-3 font-medium">Campo</th>
-                    <th className="py-1 pr-3 font-medium">Valor</th>
-                    <th className="py-1 font-medium">Evidencia</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {resultado.campos
-                    .filter((campo) => campo.valor)
-                    .map((campo) => (
-                      <tr key={campo.nombre} className="border-t border-border align-top">
-                        <td className="py-2 pr-3">{campo.nombre}</td>
-                        <td className="py-2 pr-3">{campo.valor}</td>
-                        <td className="py-2">
-                          <button
-                            type="button"
-                            className="text-left text-primary underline-offset-2 hover:underline"
-                            onClick={() =>
-                              onPreviewDoc(
-                                resultado.nombre_archivo,
-                                campo.evidencia?.pagina,
-                              )
-                            }
-                          >
-                            {cita(campo.evidencia)}
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-            <ul className="space-y-2 text-sm">
-              {resultado.hallazgos.map((hallazgo) => (
-                <li key={`${hallazgo.regla_id}-${hallazgo.descripcion}`}>
-                  <span className="font-medium">{hallazgo.regla_id}</span>{" "}
-                  <span className="text-muted-foreground">({hallazgo.severidad})</span>{" "}
-                  {hallazgo.descripcion}
-                  {hallazgo.evidencias.length > 0 && (
-                    <ul className="mt-1 space-y-1 pl-4 text-xs text-muted-foreground">
-                      {hallazgo.evidencias.map((ev) => (
-                        <li key={`${ev.documento_id}-${ev.pagina}-${ev.fragmento}`}>
-                          {cita(ev)}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </li>
-              ))}
-            </ul>
-            {resultado.error && (
-              <p className="text-sm text-red-800">{resultado.error}</p>
-            )}
-          </CardContent>
-        </Card>
-      ))}
-
-      <Card className="border-border bg-white">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <FileSearch className="h-4 w-4 text-primary" />
-            Validaciones cruzadas
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="overflow-x-auto">
-          {cruces.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Sin cruces.</p>
-          ) : (
-            <table className="w-full text-left text-sm">
-              <thead className="text-xs uppercase text-muted-foreground">
-                <tr>
-                  <th className="py-1 pr-3 font-medium">Atributo</th>
-                  <th className="py-1 pr-3 font-medium">Valores</th>
-                  <th className="py-1 pr-3 font-medium">Score</th>
-                  <th className="py-1 font-medium">Resultado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {cruces.map((cruce) => (
-                  <tr
-                    key={`${cruce.atributo}-${cruce.score}-${Object.values(cruce.valores).join("|")}`}
-                    className="border-t border-border align-top"
-                  >
-                    <td className="py-2 pr-3">{cruce.atributo}</td>
-                    <td className="py-2 pr-3">
-                      {Object.entries(cruce.valores).map(([id, valor]) => (
-                        <div key={id}>
-                          {id}: {valor}
-                        </div>
-                      ))}
-                    </td>
-                    <td className="py-2 pr-3">{cruce.score.toFixed(0)}</td>
-                    <td className="py-2">
-                      {cruce.resultado} · {cruce.metodo}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </CardContent>
-      </Card>
-
-      {discrepancias.length > 0 && (
-        <Card className="border-border bg-white">
-          <CardHeader>
-            <CardTitle className="text-base">Inconsistencias</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            {discrepancias.map((item) => (
-              <div key={`${item.atributo}-${item.explicacion}`}>
-                <p>
-                  <span className="font-medium">{item.atributo}</span>{" "}
-                  <span className="text-muted-foreground">({item.severidad})</span>{" "}
-                  {item.explicacion}
-                </p>
-                <ul className="mt-1 text-xs text-muted-foreground">
-                  {Object.entries(item.valores).map(([id, valor]) => (
-                    <li key={id}>
-                      {id}: {valor}
+      {seccion === "resumen" && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          <Lista titulo="Por qué" items={dictamen.razones} vacio="Sin razones." />
+          <div className="flex flex-col gap-4">
+            <Lista titulo="Faltantes" items={dictamen.documentos_faltantes} vacio="Ninguno." />
+            <Lista titulo="Descartados" items={dictamen.documentos_descartados} vacio="Ninguno." />
+            <Lista
+              titulo="Puntos a verificar"
+              items={dictamen.puntos_a_verificar}
+              vacio="Ninguno."
+            />
+          </div>
+          {capturas.length > 0 && (
+            <Card className="border-border bg-white lg:col-span-2">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Capturas manuales</CardTitle>
+                <CardDescription>
+                  Las escribió el usuario en Carga. El grafo no las revalidó.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-1 text-sm">
+                  {capturas.map(([clave, valor]) => (
+                    <li key={clave}>
+                      <span className="font-medium">{etiquetaDeClave(clave, resultados_verificados)}</span>
+                      {": "}
+                      {valor}
                     </li>
                   ))}
-                  {item.evidencias.map((ev) => (
-                    <li key={`${ev.pagina}-${ev.fragmento}`}>{cita(ev)}</li>
-                  ))}
                 </ul>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Lista titulo="Requisitos cumplidos" items={dictamen.requisitos_cumplidos} vacio="Ninguno" />
-        <Lista
-          titulo="Requisitos no cumplidos"
-          items={dictamen.requisitos_no_cumplidos}
-          vacio="Ninguno"
+      {seccion === "documentos" && (
+        <DocumentoLadoALado
+          files={files}
+          resultados={resultados_verificados}
+          manuales={manuales}
+          editable={false}
         />
-      </div>
+      )}
 
-      {Object.keys(dictamen.senales_confianza).length > 0 && (
+      {seccion === "cruces" && (
+        <div className="flex flex-col gap-4">
+          {discrepancias.length > 0 && (
+            <Lista
+              titulo="Inconsistencias"
+              items={discrepancias.map(
+                (item) => `${item.atributo} (${item.severidad}): ${item.explicacion}`,
+              )}
+              vacio="Ninguna."
+            />
+          )}
+          <Card className="border-border bg-white">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Comparaciones del validador cruzado</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {cruces.length === 0 && (
+                <p className="text-sm text-muted-foreground">Sin cruces.</p>
+              )}
+              {cruces.map((cruce) => (
+                <div
+                  key={`${cruce.atributo}-${cruce.score}-${cruce.resultado}`}
+                  className="rounded-lg border border-border px-3 py-2 text-sm"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-medium">{cruce.atributo}</span>
+                    <Badge variant={cruce.resultado === "coincide" ? "success" : "warning"}>
+                      {cruce.resultado} · {cruce.score.toFixed(0)}
+                    </Badge>
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {Object.entries(cruce.valores)
+                      .map(([id, valor]) => `${id}: ${valor}`)
+                      .join(" · ")}
+                  </p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {seccion === "bitacora" && (
         <Card className="border-border bg-white">
-          <CardHeader>
-            <CardTitle className="text-base">Señales de confianza</CardTitle>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">Bitácora de los agentes</CardTitle>
           </CardHeader>
-          <CardContent className="grid gap-2 sm:grid-cols-2 text-sm">
-            {Object.entries(dictamen.senales_confianza).map(([clave, valor]) => (
-              <div key={clave} className="flex justify-between gap-3 border-b border-border py-1">
-                <span>{clave.replaceAll("_", " ")}</span>
-                <span>{Math.round(valor * 100)}%</span>
-              </div>
-            ))}
+          <CardContent>
+            <ol className="space-y-1 font-mono text-xs leading-relaxed">
+              {bitacora.map((linea, index) => (
+                <li key={`${index}-${linea}`}>{linea}</li>
+              ))}
+            </ol>
           </CardContent>
         </Card>
       )}
+    </div>
+  );
+}
 
-      <Card className="border-border bg-white">
-        <CardHeader>
-          <CardTitle className="text-base">Bitácora</CardTitle>
-          <CardDescription>
-            Líneas que escribieron Recepción, los especialistas, el Validador
-            cruzado y el Dictamen.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ol className="space-y-1 font-mono text-xs leading-relaxed text-foreground">
-            {bitacora.map((linea, index) => (
-              <li key={`${index}-${linea}`}>{linea}</li>
-            ))}
-          </ol>
-        </CardContent>
-      </Card>
+function Dato({ titulo, valor }: { titulo: string; valor: string }) {
+  return (
+    <div className="rounded-lg border border-border bg-secondary/30 px-3 py-2">
+      <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{titulo}</p>
+      <p className="text-sm font-semibold text-foreground">{valor}</p>
     </div>
   );
 }
@@ -343,7 +268,7 @@ function Lista({
         {items.length === 0 ? (
           <p className="text-sm text-muted-foreground">{vacio}</p>
         ) : (
-          <ul className="space-y-1 text-sm">
+          <ul className="space-y-1.5 text-sm leading-snug">
             {items.map((item) => (
               <li key={item}>{item}</li>
             ))}
@@ -352,4 +277,16 @@ function Lista({
       </CardContent>
     </Card>
   );
+}
+
+function etiquetaDeClave(
+  clave: string,
+  resultados: AnalisisEstado["resultados_verificados"],
+): string {
+  const separador = clave.indexOf("::");
+  const documentoId = separador >= 0 ? clave.slice(0, separador) : clave;
+  const nombre = separador >= 0 ? clave.slice(separador + 2) : clave;
+  const doc = resultados.find((item) => item.documento_id === documentoId);
+  const archivo = doc?.nombre_archivo ?? documentoId;
+  return `${archivo} · ${etiquetaCampo(nombre)}`;
 }

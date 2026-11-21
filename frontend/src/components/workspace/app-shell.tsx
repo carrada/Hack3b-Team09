@@ -13,17 +13,14 @@ import BranchedMenu, {
 } from "@/components/menu/BranchedMenu";
 import { Badge } from "@/components/ui/badge";
 import { CargaView } from "@/components/workspace/carga-view";
-import {
-  DocumentPreviewDrawer,
-  type PreviewDocumentTarget,
-} from "@/components/workspace/document-preview-drawer";
 import { EntryLoader } from "@/components/workspace/entry-loader";
 import { ExpedienteGuideView } from "@/components/workspace/expediente-guide-view";
 import { InicioPitchView } from "@/components/workspace/inicio-pitch-view";
 import { ResultadoView } from "@/components/workspace/resultado-view";
 import { ApiClientError, analizarExpediente } from "@/lib/api";
 import { env } from "@/lib/config/env";
-import type { AnalisisEstado, TipoDocumento, UsoRequerido } from "@/lib/contracts";
+import type { AnalisisEstado, UsoRequerido } from "@/lib/contracts";
+import { claveManual } from "@/lib/workspace/campos-documento";
 import { useBackendHealth } from "@/hooks/use-expedientes";
 
 type ViewId = "inicio" | "expediente" | "carga" | "resultado";
@@ -63,13 +60,13 @@ const VIEW_META: Record<
     badge: "Paso 03 · Ingesta",
     title: "Carga para el grafo",
     subtitle:
-      "Sube los archivos y elige tienda o CEDIS. Recepción clasifica por contenido; no hay edición de campos antes del análisis.",
+      "Sube los PDF, detecta los campos según el tipo de documento y completa a mano lo que falte, con el archivo a la vista.",
   },
   resultado: {
-    badge: "Paso 04 · Dictamen y evidencia",
+    badge: "Paso 04 · Dictamen",
     title: "Resultado del grafo",
     subtitle:
-      "Recomendación, confianza, citas verificadas, cruces y la bitácora que escribieron los agentes.",
+      "Primero la recomendación. Después documentos, cruces y la bitácora.",
   },
 };
 
@@ -82,17 +79,6 @@ function isViewId(value: string): value is ViewId {
   );
 }
 
-function tipoPreview(nombre: string): TipoDocumento {
-  const lower = nombre.toLowerCase();
-  if (lower.includes("predial")) return "predial";
-  if (lower.includes("alineamiento") || lower.includes("numero")) {
-    return "alineamiento_numero_oficial";
-  }
-  if (lower.includes("suelo") || lower.includes("uso")) return "uso_de_suelo";
-  if (lower.includes("escritura")) return "escritura";
-  return "otro";
-}
-
 export function AppShell() {
   const [activeView, setActiveView] = useState<ViewId>("inicio");
   const [menuSyncVersion, setMenuSyncVersion] = useState(0);
@@ -102,7 +88,7 @@ export function AppShell() {
   const [error, setError] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [elapsedSec, setElapsedSec] = useState<number | null>(null);
-  const [preview, setPreview] = useState<PreviewDocumentTarget | null>(null);
+  const [manuales, setManuales] = useState<Record<string, string>>({});
   const startedAtRef = useRef<number | null>(null);
   const health = useBackendHealth();
 
@@ -131,7 +117,7 @@ export function AppShell() {
     setAnalisis(null);
     setError(null);
     setElapsedSec(null);
-    setPreview(null);
+    setManuales({});
   };
 
   const handleFilesAdded = (newFiles: File[]) => {
@@ -161,8 +147,8 @@ export function AppShell() {
     try {
       const resultado = await analizarExpediente({ uso, archivos: files });
       setAnalisis(resultado);
+      setManuales({});
       setElapsedSec((performance.now() - startedAt) / 1000);
-      navigateProgrammatically("resultado");
     } catch (err) {
       const message =
         err instanceof ApiClientError
@@ -175,14 +161,13 @@ export function AppShell() {
     }
   };
 
-  const handlePreviewDoc = (nombreArchivo: string, pagina?: number) => {
-    const file = files.find((item) => item.name === nombreArchivo);
-    setPreview({
-      documentoId: nombreArchivo,
-      nombreArchivo,
-      tipoDocumento: tipoPreview(nombreArchivo),
-      file,
-      page: pagina,
+  const handleManualChange = (documentoId: string, nombre: string, valor: string) => {
+    const clave = claveManual(documentoId, nombre);
+    setManuales((prev) => {
+      const next = { ...prev };
+      if (!valor.trim()) delete next[clave];
+      else next[clave] = valor;
+      return next;
     });
   };
 
@@ -200,7 +185,6 @@ export function AppShell() {
   return (
     <div className="min-h-screen bg-white text-foreground flex flex-col md:flex-row">
       <EntryLoader />
-      <DocumentPreviewDrawer target={preview} onClose={() => setPreview(null)} />
 
       <aside className="no-print w-full shrink-0 border-b border-border bg-white md:w-72 md:border-r md:border-b-0">
         <div className="flex h-full flex-col px-6 py-7">
@@ -255,9 +239,9 @@ export function AppShell() {
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span>Uso</span>
+                <span>Capturas manuales</span>
                 <span className="rounded-full bg-white px-2.5 py-0.5 text-primary border border-border">
-                  {uso}
+                  {Object.keys(manuales).length}
                 </span>
               </div>
             </div>
@@ -270,7 +254,7 @@ export function AppShell() {
 
       <main className="flex-1 bg-white">
         <header className="border-b border-border bg-white px-6 py-6 md:px-10">
-          <div className="mx-auto max-w-5xl space-y-1.5">
+          <div className={`mx-auto space-y-1.5 ${activeView === "inicio" || activeView === "expediente" ? "max-w-5xl" : "max-w-7xl"}`}>
             <Badge variant="secondary" className="border-border text-primary">
               {meta.badge}
             </Badge>
@@ -283,7 +267,7 @@ export function AppShell() {
           </div>
         </header>
 
-        <div className="mx-auto max-w-5xl px-6 py-8 md:px-10">
+        <div className={`mx-auto px-6 py-8 md:px-10 ${activeView === "inicio" || activeView === "expediente" ? "max-w-5xl" : "max-w-7xl"}`}>
           {activeView === "inicio" && (
             <InicioPitchView
               onStartDemo={() => navigateProgrammatically("carga")}
@@ -301,18 +285,23 @@ export function AppShell() {
               onFilesAdded={handleFilesAdded}
               onRemoveByIndex={handleRemoveByIndex}
               onClear={handleClearFiles}
+              analisis={analisis}
+              manuales={manuales}
               onAnalizar={() => {
                 void handleAnalizar();
               }}
+              onManualChange={handleManualChange}
+              onVerDictamen={() => navigateProgrammatically("resultado")}
             />
           )}
           {activeView === "resultado" && (
             <ResultadoView
               analisis={analisis}
+              files={files}
+              manuales={manuales}
               isRunning={isRunning}
               error={error}
               elapsedSec={elapsedSec}
-              onPreviewDoc={handlePreviewDoc}
             />
           )}
         </div>
