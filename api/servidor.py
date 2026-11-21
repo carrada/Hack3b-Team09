@@ -25,7 +25,7 @@ from pathlib import Path
 
 import pymupdf as fitz
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from expediente.config import DIR_CACHE, RAIZ, proveedor
@@ -225,6 +225,16 @@ def pagina(aid: str, n: int):
 @app.get("/")
 def inicio():
     return RedirectResponse("/index.html")
+
+
+@app.get("/index.html")
+def mapa():
+    """El mapa trae el token de Mapbox como marcador; se inserta desde .env (MAPBOX_TOKEN) para no guardarlo en git."""
+    html = (FRONTEND / "index.html").read_text(encoding="utf-8")
+    token = os.getenv("MAPBOX_TOKEN", "").strip()
+    if token:
+        html = html.replace("PON_AQUI_TU_TOKEN_DE_MAPBOX", token)
+    return HTMLResponse(html, headers={"Cache-Control": "no-store"})
 
 
 # el frontend (al final: las rutas de arriba tienen prioridad sobre los archivos estáticos)
