@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 import uuid
 from pathlib import Path
 
@@ -13,7 +14,9 @@ import pymupdf as fitz
 import streamlit as st
 from langgraph.types import Command
 
-from expediente.config import DIR_CACHE, NOMBRES_TIPO, cfg, modelo, modelo_vision, modelos_ollama, soporta_vision
+from expediente.config import (DIR_CACHE, NOMBRES_TIPO, cfg, fijar_ajustes, modelo, modelo_vision, modelos_ollama,
+                               proveedor, soporta_vision)
+from expediente.fila import Fila
 from expediente.graph import construir_grafo
 from expediente.reporte import markdown
 from expediente.schemas import ETIQUETA, ICONO, Cruce, Dictamen, Documento, ResultadoDocumento
@@ -26,6 +29,12 @@ COLOR = {"cumple": "#1b873f", "requiere_revision": "#b7791f", "no_cumple": "#c53
 @st.cache_resource
 def grafo():
     return construir_grafo()
+
+
+@st.cache_resource
+def fila_global() -> Fila:
+    """Una sola fila para todas las sesiones del servidor (cache_resource = objeto compartido del proceso)."""
+    return Fila({"ollama": int(os.getenv("FILA_OLLAMA", "1")), "openai": int(os.getenv("FILA_OPENAI", "4"))})
 
 
 def render_pagina(ruta: str, pagina: int, fragmento: str | None) -> bytes | None:
@@ -91,13 +100,14 @@ with st.sidebar:
     st.markdown("**Modelo de lenguaje (lectura y agentes)**")
     prov = st.radio("Proveedor", ["openai", "ollama"], index=0 if os.getenv("LLM_PROVIDER", "ollama") == "openai" else 1,
                     format_func=lambda m: {"openai": "OpenAI (nube)", "ollama": "Ollama (local)"}[m])
-    os.environ["LLM_PROVIDER"] = prov
+    # Ajustes SOLO de esta sesión (no os.environ, que es global y lo comparten todos los usuarios)
+    modelo_sel = None
     if prov == "ollama":
         instalados = modelos_ollama()
         if instalados:
             actual = os.getenv("OLLAMA_MODEL", "qwen2.5vl:3b")
-            os.environ["OLLAMA_MODEL"] = st.selectbox("Modelo local", instalados,
-                                                      index=instalados.index(actual) if actual in instalados else 0)
+            modelo_sel = st.selectbox("Modelo local", instalados,
+                                      index=instalados.index(actual) if actual in instalados else 0)
         else:
             st.error("Ollama no responde en localhost:11434. Inícialo con `ollama serve` e instala un modelo "
                      "(`ollama pull qwen2.5vl:3b`).")
@@ -112,6 +122,10 @@ with st.sidebar:
                    "✅ Más rápido y más preciso en lectura y extracción.\n\n"
                    "⚠️ El texto y las imágenes de los escaneos se envían a la API y tienen costo por uso.\n\n"
                    "⚠️ Requiere conexión a internet y `OPENAI_API_KEY`.", icon="☁️")
+    fijar_ajustes(prov, modelo_sel)
+    ef = fila_global().estado(prov)
+    st.caption(f"🚦 Fila {'local' if prov == 'ollama' else 'nube'}: {ef['en_curso']}/{ef['capacidad']} en curso · "
+               f"{ef['esperando']} esperando")
     if not soporta_vision():
         st.error(f"«{modelo_vision()}» no tiene visión: los documentos escaneados no se podrán leer. "
                  "Elige un modelo multimodal (p. ej. `qwen2.5vl:3b`) o cambia a OpenAI.")
@@ -143,9 +157,7 @@ def cronometro():
         "</script>", height=28)
 
 
-def analizar(rutas: list[str]):
-    import time
-
+def analizar(rutas: list[str], espera: float = 0.0):
     config = {"configurable": {"thread_id": uuid.uuid4().hex}}
     st.session_state["config"] = config
     reloj = st.empty()
@@ -173,8 +185,53 @@ def analizar(rutas: list[str]):
         status.update(label=f"Análisis completo en {fmt_tiempo(total)}", state="complete", expanded=False)
     reloj.empty()
     tiempos = st.session_state.setdefault("tiempos", {})
-    tiempos[config["configurable"]["thread_id"]] = {"total": total, "etapas": etapas,
-                                                    "proveedor": os.getenv("LLM_PROVIDER", ""), "modelo": modelo()}
+    tiempos[config["configurable"]["thread_id"]] = {"total": total, "etapas": etapas, "espera": espera,
+                                                    "proveedor": proveedor(), "modelo": modelo()}
+
+
+# ------------------------------------------------------------------ fila compartida
+# El análisis pendiente y el turno viven en session_state: si la página se re-ejecuta (el usuario mueve algo
+# mientras espera), conserva su lugar en la fila en vez de volver a formarse al final.
+def encolar(rutas: list[str]):
+    st.session_state["pendiente"] = {"rutas": rutas, "prov": prov, "modelo": modelo_sel}
+
+
+def mandar_a_nube():
+    t = st.session_state.pop("turno", None)
+    if t is not None:
+        fila_global().salir(t)
+    st.session_state["pendiente"].update(prov="openai", modelo=None)
+
+
+def procesar_pendiente():
+    p, f = st.session_state["pendiente"], fila_global()
+    t = st.session_state.get("turno")
+    if t is None or t.proveedor != p["prov"]:
+        if t is not None:
+            f.salir(t)
+        t = st.session_state["turno"] = f.entrar(p["prov"])
+    fijar_ajustes(p["prov"], p["modelo"])
+    if not f.esperar(t, 0):
+        aviso, boton = st.empty(), st.empty()
+        if p["prov"] == "ollama" and os.getenv("OPENAI_API_KEY"):
+            boton.button("☁️ No esperar: analizar con OpenAI", on_click=mandar_a_nube,
+                         help="Sale de la fila local y corre el análisis en la nube (costo por uso).")
+        while not f.esperar(t, 1.0):  # cada vuelta es un latido; si se cierra la pestaña el turno caduca
+            e = f.estado(p["prov"])
+            aviso.info(f"⏳ **En fila para el modelo local** · posición {f.posicion(t)} · {e['en_curso']} análisis en curso "
+                       f"· espera estimada ~{fmt_tiempo(f.espera_estimada(t))} "
+                       f"(lleva {fmt_tiempo(time.monotonic() - t.llegada)} esperando)")
+        aviso.empty()
+        boton.empty()
+    completado = False
+    try:
+        analizar(p["rutas"], espera=t.inicio - t.llegada)
+        completado = True
+    finally:  # también corre si el análisis se interrumpe: el lugar se libera para el siguiente
+        f.salir(t, completado=completado)
+        st.session_state.pop("turno", None)
+        if completado:
+            st.session_state.pop("pendiente", None)
 
 
 b1, b2 = st.columns([1, 3])
@@ -186,13 +243,16 @@ if b1.button("▶️ Analizar expediente", type="primary", disabled=not archivos
         ruta = carpeta / Path(f.name).name
         ruta.write_bytes(f.getbuffer())
         rutas.append(str(ruta))
-    analizar(rutas)
+    encolar(rutas)
 
 EJEMPLOS = Path(__file__).parent / "ejemplos"
 if EJEMPLOS.exists():
     ej = b2.selectbox("…o usa un expediente sintético de prueba", [""] + sorted(x.name for x in EJEMPLOS.iterdir() if x.is_dir()))
     if ej and b2.button(f"Analizar ejemplo «{ej}»"):
-        analizar([str(x) for x in sorted((EJEMPLOS / ej).iterdir()) if x.is_file()])
+        encolar([str(x) for x in sorted((EJEMPLOS / ej).iterdir()) if x.is_file()])
+
+if st.session_state.get("pendiente"):
+    procesar_pendiente()
 
 config = st.session_state.get("config")
 if not config:
@@ -224,6 +284,8 @@ if tiempo:
     with st.expander(f"⏱️ Tiempo por etapa · total {fmt_tiempo(tiempo['total'])} · {tiempo['proveedor']} · {tiempo['modelo']}"):
         st.dataframe([{"etapa": k, "tiempo": fmt_tiempo(v), "% del total": f"{100 * v / max(tiempo['total'], 1e-9):.0f} %"}
                       for k, v in tiempo["etapas"].items()], width="stretch", hide_index=True)
+        if tiempo.get("espera", 0) >= 1:
+            st.caption(f"🚦 Además esperó {fmt_tiempo(tiempo['espera'])} en la fila antes de empezar (no incluido en el total).")
         st.caption("La lectura de escaneos queda en caché: una segunda corrida del mismo expediente es mucho más rápida.")
 st.write(d.resumen)
 

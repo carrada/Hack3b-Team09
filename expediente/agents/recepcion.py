@@ -9,10 +9,9 @@
 from __future__ import annotations
 
 import re
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from ..config import NOMBRES_TIPO, TIPOS, cfg, llm_estructurado, reglas
+from ..config import NOMBRES_TIPO, TIPOS, cfg, llm_estructurado, reglas, PoolConContexto
 from ..lectura import EXT_IMG, EXT_PDF, extraer_texto
 from ..schemas import ClasificacionLLM, Documento, ExpedienteState
 from ..tools import clave_normalizada, comparar_direcciones, comparar_nombres, norm
@@ -122,7 +121,7 @@ def preparar_documentos(archivos: list[str], bitacora: list[str]) -> tuple[list[
             return doc.model_copy(update={"descartado": True, "motivo_descarte": "Sin texto legible (posible foto o escaneo ilegible)"})
         return clasificar(doc, bitacora)
 
-    with ThreadPoolExecutor(max_workers=3) as ex:
+    with PoolConContexto(max_workers=3) as ex:
         docs = list(ex.map(procesar, archivos))
 
     for d in docs:

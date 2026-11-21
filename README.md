@@ -69,3 +69,33 @@ graph TD
 - `qwen2.5vl:3b` cabe completo en VRAM; un 7B no (≈60 % corre en CPU, ~8 tok/s).
 - Variables de Ollama recomendadas: `OLLAMA_FLASH_ATTENTION=1`, `OLLAMA_KV_CACHE_TYPE=q8_0`, `OLLAMA_MAX_LOADED_MODELS=1`.
 - En `.env`: `OLLAMA_NUM_CTX=12288` y `OLLAMA_KEEP_ALIVE=30m` (el modelo no se descarga entre documentos).
+
+## Varios usuarios al mismo tiempo
+Medido con `qwen2.5vl:3b` en una RTX 3050 Ti (4 GB): **1 análisis solo = 98 s; 2 intercalados = 326 s cada uno**.
+Ollama atiende una petición a la vez y, al alternar entre usuarios, pierde el contexto ya procesado del otro, así
+que mezclar es peor que esperar turno.
+
+Qué hace la app ([expediente/fila.py](expediente/fila.py)):
+- **Fila FIFO compartida** por todas las sesiones, con capacidad por proveedor (`FILA_OLLAMA=1`, `FILA_OPENAI=4`).
+  Con 2 usuarios en local: el 1º termina a los ~93 s y el 2º a los ~170 s (antes, ambos a los 326 s).
+- El usuario en espera ve su **posición y la espera estimada** (promedio de los últimos análisis) y puede
+  **mandar su análisis a OpenAI** con un botón si hay `OPENAI_API_KEY`.
+- Si mueve algo de la página mientras espera, **conserva su lugar**. Si cierra la pestaña, su turno **caduca** en
+  ~20 s y no bloquea a nadie. Si un análisis se interrumpe, el lugar se libera.
+- **Ajustes por sesión**: proveedor y modelo viven en un `ContextVar` por sesión (antes en `os.environ`, global:
+  un usuario le cambiaba el modelo a otro a media corrida).
+- **Caché de lectura segura**: escritura atómica y un candado por archivo; si dos usuarios suben el mismo PDF,
+  la GPU lo lee una sola vez.
+
+Límites conocidos (aceptables para el hackatón):
+- La fila vive en memoria de **un** proceso de Streamlit: la CLI u otra instancia de la app no la ven.
+- Los resultados (`InMemorySaver`) se pierden al reiniciar y crecen con cada análisis.
+
+### Cómo escalaría a muchos usuarios
+| Pieza | Hackatón (hoy) | Producción |
+|---|---|---|
+| Interfaz | Streamlit ejecuta el análisis en el hilo de la sesión | Frontend + API (FastAPI) que solo encola y consulta estado |
+| Cola | `Fila` en memoria | Redis + workers (RQ/Celery/Arq); reintentos, prioridades, tiempos límite |
+| Modelo | Ollama, 1 GPU de 4 GB, 1 petición a la vez | vLLM/TGI en GPU(s) de 24 GB+ con *continuous batching* (decenas de peticiones a la vez) o API en la nube; desborde automático a la nube cuando la cola crece |
+| Estado | `InMemorySaver` | Checkpointer de LangGraph en Postgres (sobrevive reinicios, permite HITL días después) |
+| Archivos | `.cache/` local | Almacenamiento de objetos (S3/Blob) con caché de lectura por hash compartida |

@@ -2,6 +2,9 @@
 from __future__ import annotations
 
 import os
+import threading
+from concurrent.futures import ThreadPoolExecutor
+from contextvars import ContextVar, copy_context
 from datetime import date
 from functools import lru_cache
 from pathlib import Path
@@ -45,13 +48,35 @@ def fecha_referencia() -> date:
 
 
 _LLMS: dict = {}
+_LLMS_LOCK = threading.Lock()
+
+# Ajustes POR SESIÓN (proveedor/modelo). En la app web varios usuarios comparten el proceso: os.environ es global
+# y un usuario le cambiaría el modelo a otro a media corrida. Un ContextVar vive en el hilo de cada sesión y
+# LangGraph lo copia a los hilos de sus nodos; para nuestros propios pools usar `PoolConContexto`.
+_AJUSTES: ContextVar[dict | None] = ContextVar("ajustes_llm", default=None)
+
+
+def fijar_ajustes(proveedor: str | None = None, modelo: str | None = None) -> None:
+    """Fija proveedor/modelo para el contexto actual (sesión de Streamlit). Sin llamar = valores de .env."""
+    _AJUSTES.set({"proveedor": proveedor, "modelo": modelo})
+
+
+class PoolConContexto(ThreadPoolExecutor):
+    """ThreadPoolExecutor que hereda los ajustes de la sesión que lanza cada tarea."""
+
+    def submit(self, fn, /, *args, **kwargs):
+        return super().submit(copy_context().run, fn, *args, **kwargs)
 
 
 def proveedor() -> str:
-    return os.getenv("LLM_PROVIDER", "openai").lower()
+    a = _AJUSTES.get()
+    return ((a or {}).get("proveedor") or os.getenv("LLM_PROVIDER", "openai")).lower()
 
 
 def modelo() -> str:
+    a = _AJUSTES.get() or {}
+    if a.get("modelo") and (a.get("proveedor") or "").lower() == proveedor():
+        return a["modelo"]
     if proveedor() == "ollama":
         return os.getenv("OLLAMA_MODEL", "qwen2.5vl:3b")
     return os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
@@ -106,7 +131,9 @@ def _crear(prov: str, nombre: str):
 def _obtener(nombre: str):
     clave = (proveedor(), nombre)
     if clave not in _LLMS:
-        _LLMS[clave] = _crear(*clave)
+        with _LLMS_LOCK:  # dos sesiones pueden pedir el mismo cliente a la vez
+            if clave not in _LLMS:
+                _LLMS[clave] = _crear(*clave)
     return _LLMS[clave]
 
 

@@ -10,14 +10,15 @@ import base64
 import hashlib
 import io
 import json
+import os
 import re
-from concurrent.futures import ThreadPoolExecutor
+import threading
 from pathlib import Path
 
 import pymupdf as fitz
 from PIL import Image
 
-from .config import DIR_CACHE, cfg, llm_vision, modelo_vision, proveedor
+from .config import DIR_CACHE, cfg, llm_vision, modelo_vision, proveedor, PoolConContexto
 from .schemas import Documento, Pagina
 
 EXT_PDF = {".pdf"}
@@ -76,10 +77,25 @@ def extraer_texto(ruta: str | Path, doc_id: str | None = None) -> Documento:
     DIR_CACHE.mkdir(parents=True, exist_ok=True)
     etiqueta = re.sub(r"[^\w.-]+", "-", f"{proveedor()}_{modelo_vision()}_{lcfg['lado_max_px']}")
     cache = DIR_CACHE / f"lectura_{h[:24]}_{etiqueta}.json"
-    if cache.exists():
-        paginas = [Pagina(**p) for p in json.loads(cache.read_text(encoding="utf-8"))]
-        return base.model_copy(update={"paginas": paginas})
+    # Un candado por archivo+modelo: si dos usuarios suben el mismo PDF a la vez, el segundo espera y usa la caché
+    # en lugar de mandar las mismas páginas otra vez a la GPU.
+    with _candado(str(cache)):
+        if cache.exists():
+            paginas = [Pagina(**p) for p in json.loads(cache.read_text(encoding="utf-8"))]
+            return base.model_copy(update={"paginas": paginas})
+        return _leer_documento(ruta, base, cache, lcfg)
 
+
+_CANDADOS: dict[str, threading.Lock] = {}
+_CANDADOS_LOCK = threading.Lock()
+
+
+def _candado(clave: str) -> threading.Lock:
+    with _CANDADOS_LOCK:
+        return _CANDADOS.setdefault(clave, threading.Lock())
+
+
+def _leer_documento(ruta: Path, base: Documento, cache: Path, lcfg: dict) -> Documento:
     ext = ruta.suffix.lower()
     nativos: dict[int, str] = {}
     pendientes: dict[int, bytes] = {}
@@ -103,7 +119,7 @@ def extraer_texto(ruta: str | Path, doc_id: str | None = None) -> Documento:
     leidas: dict[int, str] = {}
     fallos = 0
     if pendientes:
-        with ThreadPoolExecutor(max_workers=lcfg.get("hilos", 2)) as ex:
+        with PoolConContexto(max_workers=lcfg.get("hilos", 2)) as ex:
             futuros = {n: ex.submit(_leer_imagen, img) for n, img in pendientes.items()}
             for n, f in futuros.items():
                 try:
@@ -114,6 +130,8 @@ def extraer_texto(ruta: str | Path, doc_id: str | None = None) -> Documento:
     paginas = [Pagina(numero=n, texto=_limpiar(nativos[n] if n in nativos else leidas[n]),
                       fuente="nativo" if n in nativos else "vision")
                for n in sorted(set(nativos) | set(leidas))]
-    if not fallos:
-        cache.write_text(json.dumps([p.model_dump() for p in paginas], ensure_ascii=False), encoding="utf-8")
+    if not fallos:  # escritura atómica: nadie lee nunca un JSON a medio escribir
+        tmp = cache.with_suffix(f".{threading.get_ident()}.tmp")
+        tmp.write_text(json.dumps([p.model_dump() for p in paginas], ensure_ascii=False), encoding="utf-8")
+        os.replace(tmp, cache)
     return base.model_copy(update={"paginas": paginas})

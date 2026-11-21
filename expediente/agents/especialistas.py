@@ -10,9 +10,8 @@ Cada uno:
 """
 from __future__ import annotations
 
-from concurrent.futures import ThreadPoolExecutor
 
-from ..config import NOMBRES_TIPO, cfg, llm_estructurado, reglas
+from ..config import NOMBRES_TIPO, cfg, llm_estructurado, reglas, PoolConContexto
 from ..rules import evaluar
 from ..schemas import (Campo, Documento, EnvioEspecialista, Evidencia, ExtraccionLLM, Hallazgo,
                        ResultadoDocumento, peor)
@@ -99,7 +98,7 @@ def crear_especialista(tipo: str):
     def nodo(envio: EnvioEspecialista) -> dict:
         bitacora = [f"━━ Especialista {NOMBRES_TIPO[tipo]}: {len(envio['documentos'])} documento(s)"]
         docs = [Documento.model_validate(d) for d in envio["documentos"]]
-        with ThreadPoolExecutor(max_workers=3) as ex:
+        with PoolConContexto(max_workers=3) as ex:
             res = list(ex.map(lambda d: analizar_documento(d, tipo, envio["uso_requerido"], bitacora), docs))
         for r in res:
             bitacora.append(f"   ↳ {r.documento_id}: {r.estado}")
